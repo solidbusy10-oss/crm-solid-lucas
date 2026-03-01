@@ -1,21 +1,13 @@
-import { Facebook, DollarSign, Users, FileText, FileCheck, TrendingDown, Trophy, Crown, Medal, Award, MapPin, Building2, ShieldAlert, ShieldCheck, ShieldX } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Facebook, DollarSign, Users, FileText, FileCheck, TrendingDown, Trophy, Crown, Medal, Award, MapPin, ShieldCheck, ShieldAlert, Filter, Building2 } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from "recharts";
 import BrazilMap from "@/components/BrazilMap";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const stats = [
-  { label: "Total Gastado", value: "R$ 67.450", icon: DollarSign, color: "text-destructive" },
-  { label: "Total de Leads", value: "2.841", icon: Users, color: "text-primary" },
-  { label: "Total de Form", value: "1.247", icon: FileText, color: "text-primary" },
-  { label: "Total de Contrato", value: "312", icon: FileCheck, color: "text-success" },
-  { label: "Custo por Lead", value: "R$ 23,74", icon: TrendingDown, color: "text-foreground" },
-  { label: "Custo por Form", value: "R$ 54,09", icon: TrendingDown, color: "text-foreground" },
-  { label: "Custo por Contrato", value: "R$ 216,19", icon: TrendingDown, color: "text-foreground" },
-];
+// ── Data ──
 
-// Inviabilidade reasons
-// CEP Cabeado: INVIABILIDADE, CG, REPROVADO, JÁ CLIENTE, FRAUDE
-// CEP Não Cabeado: SEM COBERTURA, SEM CONDIÇÃO COMERCIAL
-
-interface StateViability {
+interface CityData {
+  city: string;
   state: string;
   uf: string;
   inviabilidade: number;
@@ -28,53 +20,47 @@ interface StateViability {
   instalado: number;
 }
 
-interface CityViability {
-  city: string;
-  state: string;
-  cg: number;
-  instalado: number;
-  viabilidade: number;
-}
-
-const stateViability: StateViability[] = [
-  { state: "São Paulo", uf: "SP", inviabilidade: 85, semCobertura: 12, semCondicao: 8, cg: 142, reprovado: 28, jaCliente: 45, fraude: 3, instalado: 198 },
-  { state: "Rio de Janeiro", uf: "RJ", inviabilidade: 62, semCobertura: 25, semCondicao: 15, cg: 98, reprovado: 18, jaCliente: 32, fraude: 2, instalado: 134 },
-  { state: "Minas Gerais", uf: "MG", inviabilidade: 48, semCobertura: 38, semCondicao: 22, cg: 72, reprovado: 15, jaCliente: 22, fraude: 1, instalado: 88 },
-  { state: "Bahia", uf: "BA", inviabilidade: 35, semCobertura: 45, semCondicao: 28, cg: 52, reprovado: 12, jaCliente: 15, fraude: 2, instalado: 58 },
-  { state: "Paraná", uf: "PR", inviabilidade: 30, semCobertura: 18, semCondicao: 10, cg: 65, reprovado: 10, jaCliente: 18, fraude: 1, instalado: 72 },
-  { state: "Rio Grande do Sul", uf: "RS", inviabilidade: 28, semCobertura: 22, semCondicao: 12, cg: 58, reprovado: 8, jaCliente: 15, fraude: 0, instalado: 65 },
-  { state: "Pernambuco", uf: "PE", inviabilidade: 22, semCobertura: 32, semCondicao: 18, cg: 38, reprovado: 8, jaCliente: 10, fraude: 1, instalado: 42 },
-  { state: "Ceará", uf: "CE", inviabilidade: 20, semCobertura: 35, semCondicao: 20, cg: 32, reprovado: 6, jaCliente: 8, fraude: 0, instalado: 38 },
-  { state: "Santa Catarina", uf: "SC", inviabilidade: 18, semCobertura: 15, semCondicao: 8, cg: 48, reprovado: 6, jaCliente: 12, fraude: 0, instalado: 55 },
-  { state: "Goiás", uf: "GO", inviabilidade: 15, semCobertura: 28, semCondicao: 14, cg: 28, reprovado: 5, jaCliente: 8, fraude: 1, instalado: 32 },
+const allCities: CityData[] = [
+  { city: "São Paulo", state: "São Paulo", uf: "SP", inviabilidade: 42, semCobertura: 5, semCondicao: 3, cg: 68, reprovado: 14, jaCliente: 22, fraude: 2, instalado: 92 },
+  { city: "Campinas", state: "São Paulo", uf: "SP", inviabilidade: 18, semCobertura: 3, semCondicao: 2, cg: 20, reprovado: 5, jaCliente: 8, fraude: 0, instalado: 25 },
+  { city: "Guarulhos", state: "São Paulo", uf: "SP", inviabilidade: 15, semCobertura: 2, semCondicao: 2, cg: 18, reprovado: 4, jaCliente: 7, fraude: 1, instalado: 22 },
+  { city: "Santos", state: "São Paulo", uf: "SP", inviabilidade: 10, semCobertura: 2, semCondicao: 1, cg: 12, reprovado: 3, jaCliente: 5, fraude: 0, instalado: 15 },
+  { city: "Rio de Janeiro", state: "Rio de Janeiro", uf: "RJ", inviabilidade: 35, semCobertura: 12, semCondicao: 8, cg: 45, reprovado: 10, jaCliente: 18, fraude: 1, instalado: 58 },
+  { city: "Niterói", state: "Rio de Janeiro", uf: "RJ", inviabilidade: 12, semCobertura: 5, semCondicao: 3, cg: 22, reprovado: 4, jaCliente: 6, fraude: 0, instalado: 28 },
+  { city: "Duque de Caxias", state: "Rio de Janeiro", uf: "RJ", inviabilidade: 15, semCobertura: 8, semCondicao: 4, cg: 18, reprovado: 4, jaCliente: 5, fraude: 1, instalado: 20 },
+  { city: "Belo Horizonte", state: "Minas Gerais", uf: "MG", inviabilidade: 28, semCobertura: 18, semCondicao: 10, cg: 38, reprovado: 8, jaCliente: 12, fraude: 1, instalado: 42 },
+  { city: "Uberlândia", state: "Minas Gerais", uf: "MG", inviabilidade: 10, semCobertura: 10, semCondicao: 6, cg: 18, reprovado: 4, jaCliente: 5, fraude: 0, instalado: 22 },
+  { city: "Contagem", state: "Minas Gerais", uf: "MG", inviabilidade: 10, semCobertura: 10, semCondicao: 6, cg: 16, reprovado: 3, jaCliente: 5, fraude: 0, instalado: 24 },
+  { city: "Curitiba", state: "Paraná", uf: "PR", inviabilidade: 15, semCobertura: 8, semCondicao: 4, cg: 35, reprovado: 5, jaCliente: 10, fraude: 0, instalado: 40 },
+  { city: "Londrina", state: "Paraná", uf: "PR", inviabilidade: 8, semCobertura: 5, semCondicao: 3, cg: 15, reprovado: 3, jaCliente: 4, fraude: 1, instalado: 16 },
+  { city: "Salvador", state: "Bahia", uf: "BA", inviabilidade: 20, semCobertura: 25, semCondicao: 15, cg: 28, reprovado: 6, jaCliente: 8, fraude: 1, instalado: 30 },
+  { city: "Feira de Santana", state: "Bahia", uf: "BA", inviabilidade: 15, semCobertura: 20, semCondicao: 13, cg: 24, reprovado: 6, jaCliente: 7, fraude: 1, instalado: 28 },
+  { city: "Porto Alegre", state: "Rio Grande do Sul", uf: "RS", inviabilidade: 14, semCobertura: 10, semCondicao: 5, cg: 32, reprovado: 4, jaCliente: 8, fraude: 0, instalado: 35 },
+  { city: "Recife", state: "Pernambuco", uf: "PE", inviabilidade: 12, semCobertura: 18, semCondicao: 10, cg: 22, reprovado: 4, jaCliente: 6, fraude: 1, instalado: 24 },
+  { city: "Fortaleza", state: "Ceará", uf: "CE", inviabilidade: 12, semCobertura: 20, semCondicao: 12, cg: 18, reprovado: 3, jaCliente: 5, fraude: 0, instalado: 22 },
+  { city: "Florianópolis", state: "Santa Catarina", uf: "SC", inviabilidade: 8, semCobertura: 6, semCondicao: 3, cg: 25, reprovado: 3, jaCliente: 6, fraude: 0, instalado: 30 },
+  { city: "Goiânia", state: "Goiás", uf: "GO", inviabilidade: 10, semCobertura: 15, semCondicao: 8, cg: 15, reprovado: 3, jaCliente: 5, fraude: 1, instalado: 18 },
 ];
 
-const cityViability: CityViability[] = [
-  { city: "São Paulo", state: "SP", cg: 68, instalado: 92, viabilidade: 85 },
-  { city: "Rio de Janeiro", state: "RJ", cg: 45, instalado: 58, viabilidade: 72 },
-  { city: "Belo Horizonte", state: "MG", cg: 38, instalado: 42, viabilidade: 68 },
-  { city: "Curitiba", state: "PR", cg: 35, instalado: 40, viabilidade: 78 },
-  { city: "Salvador", state: "BA", cg: 28, instalado: 30, viabilidade: 55 },
-  { city: "Porto Alegre", state: "RS", cg: 32, instalado: 35, viabilidade: 70 },
-  { city: "Recife", state: "PE", cg: 22, instalado: 24, viabilidade: 58 },
-  { city: "Fortaleza", state: "CE", cg: 18, instalado: 22, viabilidade: 52 },
-  { city: "Florianópolis", state: "SC", cg: 25, instalado: 30, viabilidade: 75 },
-  { city: "Goiânia", state: "GO", cg: 15, instalado: 18, viabilidade: 60 },
-  { city: "Campinas", state: "SP", cg: 20, instalado: 25, viabilidade: 80 },
-  { city: "Guarulhos", state: "SP", cg: 18, instalado: 22, viabilidade: 76 },
+const states = [...new Set(allCities.map(c => c.state))].sort();
+
+const stats = [
+  { label: "Total Gastado", value: "R$ 67.450", icon: DollarSign, color: "text-destructive" },
+  { label: "Total de Leads", value: "2.841", icon: Users, color: "text-primary" },
+  { label: "Total de Form", value: "1.247", icon: FileText, color: "text-primary" },
+  { label: "Total de Contrato", value: "312", icon: FileCheck, color: "text-success" },
+  { label: "Custo por Lead", value: "R$ 23,74", icon: TrendingDown, color: "text-foreground" },
+  { label: "Custo por Form", value: "R$ 54,09", icon: TrendingDown, color: "text-foreground" },
+  { label: "Custo por Contrato", value: "R$ 216,19", icon: TrendingDown, color: "text-foreground" },
 ];
 
-// Top 3 cities
-const topCG = [...cityViability].sort((a, b) => b.cg - a.cg).slice(0, 3);
-const topInstalado = [...cityViability].sort((a, b) => b.instalado - a.instalado).slice(0, 3);
-const topViabilidade = [...cityViability].sort((a, b) => b.viabilidade - a.viabilidade).slice(0, 3);
+// ── Podium styles ──
 
 const podiumStyles = {
   0: {
     border: "border-rank-gold/50",
     glow: "shadow-[0_0_25px_hsl(45_90%_55%/0.18)]",
     bg: "bg-gradient-to-br from-rank-gold/12 via-rank-gold/4 to-transparent",
-    avatarBg: "bg-gradient-to-br from-rank-gold/35 to-rank-gold/10 border-rank-gold/50",
     text: "text-rank-gold",
     badge: "bg-rank-gold text-primary-foreground",
     Icon: Crown,
@@ -84,7 +70,6 @@ const podiumStyles = {
     border: "border-rank-silver/40",
     glow: "shadow-[0_0_15px_hsl(210_10%_70%/0.1)]",
     bg: "bg-gradient-to-br from-rank-silver/8 via-rank-silver/2 to-transparent",
-    avatarBg: "bg-gradient-to-br from-rank-silver/25 to-rank-silver/8 border-rank-silver/40",
     text: "text-rank-silver",
     badge: "bg-rank-silver text-primary-foreground",
     Icon: Medal,
@@ -94,7 +79,6 @@ const podiumStyles = {
     border: "border-rank-bronze/40",
     glow: "shadow-[0_0_15px_hsl(25_60%_45%/0.1)]",
     bg: "bg-gradient-to-br from-rank-bronze/8 via-rank-bronze/2 to-transparent",
-    avatarBg: "bg-gradient-to-br from-rank-bronze/25 to-rank-bronze/8 border-rank-bronze/40",
     text: "text-rank-bronze",
     badge: "bg-rank-bronze text-primary-foreground",
     Icon: Award,
@@ -102,51 +86,124 @@ const podiumStyles = {
   },
 };
 
-const PodiumSection = ({ title, icon: SectionIcon, data, metric, metricLabel }: {
-  title: string;
-  icon: React.ElementType;
-  data: CityViability[];
-  metric: keyof CityViability;
-  metricLabel: string;
-}) => (
-  <div className="glass-card rounded-xl p-5 glow-primary">
-    <div className="flex items-center gap-2 mb-4">
-      <SectionIcon className="h-5 w-5 text-rank-gold" />
-      <h3 className="text-sm font-bold font-display text-foreground uppercase tracking-wider">{title}</h3>
+// ── Chart colors ──
+const COLORS = {
+  inviabilidade: "hsl(0 70% 55%)",
+  cg: "hsl(170 80% 45%)",
+  reprovado: "hsl(25 60% 45%)",
+  jaCliente: "hsl(210 10% 70%)",
+  fraude: "hsl(0 90% 40%)",
+  semCobertura: "hsl(45 90% 55%)",
+  semCondicao: "hsl(280 50% 55%)",
+  instalado: "hsl(145 65% 42%)",
+};
+
+const PIE_COLORS = [
+  "hsl(170 80% 45%)",
+  "hsl(0 70% 55%)",
+];
+
+// ── Custom Tooltip ──
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="glass-card rounded-lg p-3 text-xs border border-border/50">
+      <p className="font-bold font-display text-foreground text-sm mb-1">{label}</p>
+      {payload.map((p: any) => (
+        <p key={p.name} className="text-muted-foreground">
+          {p.name}: <span className="font-semibold" style={{ color: p.color }}>{p.value}</span>
+        </p>
+      ))}
     </div>
-    <div className="flex flex-col gap-3">
-      {data.map((city, idx) => {
-        const style = podiumStyles[idx as 0 | 1 | 2];
-        const Icon = style.Icon;
-        return (
-          <div
-            key={city.city}
-            className={`relative rounded-lg border ${style.border} ${style.bg} ${style.glow} p-4 transition-all duration-300 hover:scale-[1.01]`}
-          >
-            <div className={`absolute -top-2 -left-1 px-2 py-0.5 rounded-full text-[10px] font-bold font-display ${style.badge} flex items-center gap-1`}>
-              <Icon className="h-3 w-3" />
-              {style.label}
-            </div>
-            <div className="flex items-center justify-between mt-1">
-              <div>
-                <p className="font-bold text-foreground text-sm">{city.city}</p>
-                <p className="text-[10px] text-muted-foreground">{city.state}</p>
-              </div>
-              <div className="text-right">
-                <p className={`text-2xl font-bold font-display ${style.text} leading-none`}>
-                  {String(city[metric])}
-                </p>
-                <p className="text-[9px] uppercase tracking-widest text-muted-foreground mt-0.5">{metricLabel}</p>
-              </div>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  </div>
-);
+  );
+};
+
+// ── Component ──
 
 const Inbound = () => {
+  const [selectedState, setSelectedState] = useState<string>("all");
+  const [selectedCity, setSelectedCity] = useState<string>("all");
+
+  const filteredCities = useMemo(() => {
+    let data = allCities;
+    if (selectedState !== "all") data = data.filter(c => c.state === selectedState);
+    if (selectedCity !== "all") data = data.filter(c => c.city === selectedCity);
+    return data;
+  }, [selectedState, selectedCity]);
+
+  const availableCities = useMemo(() => {
+    if (selectedState === "all") return [...new Set(allCities.map(c => c.city))].sort();
+    return [...new Set(allCities.filter(c => c.state === selectedState).map(c => c.city))].sort();
+  }, [selectedState]);
+
+  // Aggregated data for charts
+  const aggregated = useMemo(() => {
+    const agg = {
+      inviabilidade: 0, semCobertura: 0, semCondicao: 0,
+      cg: 0, reprovado: 0, jaCliente: 0, fraude: 0, instalado: 0,
+    };
+    filteredCities.forEach(c => {
+      agg.inviabilidade += c.inviabilidade;
+      agg.semCobertura += c.semCobertura;
+      agg.semCondicao += c.semCondicao;
+      agg.cg += c.cg;
+      agg.reprovado += c.reprovado;
+      agg.jaCliente += c.jaCliente;
+      agg.fraude += c.fraude;
+      agg.instalado += c.instalado;
+    });
+    return agg;
+  }, [filteredCities]);
+
+  // Bar chart data – breakdown by reason
+  const barData = useMemo(() => [
+    { name: "Inviab.", value: aggregated.inviabilidade, fill: COLORS.inviabilidade },
+    { name: "CG", value: aggregated.cg, fill: COLORS.cg },
+    { name: "Reprov.", value: aggregated.reprovado, fill: COLORS.reprovado },
+    { name: "Já Cliente", value: aggregated.jaCliente, fill: COLORS.jaCliente },
+    { name: "Fraude", value: aggregated.fraude, fill: COLORS.fraude },
+    { name: "S/ Cobert.", value: aggregated.semCobertura, fill: COLORS.semCobertura },
+    { name: "S/ Cond.", value: aggregated.semCondicao, fill: COLORS.semCondicao },
+    { name: "Instalado", value: aggregated.instalado, fill: COLORS.instalado },
+  ], [aggregated]);
+
+  // Pie: CEP Cabeado vs Não Cabeado
+  const totalCabeado = aggregated.inviabilidade + aggregated.cg + aggregated.reprovado + aggregated.jaCliente + aggregated.fraude;
+  const totalNaoCabeado = aggregated.semCobertura + aggregated.semCondicao;
+  const pieData = useMemo(() => [
+    { name: "CEP Cabeado", value: totalCabeado },
+    { name: "CEP Não Cabeado", value: totalNaoCabeado },
+  ], [totalCabeado, totalNaoCabeado]);
+
+  // Top 3 cities from filtered set (or all if showing all)
+  const sourceForPodium = selectedState !== "all" ? filteredCities : allCities;
+  const topCG = useMemo(() => [...sourceForPodium].sort((a, b) => b.cg - a.cg).slice(0, 3), [sourceForPodium]);
+  const topInstalado = useMemo(() => [...sourceForPodium].sort((a, b) => b.instalado - a.instalado).slice(0, 3), [sourceForPodium]);
+
+  // Viabilidade = instalado / total * 100
+  const citiesWithViab = useMemo(() =>
+    sourceForPodium.map(c => {
+      const total = c.inviabilidade + c.cg + c.reprovado + c.jaCliente + c.fraude + c.semCobertura + c.semCondicao + c.instalado;
+      return { ...c, viabilidade: total > 0 ? Math.round((c.instalado / total) * 100) : 0 };
+    }), [sourceForPodium]);
+  const topViab = useMemo(() => [...citiesWithViab].sort((a, b) => b.viabilidade - a.viabilidade).slice(0, 3), [citiesWithViab]);
+
+  // Radar data for selected view
+  const radarData = useMemo(() => [
+    { metric: "Inviab.", value: aggregated.inviabilidade },
+    { metric: "CG", value: aggregated.cg },
+    { metric: "Reprov.", value: aggregated.reprovado },
+    { metric: "Já Cliente", value: aggregated.jaCliente },
+    { metric: "S/ Cobert.", value: aggregated.semCobertura },
+    { metric: "S/ Cond.", value: aggregated.semCondicao },
+    { metric: "Instalado", value: aggregated.instalado },
+  ], [aggregated]);
+
+  const handleStateChange = (val: string) => {
+    setSelectedState(val);
+    setSelectedCity("all");
+  };
+
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
@@ -178,140 +235,308 @@ const Inbound = () => {
 
         {/* Brazil Map */}
         <div className="glass-card rounded-xl p-6 glow-primary mb-6">
-          <h2 className="text-lg font-semibold font-display text-foreground mb-1">
-            Distribuição por Estado
-          </h2>
+          <h2 className="text-lg font-semibold font-display text-foreground mb-1">Distribuição por Estado</h2>
           <p className="text-xs text-muted-foreground mb-4">Leads e investimento por região</p>
           <div className="h-[500px] md:h-[600px]">
             <BrazilMap />
           </div>
         </div>
 
-        {/* Podiums - Top 3 Cities */}
+        {/* ══════ FILTERS ══════ */}
+        <div className="glass-card rounded-xl p-5 glow-primary mb-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Filter className="h-5 w-5 text-primary" />
+            <h2 className="text-lg font-bold font-display text-foreground uppercase tracking-wider">
+              Filtros
+            </h2>
+          </div>
+          <div className="flex flex-wrap gap-4">
+            <div className="w-56">
+              <label className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1 block">Estado</label>
+              <Select value={selectedState} onValueChange={handleStateChange}>
+                <SelectTrigger className="bg-secondary/60 border-border/50 text-foreground">
+                  <SelectValue placeholder="Todos os estados" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os estados</SelectItem>
+                  {states.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="w-56">
+              <label className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1 block">Cidade</label>
+              <Select value={selectedCity} onValueChange={setSelectedCity}>
+                <SelectTrigger className="bg-secondary/60 border-border/50 text-foreground">
+                  <SelectValue placeholder="Todas as cidades" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas as cidades</SelectItem>
+                  {availableCities.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            {(selectedState !== "all" || selectedCity !== "all") && (
+              <div className="flex items-end">
+                <button
+                  onClick={() => { setSelectedState("all"); setSelectedCity("all"); }}
+                  className="text-xs text-destructive hover:text-destructive/80 underline transition-colors"
+                >
+                  Limpar filtros
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ══════ CHARTS ROW ══════ */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+          {/* Bar Chart – Breakdown */}
+          <div className="glass-card rounded-xl p-5 glow-primary lg:col-span-2">
+            <div className="flex items-center gap-2 mb-1">
+              <ShieldAlert className="h-5 w-5 text-destructive" />
+              <h2 className="text-base font-semibold font-display text-foreground">Breakdown de Métricas</h2>
+            </div>
+            <p className="text-[10px] text-muted-foreground mb-4">Todas as categorias de inviabilidade + instalado</p>
+            <div className="h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={barData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                  <XAxis dataKey="name" tick={{ fill: "hsl(215 15% 55%)", fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fill: "hsl(215 15% 55%)", fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+                    {barData.map((entry, i) => (
+                      <Cell key={i} fill={entry.fill} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Pie Chart – Cabeado vs Não Cabeado */}
+          <div className="glass-card rounded-xl p-5 glow-primary">
+            <h2 className="text-base font-semibold font-display text-foreground mb-1">CEP Cabeado vs Não Cabeado</h2>
+            <p className="text-[10px] text-muted-foreground mb-4">Proporção de viabilidade por tipo de CEP</p>
+            <div className="h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    cx="50%"
+                    cy="45%"
+                    innerRadius={55}
+                    outerRadius={85}
+                    paddingAngle={4}
+                    dataKey="value"
+                    strokeWidth={0}
+                  >
+                    {pieData.map((_, i) => (
+                      <Cell key={i} fill={PIE_COLORS[i]} />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend
+                    verticalAlign="bottom"
+                    formatter={(val: string) => <span className="text-xs text-muted-foreground">{val}</span>}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="flex justify-around mt-2 text-xs">
+              <div className="text-center">
+                <p className="text-primary font-bold font-display text-lg">{totalCabeado}</p>
+                <p className="text-muted-foreground text-[10px]">Cabeado</p>
+              </div>
+              <div className="text-center">
+                <p className="text-destructive font-bold font-display text-lg">{totalNaoCabeado}</p>
+                <p className="text-muted-foreground text-[10px]">Não Cabeado</p>
+              </div>
+              <div className="text-center">
+                <p className="text-foreground font-bold font-display text-lg">
+                  {totalCabeado + totalNaoCabeado > 0
+                    ? ((totalCabeado / (totalCabeado + totalNaoCabeado)) * 100).toFixed(1)
+                    : 0}%
+                </p>
+                <p className="text-muted-foreground text-[10px]">% Cabeado</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Radar chart */}
+        <div className="glass-card rounded-xl p-5 glow-primary mb-6">
+          <h2 className="text-base font-semibold font-display text-foreground mb-1">Radar de Métricas</h2>
+          <p className="text-[10px] text-muted-foreground mb-4">Visão geral do perfil de inviabilidade</p>
+          <div className="h-72 md:h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="70%">
+                <PolarGrid stroke="hsl(215 30% 25%)" />
+                <PolarAngleAxis dataKey="metric" tick={{ fill: "hsl(215 15% 55%)", fontSize: 10 }} />
+                <PolarRadiusAxis tick={{ fill: "hsl(215 15% 55%)", fontSize: 9 }} />
+                <Radar name="Quantidade" dataKey="value" stroke="hsl(170 80% 45%)" fill="hsl(170 80% 45%)" fillOpacity={0.25} strokeWidth={2} />
+                <Tooltip content={<CustomTooltip />} />
+              </RadarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* ══════ PODIUMS ══════ */}
         <div className="flex items-center gap-2 mb-4">
           <Trophy className="h-5 w-5 text-rank-gold" />
           <h2 className="text-lg font-bold font-display text-foreground uppercase tracking-wider">
-            Top 3 Cidades
+            Top 3 Cidades {selectedState !== "all" ? `— ${selectedState}` : ""}
           </h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <PodiumSection title="Mais CG" icon={ShieldCheck} data={topCG} metric="cg" metricLabel="contratos" />
-          <PodiumSection title="Mais Instalação" icon={FileCheck} data={topInstalado} metric="instalado" metricLabel="instalados" />
-          <PodiumSection title="Mais Viabilidade" icon={MapPin} data={topViabilidade} metric="viabilidade" metricLabel="% viável" />
+          {/* Top CG */}
+          <div className="glass-card rounded-xl p-5 glow-primary">
+            <div className="flex items-center gap-2 mb-4">
+              <ShieldCheck className="h-5 w-5 text-rank-gold" />
+              <h3 className="text-sm font-bold font-display text-foreground uppercase tracking-wider">Mais CG</h3>
+            </div>
+            <div className="flex flex-col gap-3">
+              {topCG.map((c, idx) => {
+                const style = podiumStyles[idx as 0 | 1 | 2];
+                const Icon = style.Icon;
+                return (
+                  <div key={c.city} className={`relative rounded-lg border ${style.border} ${style.bg} ${style.glow} p-4 transition-all duration-300 hover:scale-[1.01]`}>
+                    <div className={`absolute -top-2 -left-1 px-2 py-0.5 rounded-full text-[10px] font-bold font-display ${style.badge} flex items-center gap-1`}>
+                      <Icon className="h-3 w-3" />{style.label}
+                    </div>
+                    <div className="flex items-center justify-between mt-1">
+                      <div>
+                        <p className="font-bold text-foreground text-sm">{c.city}</p>
+                        <p className="text-[10px] text-muted-foreground">{c.uf}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className={`text-2xl font-bold font-display ${style.text} leading-none`}>{c.cg}</p>
+                        <p className="text-[9px] uppercase tracking-widest text-muted-foreground mt-0.5">contratos</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Top Instalado */}
+          <div className="glass-card rounded-xl p-5 glow-primary">
+            <div className="flex items-center gap-2 mb-4">
+              <FileCheck className="h-5 w-5 text-rank-gold" />
+              <h3 className="text-sm font-bold font-display text-foreground uppercase tracking-wider">Mais Instalação</h3>
+            </div>
+            <div className="flex flex-col gap-3">
+              {topInstalado.map((c, idx) => {
+                const style = podiumStyles[idx as 0 | 1 | 2];
+                const Icon = style.Icon;
+                return (
+                  <div key={c.city} className={`relative rounded-lg border ${style.border} ${style.bg} ${style.glow} p-4 transition-all duration-300 hover:scale-[1.01]`}>
+                    <div className={`absolute -top-2 -left-1 px-2 py-0.5 rounded-full text-[10px] font-bold font-display ${style.badge} flex items-center gap-1`}>
+                      <Icon className="h-3 w-3" />{style.label}
+                    </div>
+                    <div className="flex items-center justify-between mt-1">
+                      <div>
+                        <p className="font-bold text-foreground text-sm">{c.city}</p>
+                        <p className="text-[10px] text-muted-foreground">{c.uf}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className={`text-2xl font-bold font-display ${style.text} leading-none`}>{c.instalado}</p>
+                        <p className="text-[9px] uppercase tracking-widest text-muted-foreground mt-0.5">instalados</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Top Viabilidade */}
+          <div className="glass-card rounded-xl p-5 glow-primary">
+            <div className="flex items-center gap-2 mb-4">
+              <MapPin className="h-5 w-5 text-rank-gold" />
+              <h3 className="text-sm font-bold font-display text-foreground uppercase tracking-wider">Mais Viabilidade</h3>
+            </div>
+            <div className="flex flex-col gap-3">
+              {topViab.map((c, idx) => {
+                const style = podiumStyles[idx as 0 | 1 | 2];
+                const Icon = style.Icon;
+                return (
+                  <div key={c.city} className={`relative rounded-lg border ${style.border} ${style.bg} ${style.glow} p-4 transition-all duration-300 hover:scale-[1.01]`}>
+                    <div className={`absolute -top-2 -left-1 px-2 py-0.5 rounded-full text-[10px] font-bold font-display ${style.badge} flex items-center gap-1`}>
+                      <Icon className="h-3 w-3" />{style.label}
+                    </div>
+                    <div className="flex items-center justify-between mt-1">
+                      <div>
+                        <p className="font-bold text-foreground text-sm">{c.city}</p>
+                        <p className="text-[10px] text-muted-foreground">{c.uf}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className={`text-2xl font-bold font-display ${style.text} leading-none`}>{c.viabilidade}%</p>
+                        <p className="text-[9px] uppercase tracking-widest text-muted-foreground mt-0.5">viável</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
 
-        {/* Viability by State */}
-        <div className="glass-card rounded-xl p-5 glow-primary mb-6">
-          <div className="flex items-center gap-2 mb-1">
-            <ShieldAlert className="h-5 w-5 text-destructive" />
-            <h2 className="text-lg font-semibold font-display text-foreground">
-              Inviabilidade por Estado
-            </h2>
-          </div>
-          <p className="text-xs text-muted-foreground mb-4">CEP Cabeado vs Não Cabeado por estado</p>
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs">
-              <thead>
-                <tr className="border-b border-border/50">
-                  <th className="text-left py-3 px-2 text-muted-foreground font-semibold uppercase tracking-wider">Estado</th>
-                  <th colSpan={5} className="text-center py-1 px-2">
-                    <span className="text-primary text-[10px] uppercase tracking-widest font-bold">CEP Cabeado</span>
-                  </th>
-                  <th colSpan={2} className="text-center py-1 px-2">
-                    <span className="text-destructive text-[10px] uppercase tracking-widest font-bold">CEP Não Cabeado</span>
-                  </th>
-                  <th className="text-center py-3 px-2 text-muted-foreground font-semibold uppercase tracking-wider">Instalado</th>
-                  <th className="text-center py-3 px-2 text-muted-foreground font-semibold uppercase tracking-wider">% Cabeado</th>
-                  <th className="text-center py-3 px-2 text-muted-foreground font-semibold uppercase tracking-wider">% Não Cab.</th>
-                </tr>
-                <tr className="border-b border-border/30">
-                  <th className="py-2 px-2"></th>
-                  <th className="text-center py-2 px-2 text-muted-foreground text-[10px] uppercase">Inviab.</th>
-                  <th className="text-center py-2 px-2 text-muted-foreground text-[10px] uppercase">CG</th>
-                  <th className="text-center py-2 px-2 text-muted-foreground text-[10px] uppercase">Reprov.</th>
-                  <th className="text-center py-2 px-2 text-muted-foreground text-[10px] uppercase">Já Cliente</th>
-                  <th className="text-center py-2 px-2 text-muted-foreground text-[10px] uppercase">Fraude</th>
-                  <th className="text-center py-2 px-2 text-muted-foreground text-[10px] uppercase">S/ Cobert.</th>
-                  <th className="text-center py-2 px-2 text-muted-foreground text-[10px] uppercase">S/ Cond.</th>
-                  <th className="py-2 px-2"></th>
-                  <th className="py-2 px-2"></th>
-                  <th className="py-2 px-2"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {stateViability.map((s) => {
-                  const totalCabeado = s.inviabilidade + s.cg + s.reprovado + s.jaCliente + s.fraude;
-                  const totalNaoCabeado = s.semCobertura + s.semCondicao;
-                  const total = totalCabeado + totalNaoCabeado + s.instalado;
-                  const pctCabeado = total > 0 ? ((totalCabeado / total) * 100).toFixed(1) : "0";
-                  const pctNaoCabeado = total > 0 ? ((totalNaoCabeado / total) * 100).toFixed(1) : "0";
-                  return (
-                    <tr key={s.uf} className="border-b border-border/20 hover:bg-muted/20 transition-colors">
-                      <td className="py-3 px-2 font-semibold text-foreground">
-                        {s.state} <span className="text-muted-foreground">({s.uf})</span>
-                      </td>
-                      <td className="text-center py-3 px-2 text-foreground">{s.inviabilidade}</td>
-                      <td className="text-center py-3 px-2 text-primary font-semibold">{s.cg}</td>
-                      <td className="text-center py-3 px-2 text-foreground">{s.reprovado}</td>
-                      <td className="text-center py-3 px-2 text-foreground">{s.jaCliente}</td>
-                      <td className="text-center py-3 px-2 text-destructive">{s.fraude}</td>
-                      <td className="text-center py-3 px-2 text-destructive font-semibold">{s.semCobertura}</td>
-                      <td className="text-center py-3 px-2 text-destructive">{s.semCondicao}</td>
-                      <td className="text-center py-3 px-2 text-success font-semibold">{s.instalado}</td>
-                      <td className="text-center py-3 px-2">
-                        <span className="bg-primary/15 text-primary px-2 py-0.5 rounded-full font-semibold">{pctCabeado}%</span>
-                      </td>
-                      <td className="text-center py-3 px-2">
-                        <span className="bg-destructive/15 text-destructive px-2 py-0.5 rounded-full font-semibold">{pctNaoCabeado}%</span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Viability by City */}
+        {/* ══════ DETAIL TABLE ══════ */}
         <div className="glass-card rounded-xl p-5 glow-primary">
           <div className="flex items-center gap-2 mb-1">
             <Building2 className="h-5 w-5 text-primary" />
             <h2 className="text-lg font-semibold font-display text-foreground">
-              Métricas por Cidade
+              Detalhamento {selectedCity !== "all" ? `— ${selectedCity}` : selectedState !== "all" ? `— ${selectedState}` : "Geral"}
             </h2>
           </div>
-          <p className="text-xs text-muted-foreground mb-4">CG, instalações e viabilidade por cidade</p>
+          <p className="text-xs text-muted-foreground mb-4">{filteredCities.length} resultado(s)</p>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
                 <tr className="border-b border-border/50">
-                  <th className="text-left py-3 px-3 text-muted-foreground font-semibold uppercase tracking-wider">Cidade</th>
-                  <th className="text-left py-3 px-3 text-muted-foreground font-semibold uppercase tracking-wider">Estado</th>
-                  <th className="text-center py-3 px-3 text-muted-foreground font-semibold uppercase tracking-wider">CG</th>
-                  <th className="text-center py-3 px-3 text-muted-foreground font-semibold uppercase tracking-wider">Instalado</th>
-                  <th className="text-center py-3 px-3 text-muted-foreground font-semibold uppercase tracking-wider">Viabilidade</th>
+                  <th className="text-left py-3 px-2 text-muted-foreground font-semibold uppercase tracking-wider">Cidade</th>
+                  <th className="text-left py-3 px-2 text-muted-foreground font-semibold uppercase tracking-wider">UF</th>
+                  <th className="text-center py-3 px-2 text-muted-foreground font-semibold uppercase tracking-wider">Inviab.</th>
+                  <th className="text-center py-3 px-2 text-muted-foreground font-semibold uppercase tracking-wider">CG</th>
+                  <th className="text-center py-3 px-2 text-muted-foreground font-semibold uppercase tracking-wider">Reprov.</th>
+                  <th className="text-center py-3 px-2 text-muted-foreground font-semibold uppercase tracking-wider">Já Cli.</th>
+                  <th className="text-center py-3 px-2 text-muted-foreground font-semibold uppercase tracking-wider">Fraude</th>
+                  <th className="text-center py-3 px-2 text-muted-foreground font-semibold uppercase tracking-wider">S/ Cob.</th>
+                  <th className="text-center py-3 px-2 text-muted-foreground font-semibold uppercase tracking-wider">S/ Cond.</th>
+                  <th className="text-center py-3 px-2 text-muted-foreground font-semibold uppercase tracking-wider">Instal.</th>
+                  <th className="text-center py-3 px-2 text-muted-foreground font-semibold uppercase tracking-wider">% Cab.</th>
+                  <th className="text-center py-3 px-2 text-muted-foreground font-semibold uppercase tracking-wider">% N.Cab.</th>
                 </tr>
               </thead>
               <tbody>
-                {cityViability.map((c) => (
-                  <tr key={c.city} className="border-b border-border/20 hover:bg-muted/20 transition-colors">
-                    <td className="py-3 px-3 font-semibold text-foreground">{c.city}</td>
-                    <td className="py-3 px-3 text-muted-foreground">{c.state}</td>
-                    <td className="text-center py-3 px-3 text-primary font-semibold">{c.cg}</td>
-                    <td className="text-center py-3 px-3 text-success font-semibold">{c.instalado}</td>
-                    <td className="text-center py-3 px-3">
-                      <div className="flex items-center justify-center gap-2">
-                        <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-primary rounded-full transition-all"
-                            style={{ width: `${c.viabilidade}%` }}
-                          />
-                        </div>
-                        <span className="text-foreground font-semibold">{c.viabilidade}%</span>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {filteredCities.map((c) => {
+                  const cab = c.inviabilidade + c.cg + c.reprovado + c.jaCliente + c.fraude;
+                  const nCab = c.semCobertura + c.semCondicao;
+                  const total = cab + nCab + c.instalado;
+                  const pCab = total > 0 ? ((cab / total) * 100).toFixed(1) : "0";
+                  const pNCab = total > 0 ? ((nCab / total) * 100).toFixed(1) : "0";
+                  return (
+                    <tr key={`${c.city}-${c.uf}`} className="border-b border-border/20 hover:bg-muted/20 transition-colors">
+                      <td className="py-3 px-2 font-semibold text-foreground">{c.city}</td>
+                      <td className="py-3 px-2 text-muted-foreground">{c.uf}</td>
+                      <td className="text-center py-3 px-2 text-foreground">{c.inviabilidade}</td>
+                      <td className="text-center py-3 px-2 text-primary font-semibold">{c.cg}</td>
+                      <td className="text-center py-3 px-2 text-foreground">{c.reprovado}</td>
+                      <td className="text-center py-3 px-2 text-foreground">{c.jaCliente}</td>
+                      <td className="text-center py-3 px-2 text-destructive">{c.fraude}</td>
+                      <td className="text-center py-3 px-2 text-destructive font-semibold">{c.semCobertura}</td>
+                      <td className="text-center py-3 px-2 text-destructive">{c.semCondicao}</td>
+                      <td className="text-center py-3 px-2 text-success font-semibold">{c.instalado}</td>
+                      <td className="text-center py-3 px-2">
+                        <span className="bg-primary/15 text-primary px-2 py-0.5 rounded-full font-semibold">{pCab}%</span>
+                      </td>
+                      <td className="text-center py-3 px-2">
+                        <span className="bg-destructive/15 text-destructive px-2 py-0.5 rounded-full font-semibold">{pNCab}%</span>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
