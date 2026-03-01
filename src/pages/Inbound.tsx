@@ -3,6 +3,7 @@ import { Facebook, DollarSign, Users, FileText, FileCheck, TrendingDown, Trophy,
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from "recharts";
 import BrazilMap from "@/components/BrazilMap";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { citiesByState, allStates } from "@/data/brazilCities";
 
 // ── Data ──
 
@@ -42,7 +43,7 @@ const allCities: CityData[] = [
   { city: "Goiânia", state: "Goiás", uf: "GO", inviabilidade: 10, semCobertura: 15, semCondicao: 8, cg: 15, reprovado: 3, jaCliente: 5, fraude: 1, instalado: 18 },
 ];
 
-const states = [...new Set(allCities.map(c => c.state))].sort();
+const states = allStates;
 
 const stats = [
   { label: "Total Gastado", value: "R$ 67.450", icon: DollarSign, color: "text-destructive" },
@@ -155,8 +156,11 @@ const Inbound = () => {
   }, [selectedState, selectedCity]);
 
   const availableCities = useMemo(() => {
-    if (selectedState === "all") return [...new Set(allCities.map(c => c.city))].sort();
-    return [...new Set(allCities.filter(c => c.state === selectedState).map(c => c.city))].sort();
+    if (selectedState === "all") {
+      // Show all cities from all states
+      return Object.values(citiesByState).flat().sort();
+    }
+    return (citiesByState[selectedState] || []).sort();
   }, [selectedState]);
 
   const aggregated = useMemo(() => {
