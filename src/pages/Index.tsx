@@ -22,33 +22,53 @@ const podiumPlayers = [
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8">
+    <div className="min-h-screen bg-background p-4 md:p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <h1 className="text-3xl md:text-4xl font-bold font-display text-primary mb-8 tracking-wide">
+        <h1 className="text-2xl md:text-3xl font-bold font-display text-primary mb-5 tracking-wide">
           Ranking Vendedores
         </h1>
 
-        {/* Top Row - Gauges + Podium */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          <div className="lg:col-span-2 glass-card rounded-xl p-6 glow-primary">
-            <div className="flex justify-around items-center flex-wrap gap-4">
-              <GaugeChart label="Form" value={212} max={400} />
-              <GaugeChart label="Vendas" value={65} max={200} />
-              <GaugeChart label="Conv." value={31} isPercentage />
-            </div>
+        {/* Summary Row - Gauges + Podium side by side, compact */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+          {/* 3 Gauges as individual small cards */}
+          <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
+            <GaugeChart label="Form" value={212} max={400} />
           </div>
-          <div className="glass-card rounded-xl p-6">
-            <h2 className="text-lg font-semibold font-display text-foreground mb-2">
-              Top 3 Vendedores
+          <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
+            <GaugeChart label="Vendas" value={65} max={200} />
+          </div>
+          <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
+            <GaugeChart label="Conv." value={31} isPercentage />
+          </div>
+          {/* Mini Podium */}
+          <div className="glass-card rounded-xl p-4">
+            <h2 className="text-xs font-semibold font-display text-muted-foreground uppercase tracking-wider mb-2">
+              Top 3
             </h2>
-            <Podium players={podiumPlayers} />
+            <div className="space-y-2">
+              {podiumPlayers
+                .sort((a, b) => a.position - b.position)
+                .map((p) => (
+                  <div key={p.name} className="flex items-center gap-2">
+                    <span className={`text-sm font-bold font-display w-5 ${
+                      p.position === 1 ? "text-rank-gold" : p.position === 2 ? "text-rank-silver" : "text-rank-bronze"
+                    }`}>
+                      {p.position}º
+                    </span>
+                    <div className="h-7 w-7 rounded-full bg-gradient-to-br from-primary/30 to-accent/20 border border-primary/20 flex items-center justify-center shrink-0">
+                      <span className="text-[10px] font-bold font-display text-primary">{p.name.charAt(0)}</span>
+                    </div>
+                    <span className="text-xs font-medium text-foreground truncate flex-1">{p.name}</span>
+                    <span className="text-xs font-bold text-primary font-display">{p.score}</span>
+                  </div>
+                ))}
+            </div>
           </div>
         </div>
 
         {/* Full Width Ranking */}
-        <div className="glass-card rounded-xl p-6">
-          <div className="flex items-center justify-between mb-5">
+        <div className="glass-card rounded-xl p-5">
+          <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold font-display text-foreground">
               Classificação Geral
             </h2>
