@@ -351,12 +351,11 @@ const Inbound = () => {
                 onStateClick={(stateName) => handleStateChange(
                   states.includes(stateName) ? stateName : "all"
                 )}
-                onCityClick={(cityName) => {
-                  const city = allCities.find(c => c.city === cityName);
-                  if (city) {
-                    setSelectedState(city.state);
-                    setSelectedCity(city.city);
+                onCityClick={(cityName, stateName) => {
+                  if (stateName && states.includes(stateName)) {
+                    setSelectedState(stateName);
                   }
+                  setSelectedCity(cityName);
                 }}
               />
             </div>
