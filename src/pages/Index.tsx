@@ -29,34 +29,34 @@ const Index = () => {
           Ranking Vendedores
         </h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Left Column - Gauges + Podium */}
-          <div className="space-y-8">
-            {/* Gauge Cards */}
-            <div className="glass-card rounded-xl p-6 glow-primary">
-              <div className="flex justify-around items-center flex-wrap gap-4">
-                <GaugeChart label="Form" value={212} max={400} />
-                <GaugeChart label="Vendas" value={65} max={200} />
-                <GaugeChart label="Conv." value={31} isPercentage />
-              </div>
-            </div>
-
-            {/* Podium */}
-            <div className="glass-card rounded-xl p-6">
-              <h2 className="text-lg font-semibold font-display text-foreground mb-2">
-                Top 3 Vendedores
-              </h2>
-              <Podium players={podiumPlayers} />
+        {/* Top Row - Gauges + Podium */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <div className="lg:col-span-2 glass-card rounded-xl p-6 glow-primary">
+            <div className="flex justify-around items-center flex-wrap gap-4">
+              <GaugeChart label="Form" value={212} max={400} />
+              <GaugeChart label="Vendas" value={65} max={200} />
+              <GaugeChart label="Conv." value={31} isPercentage />
             </div>
           </div>
-
-          {/* Right Column - Ranking Table */}
           <div className="glass-card rounded-xl p-6">
-            <h2 className="text-lg font-semibold font-display text-foreground mb-4">
+            <h2 className="text-lg font-semibold font-display text-foreground mb-2">
+              Top 3 Vendedores
+            </h2>
+            <Podium players={podiumPlayers} />
+          </div>
+        </div>
+
+        {/* Full Width Ranking */}
+        <div className="glass-card rounded-xl p-6">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-lg font-semibold font-display text-foreground">
               Classificação Geral
             </h2>
-            <RankingTable sellers={sellers} />
+            <span className="text-xs text-muted-foreground bg-muted/30 px-3 py-1 rounded-full">
+              {sellers.length} vendedores
+            </span>
           </div>
+          <RankingTable sellers={sellers} />
         </div>
       </div>
     </div>
