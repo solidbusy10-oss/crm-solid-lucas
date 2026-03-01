@@ -54,84 +54,26 @@ const GaugeChart = ({ label, value, max = 300, isPercentage = false }: GaugeChar
       <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground mb-1">
         {label}
       </span>
-      <div className="relative w-32 h-28">
+      <div className="relative w-24 h-20">
         <svg viewBox="0 0 100 75" className="w-full h-full overflow-visible">
-          {/* Outer glow ring */}
-          <circle
-            cx={cx}
-            cy={cy}
-            r={radius + 4}
-            fill="none"
-            stroke="hsl(var(--gauge-fill))"
-            strokeWidth="0.5"
-            opacity="0.15"
-          />
-
-          {/* Track arc (background) */}
-          <path
-            d={describeArc(startAngle, endAngle)}
-            fill="none"
-            stroke="hsl(var(--gauge-track))"
-            strokeWidth="6"
-            strokeLinecap="round"
-          />
-
-          {/* Colored fill arc */}
-          <path
-            d={describeArc(startAngle, startAngle + totalAngle * Math.min(percentage, 1))}
-            fill="none"
-            stroke="hsl(var(--gauge-fill))"
-            strokeWidth="6"
-            strokeLinecap="round"
-            filter="url(#glow)"
-          />
-
-          {/* Tick marks */}
+          <circle cx={cx} cy={cy} r={radius + 4} fill="none" stroke="hsl(var(--gauge-fill))" strokeWidth="0.5" opacity="0.15" />
+          <path d={describeArc(startAngle, endAngle)} fill="none" stroke="hsl(var(--gauge-track))" strokeWidth="6" strokeLinecap="round" />
+          <path d={describeArc(startAngle, startAngle + totalAngle * Math.min(percentage, 1))} fill="none" stroke="hsl(var(--gauge-fill))" strokeWidth="6" strokeLinecap="round" filter="url(#glow)" />
           {ticks.map((tick, i) => (
-            <line
-              key={i}
-              x1={tick.x1}
-              y1={tick.y1}
-              x2={tick.x2}
-              y2={tick.y2}
-              stroke="hsl(var(--muted-foreground))"
-              strokeWidth={i % 5 === 0 ? "1" : "0.5"}
-              opacity={i % 5 === 0 ? 0.7 : 0.3}
-            />
+            <line key={i} x1={tick.x1} y1={tick.y1} x2={tick.x2} y2={tick.y2} stroke="hsl(var(--muted-foreground))" strokeWidth={i % 5 === 0 ? "1" : "0.5"} opacity={i % 5 === 0 ? 0.7 : 0.3} />
           ))}
-
-          {/* Center hub */}
           <circle cx={cx} cy={cy} r="4" fill="hsl(var(--gauge-fill))" />
           <circle cx={cx} cy={cy} r="2.5" fill="hsl(var(--background))" />
-
-          {/* Needle */}
-          <line
-            x1={cx}
-            y1={cy}
-            x2={needleX}
-            y2={needleY}
-            stroke="hsl(var(--gauge-fill))"
-            strokeWidth="2"
-            strokeLinecap="round"
-            className="origin-center"
-            style={{
-              filter: "drop-shadow(0 0 3px hsl(170 80% 45% / 0.5))",
-            }}
-          />
-
-          {/* Glow filter */}
+          <line x1={cx} y1={cy} x2={needleX} y2={needleY} stroke="hsl(var(--gauge-fill))" strokeWidth="2" strokeLinecap="round" className="origin-center" style={{ filter: "drop-shadow(0 0 3px hsl(170 80% 45% / 0.5))" }} />
           <defs>
             <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
               <feGaussianBlur stdDeviation="2" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
+              <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
             </filter>
           </defs>
         </svg>
       </div>
-      <span className="text-2xl font-bold font-display text-primary -mt-5">
+      <span className="text-xl font-bold font-display text-primary -mt-3">
         {isPercentage ? `${value}%` : value}
       </span>
     </div>
