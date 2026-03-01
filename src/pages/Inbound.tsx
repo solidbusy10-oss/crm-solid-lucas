@@ -343,9 +343,18 @@ const Inbound = () => {
             <h2 className="text-base font-semibold font-display text-foreground mb-1">Distribuição por Estado</h2>
             <p className="text-[10px] text-muted-foreground mb-3">Leads e investimento por região</p>
             <div className="h-[420px]">
-              <BrazilMap onStateClick={(stateName) => handleStateChange(
-                states.includes(stateName) ? stateName : "all"
-              )} />
+              <BrazilMap
+                onStateClick={(stateName) => handleStateChange(
+                  states.includes(stateName) ? stateName : "all"
+                )}
+                onCityClick={(cityName) => {
+                  const city = allCities.find(c => c.city === cityName);
+                  if (city) {
+                    setSelectedState(city.state);
+                    setSelectedCity(city.city);
+                  }
+                }}
+              />
             </div>
           </div>
 
