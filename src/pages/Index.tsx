@@ -1,6 +1,7 @@
 import GaugeChart from "@/components/GaugeChart";
 import Podium from "@/components/Podium";
 import RankingTable from "@/components/RankingTable";
+import { Trophy, Crown, Medal, Award } from "lucide-react";
 
 const sellers = [
   { rank: 1, name: "NATIELY A.", form: 28, cg: 11, conv: 50, audit: 0, auditTrc: 0 },
@@ -14,11 +15,44 @@ const sellers = [
   { rank: 9, name: "RHUAN", form: 7, cg: 0, conv: 0, audit: 0, auditTrc: 0 },
 ];
 
-const podiumPlayers = [
-  { name: "Y. GUIMARAES", score: 11, position: 2 as const },
+const podiumData = [
   { name: "NATIELY A.", score: 11, position: 1 as const },
+  { name: "Y. GUIMARAES", score: 11, position: 2 as const },
   { name: "MARIO T.", score: 10, position: 3 as const },
 ];
+
+const positionStyles = {
+  1: {
+    border: "border-rank-gold/50",
+    glow: "shadow-[0_0_30px_hsl(45_90%_55%/0.2),0_0_60px_hsl(45_90%_55%/0.08)]",
+    bg: "bg-gradient-to-br from-rank-gold/15 via-rank-gold/5 to-transparent",
+    avatarBg: "bg-gradient-to-br from-rank-gold/40 to-rank-gold/10 border-rank-gold/50",
+    text: "text-rank-gold",
+    badge: "bg-rank-gold text-primary-foreground",
+    Icon: Crown,
+    label: "1º LUGAR",
+  },
+  2: {
+    border: "border-rank-silver/40",
+    glow: "shadow-[0_0_20px_hsl(210_10%_70%/0.12)]",
+    bg: "bg-gradient-to-br from-rank-silver/10 via-rank-silver/3 to-transparent",
+    avatarBg: "bg-gradient-to-br from-rank-silver/30 to-rank-silver/10 border-rank-silver/40",
+    text: "text-rank-silver",
+    badge: "bg-rank-silver text-primary-foreground",
+    Icon: Medal,
+    label: "2º LUGAR",
+  },
+  3: {
+    border: "border-rank-bronze/40",
+    glow: "shadow-[0_0_20px_hsl(25_60%_45%/0.12)]",
+    bg: "bg-gradient-to-br from-rank-bronze/10 via-rank-bronze/3 to-transparent",
+    avatarBg: "bg-gradient-to-br from-rank-bronze/30 to-rank-bronze/10 border-rank-bronze/40",
+    text: "text-rank-bronze",
+    badge: "bg-rank-bronze text-primary-foreground",
+    Icon: Award,
+    label: "3º LUGAR",
+  },
+};
 
 const Index = () => {
   return (
@@ -28,9 +62,8 @@ const Index = () => {
           Ranking Vendedores
         </h1>
 
-        {/* Summary Row - Gauges + Podium side by side, compact */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
-          {/* 3 Gauges as individual small cards */}
+        {/* Gauges Row */}
+        <div className="grid grid-cols-3 gap-4 mb-5">
           <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
             <GaugeChart label="Form" value={212} max={400} />
           </div>
@@ -40,29 +73,58 @@ const Index = () => {
           <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
             <GaugeChart label="Conv." value={31} isPercentage />
           </div>
-          {/* Mini Podium */}
-          <div className="glass-card rounded-xl p-4">
-            <h2 className="text-xs font-semibold font-display text-muted-foreground uppercase tracking-wider mb-2">
-              Top 3
+        </div>
+
+        {/* TOP 3 Highlight Section */}
+        <div className="mb-5">
+          <div className="flex items-center gap-2 mb-4">
+            <Trophy className="h-5 w-5 text-rank-gold" />
+            <h2 className="text-lg font-bold font-display text-foreground uppercase tracking-wider">
+              Top 3 Vendedores
             </h2>
-            <div className="space-y-2">
-              {podiumPlayers
-                .sort((a, b) => a.position - b.position)
-                .map((p) => (
-                  <div key={p.name} className="flex items-center gap-2">
-                    <span className={`text-sm font-bold font-display w-5 ${
-                      p.position === 1 ? "text-rank-gold" : p.position === 2 ? "text-rank-silver" : "text-rank-bronze"
-                    }`}>
-                      {p.position}º
-                    </span>
-                    <div className="h-7 w-7 rounded-full bg-gradient-to-br from-primary/30 to-accent/20 border border-primary/20 flex items-center justify-center shrink-0">
-                      <span className="text-[10px] font-bold font-display text-primary">{p.name.charAt(0)}</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {podiumData
+              .sort((a, b) => a.position - b.position)
+              .map((player) => {
+                const style = positionStyles[player.position];
+                const Icon = style.Icon;
+                return (
+                  <div
+                    key={player.name}
+                    className={`relative rounded-xl border ${style.border} ${style.bg} ${style.glow} p-5 transition-all duration-300 hover:scale-[1.02]`}
+                  >
+                    {/* Position badge */}
+                    <div className={`absolute -top-3 left-4 px-3 py-0.5 rounded-full text-xs font-bold font-display ${style.badge} flex items-center gap-1`}>
+                      <Icon className="h-3 w-3" />
+                      {style.label}
                     </div>
-                    <span className="text-xs font-medium text-foreground truncate flex-1">{p.name}</span>
-                    <span className="text-xs font-bold text-primary font-display">{p.score}</span>
+
+                    <div className="flex items-center gap-4 mt-2">
+                      {/* Avatar */}
+                      <div className={`h-14 w-14 rounded-full border-2 ${style.avatarBg} flex items-center justify-center shrink-0`}>
+                        <span className={`text-xl font-bold font-display ${style.text}`}>
+                          {player.name.charAt(0)}
+                        </span>
+                      </div>
+
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-bold text-foreground text-sm truncate">{player.name}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">Vendedor(a)</p>
+                      </div>
+
+                      {/* Score */}
+                      <div className="text-right">
+                        <p className={`text-2xl font-bold font-display ${style.text}`}>
+                          {player.score}
+                        </p>
+                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground">vendas</p>
+                      </div>
+                    </div>
                   </div>
-                ))}
-            </div>
+                );
+              })}
           </div>
         </div>
 
