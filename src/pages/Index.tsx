@@ -1,5 +1,4 @@
 import GaugeChart from "@/components/GaugeChart";
-import Podium from "@/components/Podium";
 import RankingTable from "@/components/RankingTable";
 import { Trophy, Crown, Medal, Award } from "lucide-react";
 
@@ -62,19 +61,6 @@ const Index = () => {
           Ranking Vendedores
         </h1>
 
-        {/* Gauges Row */}
-        <div className="grid grid-cols-3 gap-4 mb-5">
-          <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
-            <GaugeChart label="Form" value={212} max={400} />
-          </div>
-          <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
-            <GaugeChart label="Vendas" value={65} max={200} />
-          </div>
-          <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
-            <GaugeChart label="Conv." value={31} isPercentage />
-          </div>
-        </div>
-
         {/* TOP 3 Highlight Section */}
         <div className="mb-5">
           <div className="flex items-center gap-2 mb-4">
@@ -92,39 +78,52 @@ const Index = () => {
                 return (
                   <div
                     key={player.name}
-                    className={`relative rounded-xl border ${style.border} ${style.bg} ${style.glow} p-5 transition-all duration-300 hover:scale-[1.02]`}
+                    className={`relative rounded-xl border ${style.border} ${style.bg} ${style.glow} p-6 transition-all duration-300 hover:scale-[1.02]`}
                   >
                     {/* Position badge */}
-                    <div className={`absolute -top-3 left-4 px-3 py-0.5 rounded-full text-xs font-bold font-display ${style.badge} flex items-center gap-1`}>
-                      <Icon className="h-3 w-3" />
+                    <div className={`absolute -top-3 left-5 px-3 py-1 rounded-full text-xs font-bold font-display ${style.badge} flex items-center gap-1.5`}>
+                      <Icon className="h-3.5 w-3.5" />
                       {style.label}
                     </div>
 
-                    <div className="flex items-center gap-4 mt-2">
+                    <div className="flex flex-col items-center text-center mt-3 gap-3">
                       {/* Avatar */}
-                      <div className={`h-14 w-14 rounded-full border-2 ${style.avatarBg} flex items-center justify-center shrink-0`}>
-                        <span className={`text-xl font-bold font-display ${style.text}`}>
+                      <div className={`h-20 w-20 rounded-full border-2 ${style.avatarBg} flex items-center justify-center`}>
+                        <span className={`text-3xl font-bold font-display ${style.text}`}>
                           {player.name.charAt(0)}
                         </span>
                       </div>
 
                       {/* Info */}
-                      <div className="flex-1 min-w-0">
-                        <p className="font-bold text-foreground text-sm truncate">{player.name}</p>
+                      <div>
+                        <p className="font-bold text-foreground text-base">{player.name}</p>
                         <p className="text-xs text-muted-foreground mt-0.5">Vendedor(a)</p>
                       </div>
 
                       {/* Score */}
-                      <div className="text-right">
-                        <p className={`text-2xl font-bold font-display ${style.text}`}>
+                      <div>
+                        <p className={`text-4xl font-bold font-display ${style.text} leading-none`}>
                           {player.score}
                         </p>
-                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground">vendas</p>
+                        <p className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1">vendas</p>
                       </div>
                     </div>
                   </div>
                 );
               })}
+          </div>
+        </div>
+
+        {/* Gauges Row - below top 3 */}
+        <div className="grid grid-cols-3 gap-4 mb-5">
+          <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
+            <GaugeChart label="Form" value={212} max={400} />
+          </div>
+          <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
+            <GaugeChart label="Vendas" value={65} max={200} />
+          </div>
+          <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
+            <GaugeChart label="Conv." value={31} isPercentage />
           </div>
         </div>
 
