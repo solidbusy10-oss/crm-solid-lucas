@@ -1,78 +1,54 @@
-import { Magnet, Users, TrendingUp, BarChart3, ArrowUpRight, ArrowDownRight } from "lucide-react";
-
-const channels = [
-  { name: "Google Ads", leads: 342, conversion: 12.4, trend: "up" },
-  { name: "Meta Ads", leads: 287, conversion: 9.8, trend: "up" },
-  { name: "Orgânico", leads: 156, conversion: 15.2, trend: "up" },
-  { name: "Indicação", leads: 98, conversion: 22.1, trend: "down" },
-  { name: "E-mail Marketing", leads: 64, conversion: 7.3, trend: "down" },
-];
+import { Facebook, DollarSign, Users, FileText, FileCheck, TrendingDown } from "lucide-react";
+import BrazilMap from "@/components/BrazilMap";
 
 const stats = [
-  { label: "Total de Leads", value: "947", icon: Users, change: "+12.5%" },
-  { label: "Taxa de Conversão", value: "13.2%", icon: TrendingUp, change: "+2.1%" },
-  { label: "Custo por Lead", value: "R$ 18,40", icon: BarChart3, change: "-5.3%" },
+  { label: "Total Gastado", value: "R$ 67.450", icon: DollarSign, color: "text-destructive" },
+  { label: "Total de Leads", value: "2.841", icon: Users, color: "text-primary" },
+  { label: "Total de Form", value: "1.247", icon: FileText, color: "text-primary" },
+  { label: "Total de Contrato", value: "312", icon: FileCheck, color: "text-success" },
+  { label: "Custo por Lead", value: "R$ 23,74", icon: TrendingDown, color: "text-foreground" },
+  { label: "Custo por Form", value: "R$ 54,09", icon: TrendingDown, color: "text-foreground" },
+  { label: "Custo por Contrato", value: "R$ 216,19", icon: TrendingDown, color: "text-foreground" },
 ];
 
 const Inbound = () => {
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center gap-3 mb-8">
-          <Magnet className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl md:text-4xl font-bold font-display text-primary tracking-wide">
-            Inbound Marketing
-          </h1>
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-6">
+          <div className="h-10 w-10 rounded-lg bg-[#1877F2]/20 flex items-center justify-center">
+            <Facebook className="h-6 w-6 text-[#1877F2]" />
+          </div>
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold font-display text-foreground tracking-wide">
+              Facebook Ads
+            </h1>
+            <p className="text-xs text-muted-foreground">Métricas de tráfego pago</p>
+          </div>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 mb-6">
           {stats.map((stat) => (
-            <div key={stat.label} className="glass-card rounded-xl p-6 glow-primary">
-              <div className="flex items-center justify-between mb-2">
-                <stat.icon className="h-5 w-5 text-muted-foreground" />
-                <span className={`text-xs font-semibold ${stat.change.startsWith('+') ? 'text-gauge-good' : stat.change.startsWith('-') && stat.label !== 'Custo por Lead' ? 'text-gauge-bad' : 'text-gauge-good'}`}>
-                  {stat.change}
-                </span>
+            <div key={stat.label} className="glass-card rounded-xl p-4 glow-primary">
+              <div className="flex items-center gap-2 mb-2">
+                <stat.icon className="h-4 w-4 text-muted-foreground shrink-0" />
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground truncate">{stat.label}</p>
               </div>
-              <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-              <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
+              <p className={`text-lg md:text-xl font-bold font-display ${stat.color}`}>{stat.value}</p>
             </div>
           ))}
         </div>
 
-        {/* Channels Table */}
-        <div className="glass-card rounded-xl p-6">
-          <h2 className="text-lg font-semibold font-display text-foreground mb-4">
-            Canais de Aquisição
+        {/* Brazil Map */}
+        <div className="glass-card rounded-xl p-6 glow-primary">
+          <h2 className="text-lg font-semibold font-display text-foreground mb-1">
+            Distribuição por Estado
           </h2>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border/30">
-                  <th className="text-left py-3 px-4 text-muted-foreground font-medium">Canal</th>
-                  <th className="text-center py-3 px-4 text-muted-foreground font-medium">Leads</th>
-                  <th className="text-center py-3 px-4 text-muted-foreground font-medium">Conversão</th>
-                  <th className="text-center py-3 px-4 text-muted-foreground font-medium">Tendência</th>
-                </tr>
-              </thead>
-              <tbody>
-                {channels.map((ch) => (
-                  <tr key={ch.name} className="border-b border-border/10 hover:bg-sidebar-accent/20 transition-colors">
-                    <td className="py-3 px-4 font-medium text-foreground">{ch.name}</td>
-                    <td className="py-3 px-4 text-center text-foreground">{ch.leads}</td>
-                    <td className="py-3 px-4 text-center text-foreground">{ch.conversion}%</td>
-                    <td className="py-3 px-4 text-center">
-                      {ch.trend === "up" ? (
-                        <ArrowUpRight className="h-4 w-4 text-gauge-good inline-block" />
-                      ) : (
-                        <ArrowDownRight className="h-4 w-4 text-gauge-bad inline-block" />
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <p className="text-xs text-muted-foreground mb-4">Leads e investimento por região</p>
+          <div className="h-[500px] md:h-[600px]">
+            <BrazilMap />
           </div>
         </div>
       </div>
