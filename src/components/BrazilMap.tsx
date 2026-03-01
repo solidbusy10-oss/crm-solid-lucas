@@ -41,8 +41,16 @@ const selectedStateStyle: L.PathOptions = {
 };
 
 // Dark tile layer for the PowerBI-style aesthetic
-const DARK_TILE_URL = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
+const DARK_TILE_URL = "https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png";
 const DARK_TILE_ATTR = '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>';
+// Labels only layer (shows city/road names on top)
+const LABELS_TILE_URL = "https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png";
+
+// Brazil bounding box
+const BRAZIL_BOUNDS: L.LatLngBoundsExpression = [
+  [-34.0, -74.0], // SW
+  [6.0, -32.0],   // NE
+];
 
 function FitBrazil() {
   const map = useMap();
@@ -428,8 +436,10 @@ const BrazilMap = ({ onStateClick, onCityClick }: BrazilMapProps) => {
       <MapContainer
         center={[-14.5, -51]}
         zoom={4}
-        minZoom={3}
+        minZoom={4}
         maxZoom={18}
+        maxBounds={BRAZIL_BOUNDS as L.LatLngBoundsExpression}
+        maxBoundsViscosity={1.0}
         style={{ width: "100%", height: "100%" }}
         zoomControl={true}
       >
@@ -440,6 +450,11 @@ const BrazilMap = ({ onStateClick, onCityClick }: BrazilMapProps) => {
         <TileLayer
           attribution={DARK_TILE_ATTR}
           url={DARK_TILE_URL}
+          bounds={BRAZIL_BOUNDS as L.LatLngBoundsExpression}
+        />
+        <TileLayer
+          url={LABELS_TILE_URL}
+          bounds={BRAZIL_BOUNDS as L.LatLngBoundsExpression}
         />
         {geoData && (
           <GeoJSON
