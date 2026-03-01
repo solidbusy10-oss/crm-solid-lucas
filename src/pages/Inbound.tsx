@@ -192,15 +192,14 @@ const Inbound = () => {
     { name: "CEP Não Cabeado", value: totalNaoCabeado },
   ], [totalCabeado, totalNaoCabeado]);
 
-  const sourceForPodium = selectedState !== "all" ? filteredCities : allCities;
-  const topCG = useMemo(() => [...sourceForPodium].sort((a, b) => b.cg - a.cg).slice(0, 3), [sourceForPodium]);
-  const topInstalado = useMemo(() => [...sourceForPodium].sort((a, b) => b.instalado - a.instalado).slice(0, 3), [sourceForPodium]);
+  const topCG = useMemo(() => [...allCities].sort((a, b) => b.cg - a.cg).slice(0, 3), []);
+  const topInstalado = useMemo(() => [...allCities].sort((a, b) => b.instalado - a.instalado).slice(0, 3), []);
 
   const citiesWithViab = useMemo(() =>
-    sourceForPodium.map(c => {
+    allCities.map(c => {
       const total = c.inviabilidade + c.cg + c.reprovado + c.jaCliente + c.fraude + c.semCobertura + c.semCondicao + c.instalado;
       return { ...c, viabilidade: total > 0 ? Math.round((c.instalado / total) * 100) : 0 };
-    }), [sourceForPodium]);
+    }), []);
   const topViab = useMemo(() => [...citiesWithViab].sort((a, b) => b.viabilidade - a.viabilidade).slice(0, 3), [citiesWithViab]);
 
   const radarData = useMemo(() => [
@@ -249,7 +248,7 @@ const Inbound = () => {
         <div className="flex items-center gap-2 mb-4">
           <Trophy className="h-5 w-5 text-rank-gold" />
           <h2 className="text-lg font-bold font-display text-foreground uppercase tracking-wider">
-            Top 3 Cidades {selectedState !== "all" ? `— ${selectedState}` : ""}
+            Top 3 Cidades — Geral
           </h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -344,7 +343,9 @@ const Inbound = () => {
             <h2 className="text-base font-semibold font-display text-foreground mb-1">Distribuição por Estado</h2>
             <p className="text-[10px] text-muted-foreground mb-3">Leads e investimento por região</p>
             <div className="h-[420px]">
-              <BrazilMap />
+              <BrazilMap onStateClick={(stateName) => handleStateChange(
+                states.includes(stateName) ? stateName : "all"
+              )} />
             </div>
           </div>
 
