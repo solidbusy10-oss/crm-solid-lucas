@@ -118,6 +118,29 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   );
 };
 
+// ── Podium Card ──
+const PodiumCard = ({ city, uf, value, label, idx }: { city: string; uf: string; value: string | number; label: string; idx: number }) => {
+  const style = podiumStyles[idx as 0 | 1 | 2];
+  const Icon = style.Icon;
+  return (
+    <div className={`relative rounded-lg border ${style.border} ${style.bg} ${style.glow} p-3 transition-all duration-300 hover:scale-[1.01]`}>
+      <div className={`absolute -top-2 -left-1 px-2 py-0.5 rounded-full text-[10px] font-bold font-display ${style.badge} flex items-center gap-1`}>
+        <Icon className="h-3 w-3" />{style.label}
+      </div>
+      <div className="flex items-center justify-between mt-1">
+        <div>
+          <p className="font-bold text-foreground text-sm">{city}</p>
+          <p className="text-[10px] text-muted-foreground">{uf}</p>
+        </div>
+        <div className="text-right">
+          <p className={`text-xl font-bold font-display ${style.text} leading-none`}>{value}</p>
+          <p className="text-[9px] uppercase tracking-widest text-muted-foreground mt-0.5">{label}</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // ── Component ──
 
 const Inbound = () => {
@@ -136,12 +159,8 @@ const Inbound = () => {
     return [...new Set(allCities.filter(c => c.state === selectedState).map(c => c.city))].sort();
   }, [selectedState]);
 
-  // Aggregated data for charts
   const aggregated = useMemo(() => {
-    const agg = {
-      inviabilidade: 0, semCobertura: 0, semCondicao: 0,
-      cg: 0, reprovado: 0, jaCliente: 0, fraude: 0, instalado: 0,
-    };
+    const agg = { inviabilidade: 0, semCobertura: 0, semCondicao: 0, cg: 0, reprovado: 0, jaCliente: 0, fraude: 0, instalado: 0 };
     filteredCities.forEach(c => {
       agg.inviabilidade += c.inviabilidade;
       agg.semCobertura += c.semCobertura;
@@ -155,7 +174,6 @@ const Inbound = () => {
     return agg;
   }, [filteredCities]);
 
-  // Bar chart data – breakdown by reason
   const barData = useMemo(() => [
     { name: "Inviab.", value: aggregated.inviabilidade, fill: COLORS.inviabilidade },
     { name: "CG", value: aggregated.cg, fill: COLORS.cg },
@@ -167,7 +185,6 @@ const Inbound = () => {
     { name: "Instalado", value: aggregated.instalado, fill: COLORS.instalado },
   ], [aggregated]);
 
-  // Pie: CEP Cabeado vs Não Cabeado
   const totalCabeado = aggregated.inviabilidade + aggregated.cg + aggregated.reprovado + aggregated.jaCliente + aggregated.fraude;
   const totalNaoCabeado = aggregated.semCobertura + aggregated.semCondicao;
   const pieData = useMemo(() => [
@@ -175,12 +192,10 @@ const Inbound = () => {
     { name: "CEP Não Cabeado", value: totalNaoCabeado },
   ], [totalCabeado, totalNaoCabeado]);
 
-  // Top 3 cities from filtered set (or all if showing all)
   const sourceForPodium = selectedState !== "all" ? filteredCities : allCities;
   const topCG = useMemo(() => [...sourceForPodium].sort((a, b) => b.cg - a.cg).slice(0, 3), [sourceForPodium]);
   const topInstalado = useMemo(() => [...sourceForPodium].sort((a, b) => b.instalado - a.instalado).slice(0, 3), [sourceForPodium]);
 
-  // Viabilidade = instalado / total * 100
   const citiesWithViab = useMemo(() =>
     sourceForPodium.map(c => {
       const total = c.inviabilidade + c.cg + c.reprovado + c.jaCliente + c.fraude + c.semCobertura + c.semCondicao + c.instalado;
@@ -188,7 +203,6 @@ const Inbound = () => {
     }), [sourceForPodium]);
   const topViab = useMemo(() => [...citiesWithViab].sort((a, b) => b.viabilidade - a.viabilidade).slice(0, 3), [citiesWithViab]);
 
-  // Radar data for selected view
   const radarData = useMemo(() => [
     { metric: "Inviab.", value: aggregated.inviabilidade },
     { metric: "CG", value: aggregated.cg },
@@ -213,9 +227,7 @@ const Inbound = () => {
             <Facebook className="h-6 w-6 text-[#1877F2]" />
           </div>
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold font-display text-foreground tracking-wide">
-              Facebook Ads
-            </h1>
+            <h1 className="text-2xl md:text-3xl font-bold font-display text-foreground tracking-wide">Facebook Ads</h1>
             <p className="text-xs text-muted-foreground">Métricas de tráfego pago</p>
           </div>
         </div>
@@ -233,12 +245,51 @@ const Inbound = () => {
           ))}
         </div>
 
-        {/* Brazil Map */}
-        <div className="glass-card rounded-xl p-6 glow-primary mb-6">
-          <h2 className="text-lg font-semibold font-display text-foreground mb-1">Distribuição por Estado</h2>
-          <p className="text-xs text-muted-foreground mb-4">Leads e investimento por região</p>
-          <div className="h-[500px] md:h-[600px]">
-            <BrazilMap />
+        {/* ══════ TOP 3 PODIUMS (abaixo dos cards) ══════ */}
+        <div className="flex items-center gap-2 mb-4">
+          <Trophy className="h-5 w-5 text-rank-gold" />
+          <h2 className="text-lg font-bold font-display text-foreground uppercase tracking-wider">
+            Top 3 Cidades {selectedState !== "all" ? `— ${selectedState}` : ""}
+          </h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          {/* Top CG */}
+          <div className="glass-card rounded-xl p-5 glow-primary">
+            <div className="flex items-center gap-2 mb-4">
+              <ShieldCheck className="h-5 w-5 text-rank-gold" />
+              <h3 className="text-sm font-bold font-display text-foreground uppercase tracking-wider">Mais CG</h3>
+            </div>
+            <div className="flex flex-col gap-3">
+              {topCG.map((c, idx) => (
+                <PodiumCard key={c.city} city={c.city} uf={c.uf} value={c.cg} label="contratos" idx={idx} />
+              ))}
+            </div>
+          </div>
+
+          {/* Top Instalado */}
+          <div className="glass-card rounded-xl p-5 glow-primary">
+            <div className="flex items-center gap-2 mb-4">
+              <FileCheck className="h-5 w-5 text-rank-gold" />
+              <h3 className="text-sm font-bold font-display text-foreground uppercase tracking-wider">Mais Instalação</h3>
+            </div>
+            <div className="flex flex-col gap-3">
+              {topInstalado.map((c, idx) => (
+                <PodiumCard key={c.city} city={c.city} uf={c.uf} value={c.instalado} label="instalados" idx={idx} />
+              ))}
+            </div>
+          </div>
+
+          {/* Top Viabilidade */}
+          <div className="glass-card rounded-xl p-5 glow-primary">
+            <div className="flex items-center gap-2 mb-4">
+              <MapPin className="h-5 w-5 text-rank-gold" />
+              <h3 className="text-sm font-bold font-display text-foreground uppercase tracking-wider">Mais Viabilidade</h3>
+            </div>
+            <div className="flex flex-col gap-3">
+              {topViab.map((c, idx) => (
+                <PodiumCard key={c.city} city={c.city} uf={c.uf} value={`${c.viabilidade}%`} label="viável" idx={idx} />
+              ))}
+            </div>
           </div>
         </div>
 
@@ -246,9 +297,7 @@ const Inbound = () => {
         <div className="glass-card rounded-xl p-5 glow-primary mb-6">
           <div className="flex items-center gap-2 mb-4">
             <Filter className="h-5 w-5 text-primary" />
-            <h2 className="text-lg font-bold font-display text-foreground uppercase tracking-wider">
-              Filtros
-            </h2>
+            <h2 className="text-lg font-bold font-display text-foreground uppercase tracking-wider">Filtros</h2>
           </div>
           <div className="flex flex-wrap gap-4">
             <div className="w-56">
@@ -288,196 +337,92 @@ const Inbound = () => {
           </div>
         </div>
 
-        {/* ══════ CHARTS ROW ══════ */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-          {/* Bar Chart – Breakdown */}
-          <div className="glass-card rounded-xl p-5 glow-primary lg:col-span-2">
-            <div className="flex items-center gap-2 mb-1">
-              <ShieldAlert className="h-5 w-5 text-destructive" />
-              <h2 className="text-base font-semibold font-display text-foreground">Breakdown de Métricas</h2>
-            </div>
-            <p className="text-[10px] text-muted-foreground mb-4">Todas as categorias de inviabilidade + instalado</p>
-            <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={barData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-                  <XAxis dataKey="name" tick={{ fill: "hsl(215 15% 55%)", fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fill: "hsl(215 15% 55%)", fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Bar dataKey="value" radius={[6, 6, 0, 0]}>
-                    {barData.map((entry, i) => (
-                      <Cell key={i} fill={entry.fill} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+        {/* ══════ MAPA + GRÁFICOS SIDE BY SIDE ══════ */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+          {/* Mapa do Brasil */}
+          <div className="glass-card rounded-xl p-5 glow-primary">
+            <h2 className="text-base font-semibold font-display text-foreground mb-1">Distribuição por Estado</h2>
+            <p className="text-[10px] text-muted-foreground mb-3">Leads e investimento por região</p>
+            <div className="h-[420px]">
+              <BrazilMap />
             </div>
           </div>
 
-          {/* Pie Chart – Cabeado vs Não Cabeado */}
-          <div className="glass-card rounded-xl p-5 glow-primary">
-            <h2 className="text-base font-semibold font-display text-foreground mb-1">CEP Cabeado vs Não Cabeado</h2>
-            <p className="text-[10px] text-muted-foreground mb-4">Proporção de viabilidade por tipo de CEP</p>
-            <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    cx="50%"
-                    cy="45%"
-                    innerRadius={55}
-                    outerRadius={85}
-                    paddingAngle={4}
-                    dataKey="value"
-                    strokeWidth={0}
-                  >
-                    {pieData.map((_, i) => (
-                      <Cell key={i} fill={PIE_COLORS[i]} />
-                    ))}
-                  </Pie>
-                  <Tooltip content={<CustomTooltip />} />
-                  <Legend
-                    verticalAlign="bottom"
-                    formatter={(val: string) => <span className="text-xs text-muted-foreground">{val}</span>}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="flex justify-around mt-2 text-xs">
-              <div className="text-center">
-                <p className="text-primary font-bold font-display text-lg">{totalCabeado}</p>
-                <p className="text-muted-foreground text-[10px]">Cabeado</p>
+          {/* Gráficos empilhados ao lado do mapa */}
+          <div className="flex flex-col gap-4">
+            {/* Bar Chart */}
+            <div className="glass-card rounded-xl p-5 glow-primary flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <ShieldAlert className="h-4 w-4 text-destructive" />
+                <h2 className="text-sm font-semibold font-display text-foreground">Breakdown de Métricas</h2>
               </div>
-              <div className="text-center">
-                <p className="text-destructive font-bold font-display text-lg">{totalNaoCabeado}</p>
-                <p className="text-muted-foreground text-[10px]">Não Cabeado</p>
-              </div>
-              <div className="text-center">
-                <p className="text-foreground font-bold font-display text-lg">
-                  {totalCabeado + totalNaoCabeado > 0
-                    ? ((totalCabeado / (totalCabeado + totalNaoCabeado)) * 100).toFixed(1)
-                    : 0}%
-                </p>
-                <p className="text-muted-foreground text-[10px]">% Cabeado</p>
+              <p className="text-[10px] text-muted-foreground mb-3">Categorias de inviabilidade + instalado</p>
+              <div className="h-44">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={barData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                    <XAxis dataKey="name" tick={{ fill: "hsl(215 15% 55%)", fontSize: 9 }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fill: "hsl(215 15% 55%)", fontSize: 9 }} axisLine={false} tickLine={false} />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+                      {barData.map((entry, i) => (
+                        <Cell key={i} fill={entry.fill} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* Radar chart */}
-        <div className="glass-card rounded-xl p-5 glow-primary mb-6">
-          <h2 className="text-base font-semibold font-display text-foreground mb-1">Radar de Métricas</h2>
-          <p className="text-[10px] text-muted-foreground mb-4">Visão geral do perfil de inviabilidade</p>
-          <div className="h-72 md:h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="70%">
-                <PolarGrid stroke="hsl(215 30% 25%)" />
-                <PolarAngleAxis dataKey="metric" tick={{ fill: "hsl(215 15% 55%)", fontSize: 10 }} />
-                <PolarRadiusAxis tick={{ fill: "hsl(215 15% 55%)", fontSize: 9 }} />
-                <Radar name="Quantidade" dataKey="value" stroke="hsl(170 80% 45%)" fill="hsl(170 80% 45%)" fillOpacity={0.25} strokeWidth={2} />
-                <Tooltip content={<CustomTooltip />} />
-              </RadarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* ══════ PODIUMS ══════ */}
-        <div className="flex items-center gap-2 mb-4">
-          <Trophy className="h-5 w-5 text-rank-gold" />
-          <h2 className="text-lg font-bold font-display text-foreground uppercase tracking-wider">
-            Top 3 Cidades {selectedState !== "all" ? `— ${selectedState}` : ""}
-          </h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          {/* Top CG */}
-          <div className="glass-card rounded-xl p-5 glow-primary">
-            <div className="flex items-center gap-2 mb-4">
-              <ShieldCheck className="h-5 w-5 text-rank-gold" />
-              <h3 className="text-sm font-bold font-display text-foreground uppercase tracking-wider">Mais CG</h3>
-            </div>
-            <div className="flex flex-col gap-3">
-              {topCG.map((c, idx) => {
-                const style = podiumStyles[idx as 0 | 1 | 2];
-                const Icon = style.Icon;
-                return (
-                  <div key={c.city} className={`relative rounded-lg border ${style.border} ${style.bg} ${style.glow} p-4 transition-all duration-300 hover:scale-[1.01]`}>
-                    <div className={`absolute -top-2 -left-1 px-2 py-0.5 rounded-full text-[10px] font-bold font-display ${style.badge} flex items-center gap-1`}>
-                      <Icon className="h-3 w-3" />{style.label}
-                    </div>
-                    <div className="flex items-center justify-between mt-1">
-                      <div>
-                        <p className="font-bold text-foreground text-sm">{c.city}</p>
-                        <p className="text-[10px] text-muted-foreground">{c.uf}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className={`text-2xl font-bold font-display ${style.text} leading-none`}>{c.cg}</p>
-                        <p className="text-[9px] uppercase tracking-widest text-muted-foreground mt-0.5">contratos</p>
-                      </div>
-                    </div>
+            {/* Pie + Radar side by side */}
+            <div className="grid grid-cols-2 gap-4">
+              {/* Pie Chart */}
+              <div className="glass-card rounded-xl p-4 glow-primary">
+                <h2 className="text-sm font-semibold font-display text-foreground mb-1">Cabeado vs Não Cabeado</h2>
+                <div className="h-40">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie data={pieData} cx="50%" cy="50%" innerRadius={35} outerRadius={55} paddingAngle={4} dataKey="value" strokeWidth={0}>
+                        {pieData.map((_, i) => (
+                          <Cell key={i} fill={PIE_COLORS[i]} />
+                        ))}
+                      </Pie>
+                      <Tooltip content={<CustomTooltip />} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="flex justify-around text-xs mt-1">
+                  <div className="text-center">
+                    <p className="text-primary font-bold font-display text-sm">{totalCabeado}</p>
+                    <p className="text-muted-foreground text-[9px]">Cabeado</p>
                   </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Top Instalado */}
-          <div className="glass-card rounded-xl p-5 glow-primary">
-            <div className="flex items-center gap-2 mb-4">
-              <FileCheck className="h-5 w-5 text-rank-gold" />
-              <h3 className="text-sm font-bold font-display text-foreground uppercase tracking-wider">Mais Instalação</h3>
-            </div>
-            <div className="flex flex-col gap-3">
-              {topInstalado.map((c, idx) => {
-                const style = podiumStyles[idx as 0 | 1 | 2];
-                const Icon = style.Icon;
-                return (
-                  <div key={c.city} className={`relative rounded-lg border ${style.border} ${style.bg} ${style.glow} p-4 transition-all duration-300 hover:scale-[1.01]`}>
-                    <div className={`absolute -top-2 -left-1 px-2 py-0.5 rounded-full text-[10px] font-bold font-display ${style.badge} flex items-center gap-1`}>
-                      <Icon className="h-3 w-3" />{style.label}
-                    </div>
-                    <div className="flex items-center justify-between mt-1">
-                      <div>
-                        <p className="font-bold text-foreground text-sm">{c.city}</p>
-                        <p className="text-[10px] text-muted-foreground">{c.uf}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className={`text-2xl font-bold font-display ${style.text} leading-none`}>{c.instalado}</p>
-                        <p className="text-[9px] uppercase tracking-widest text-muted-foreground mt-0.5">instalados</p>
-                      </div>
-                    </div>
+                  <div className="text-center">
+                    <p className="text-destructive font-bold font-display text-sm">{totalNaoCabeado}</p>
+                    <p className="text-muted-foreground text-[9px]">N. Cabeado</p>
                   </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Top Viabilidade */}
-          <div className="glass-card rounded-xl p-5 glow-primary">
-            <div className="flex items-center gap-2 mb-4">
-              <MapPin className="h-5 w-5 text-rank-gold" />
-              <h3 className="text-sm font-bold font-display text-foreground uppercase tracking-wider">Mais Viabilidade</h3>
-            </div>
-            <div className="flex flex-col gap-3">
-              {topViab.map((c, idx) => {
-                const style = podiumStyles[idx as 0 | 1 | 2];
-                const Icon = style.Icon;
-                return (
-                  <div key={c.city} className={`relative rounded-lg border ${style.border} ${style.bg} ${style.glow} p-4 transition-all duration-300 hover:scale-[1.01]`}>
-                    <div className={`absolute -top-2 -left-1 px-2 py-0.5 rounded-full text-[10px] font-bold font-display ${style.badge} flex items-center gap-1`}>
-                      <Icon className="h-3 w-3" />{style.label}
-                    </div>
-                    <div className="flex items-center justify-between mt-1">
-                      <div>
-                        <p className="font-bold text-foreground text-sm">{c.city}</p>
-                        <p className="text-[10px] text-muted-foreground">{c.uf}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className={`text-2xl font-bold font-display ${style.text} leading-none`}>{c.viabilidade}%</p>
-                        <p className="text-[9px] uppercase tracking-widest text-muted-foreground mt-0.5">viável</p>
-                      </div>
-                    </div>
+                  <div className="text-center">
+                    <p className="text-foreground font-bold font-display text-sm">
+                      {totalCabeado + totalNaoCabeado > 0 ? ((totalCabeado / (totalCabeado + totalNaoCabeado)) * 100).toFixed(1) : 0}%
+                    </p>
+                    <p className="text-muted-foreground text-[9px]">% Cab.</p>
                   </div>
-                );
-              })}
+                </div>
+              </div>
+
+              {/* Radar Chart */}
+              <div className="glass-card rounded-xl p-4 glow-primary">
+                <h2 className="text-sm font-semibold font-display text-foreground mb-1">Radar de Métricas</h2>
+                <div className="h-48">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="65%">
+                      <PolarGrid stroke="hsl(215 30% 25%)" />
+                      <PolarAngleAxis dataKey="metric" tick={{ fill: "hsl(215 15% 55%)", fontSize: 8 }} />
+                      <PolarRadiusAxis tick={{ fill: "hsl(215 15% 55%)", fontSize: 8 }} />
+                      <Radar name="Quantidade" dataKey="value" stroke="hsl(170 80% 45%)" fill="hsl(170 80% 45%)" fillOpacity={0.25} strokeWidth={2} />
+                      <Tooltip content={<CustomTooltip />} />
+                    </RadarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
             </div>
           </div>
         </div>
