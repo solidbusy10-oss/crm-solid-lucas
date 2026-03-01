@@ -49,7 +49,11 @@ const getColor = (leads: number) => {
   return "hsl(215 35% 22%)";
 };
 
-const BrazilMap = () => {
+interface BrazilMapProps {
+  onStateClick?: (stateName: string) => void;
+}
+
+const BrazilMap = ({ onStateClick }: BrazilMapProps) => {
   const [tooltip, setTooltip] = useState<{ name: string; data: StateData; x: number; y: number } | null>(null);
 
   return (
@@ -84,6 +88,9 @@ const BrazilMap = () => {
                     }
                   }}
                   onMouseLeave={() => setTooltip(null)}
+                  onClick={() => {
+                    if (onStateClick) onStateClick(stateName);
+                  }}
                   style={{
                     default: { outline: "none" },
                     hover: { fill: "hsl(170 80% 55%)", outline: "none", cursor: "pointer" },
