@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { User, LogOut, TrendingUp, Package, BarChart3, FileText, ShoppingCart, Percent, Users, DollarSign, Zap, Target, Filter } from "lucide-react";
+import { User, LogOut, TrendingUp, Package, BarChart3, FileText, ShoppingCart, Percent, Users, DollarSign, Zap, Target, Filter, Settings } from "lucide-react";
 import GaugeChart from "@/components/GaugeChart";
 import FunnelChart from "@/components/FunnelChart";
 import { toast } from "sonner";
@@ -183,13 +183,22 @@ const Perfil = () => {
                 </div>
               </div>
             </div>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-destructive/15 border border-destructive/30 text-destructive hover:bg-destructive/25 transition-all text-xs font-semibold"
-            >
-              <LogOut className="h-4 w-4" />
-              Sair
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => navigate("/configuracoes")}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary/15 border border-primary/30 text-primary hover:bg-primary/25 transition-all text-xs font-semibold"
+              >
+                <Settings className="h-4 w-4" />
+                Configurações
+              </button>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-destructive/15 border border-destructive/30 text-destructive hover:bg-destructive/25 transition-all text-xs font-semibold"
+              >
+                <LogOut className="h-4 w-4" />
+                Sair
+              </button>
+            </div>
           </div>
         </div>
 
