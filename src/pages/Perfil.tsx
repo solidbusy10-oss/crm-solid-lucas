@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { User, LogOut, TrendingUp, Package, BarChart3, FileText, ShoppingCart, Percent, Users, DollarSign, Zap, Target, Filter, Settings, Trophy, Crown, Medal, Award, ShieldCheck, FileCheck, MapPin } from "lucide-react";
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis } from "recharts";
 import GaugeChart from "@/components/GaugeChart";
 import FunnelChart from "@/components/FunnelChart";
 import { toast } from "sonner";
@@ -512,38 +512,74 @@ const Perfil = () => {
               </div>
             </div>
 
-            {/* Cabeado vs Não Cabeado */}
+            {/* Cabeado vs Não Cabeado + Barras horizontais */}
             <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
               <Target className="h-4 w-4 text-primary" />
               Cabeado vs Não Cabeado
             </h2>
-            <div className="glass-card rounded-xl p-4 glow-primary mb-6">
-              <div className="h-48">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={inboundPieData} cx="50%" cy="50%" innerRadius={45} outerRadius={70} paddingAngle={4} dataKey="value" strokeWidth={0}>
-                      {inboundPieData.map((_, i) => (
-                        <Cell key={i} fill={PIE_COLORS[i]} />
-                      ))}
-                    </Pie>
-                    <Tooltip content={<CustomTooltip />} />
-                  </PieChart>
-                </ResponsiveContainer>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              {/* Pie Chart */}
+              <div className="glass-card rounded-xl p-4 glow-primary">
+                <h3 className="text-xs font-semibold font-display text-foreground mb-2">Distribuição</h3>
+                <div className="h-48">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie data={inboundPieData} cx="50%" cy="50%" innerRadius={45} outerRadius={70} paddingAngle={4} dataKey="value" strokeWidth={0}>
+                        {inboundPieData.map((_, i) => (
+                          <Cell key={i} fill={PIE_COLORS[i]} />
+                        ))}
+                      </Pie>
+                      <Tooltip content={<CustomTooltip />} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="flex justify-around text-xs mt-2">
+                  <div className="text-center">
+                    <p className="text-primary font-bold font-display text-lg">{inboundTotalCabeado}</p>
+                    <p className="text-muted-foreground text-[10px]">Cabeado</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-destructive font-bold font-display text-lg">{inboundTotalNaoCabeado}</p>
+                    <p className="text-muted-foreground text-[10px]">Não Cabeado</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-foreground font-bold font-display text-lg">
+                      {inboundTotalCabeado + inboundTotalNaoCabeado > 0 ? ((inboundTotalCabeado / (inboundTotalCabeado + inboundTotalNaoCabeado)) * 100).toFixed(1) : 0}%
+                    </p>
+                    <p className="text-muted-foreground text-[10px]">% Cabeado</p>
+                  </div>
+                </div>
               </div>
-              <div className="flex justify-around text-xs mt-2">
-                <div className="text-center">
-                  <p className="text-primary font-bold font-display text-lg">{inboundTotalCabeado}</p>
-                  <p className="text-muted-foreground text-[10px]">Cabeado</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-destructive font-bold font-display text-lg">{inboundTotalNaoCabeado}</p>
-                  <p className="text-muted-foreground text-[10px]">Não Cabeado</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-foreground font-bold font-display text-lg">
-                    {inboundTotalCabeado + inboundTotalNaoCabeado > 0 ? ((inboundTotalCabeado / (inboundTotalCabeado + inboundTotalNaoCabeado)) * 100).toFixed(1) : 0}%
-                  </p>
-                  <p className="text-muted-foreground text-[10px]">% Cabeado</p>
+
+              {/* Horizontal Bar Chart - Tratativas */}
+              <div className="glass-card rounded-xl p-4 glow-primary">
+                <h3 className="text-xs font-semibold font-display text-foreground mb-2">Tratativas</h3>
+                <div className="h-[280px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={[
+                        { name: "CG", value: inboundCities.reduce((s, c) => s + c.cg, 0), fill: "hsl(170 80% 45%)" },
+                        { name: "Instalado", value: inboundCities.reduce((s, c) => s + c.instalado, 0), fill: "hsl(145 65% 42%)" },
+                        { name: "Inviab.", value: inboundCities.reduce((s, c) => s + c.inviabilidade, 0), fill: "hsl(0 70% 55%)" },
+                        { name: "Reprov.", value: inboundCities.reduce((s, c) => s + c.reprovado, 0), fill: "hsl(25 60% 45%)" },
+                        { name: "Já Cliente", value: inboundCities.reduce((s, c) => s + c.jaCliente, 0), fill: "hsl(210 10% 70%)" },
+                        { name: "Fraude", value: inboundCities.reduce((s, c) => s + c.fraude, 0), fill: "hsl(0 90% 40%)" },
+                        { name: "S/ Cobert.", value: inboundCities.reduce((s, c) => s + c.semCobertura, 0), fill: "hsl(45 90% 55%)" },
+                        { name: "S/ Cond.", value: inboundCities.reduce((s, c) => s + c.semCondicao, 0), fill: "hsl(280 50% 55%)" },
+                      ]}
+                      layout="vertical"
+                      margin={{ top: 5, right: 20, left: 60, bottom: 5 }}
+                    >
+                      <XAxis type="number" tick={{ fill: "hsl(215 15% 55%)", fontSize: 9 }} axisLine={false} tickLine={false} />
+                      <YAxis type="category" dataKey="name" tick={{ fill: "hsl(215 15% 55%)", fontSize: 9 }} axisLine={false} tickLine={false} width={55} />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Bar dataKey="value" radius={[0, 6, 6, 0]}>
+                        {[0,1,2,3,4,5,6,7].map((i) => (
+                          <Cell key={i} fill={["hsl(170 80% 45%)","hsl(145 65% 42%)","hsl(0 70% 55%)","hsl(25 60% 45%)","hsl(210 10% 70%)","hsl(0 90% 40%)","hsl(45 90% 55%)","hsl(280 50% 55%)"][i]} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
               </div>
             </div>
