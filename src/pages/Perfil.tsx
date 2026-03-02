@@ -245,7 +245,8 @@ const Perfil = () => {
   );
 
   const isSupervisor = role === "supervisor";
-  const isCoordenador = role === "coordenador";
+  const isInbound = role === "coordenador" && profile?.equipe === "Inbound";
+  const isCoordenador = role === "coordenador" && !isInbound;
 
   const mockInboundProfile = {
     totalLeads: 3420,
@@ -280,9 +281,9 @@ const Perfil = () => {
                 </h1>
                 <p className="text-xs text-muted-foreground">{userEmail}</p>
                 <div className="flex items-center gap-2 mt-1">
-                  {role && (
+                  {(role || isInbound) && (
                     <span className="text-[10px] bg-accent/15 text-accent-foreground px-2 py-0.5 rounded-full font-semibold capitalize">
-                      {role}
+                      {isInbound ? "inbound" : role}
                     </span>
                   )}
                   {profile?.equipe && (
@@ -1119,8 +1120,46 @@ const Perfil = () => {
           );
         })()}
 
-        {/* Non-supervisor, non-coordenador: original vendedor layout */}
-        {!isSupervisor && !isCoordenador && (
+        {/* Inbound: apenas indicadores de inbound + funil */}
+        {isInbound && (
+          <>
+            {/* Inbound KPIs */}
+            <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+              <Zap className="h-4 w-4 text-primary" />
+              Inbound — Resumo
+            </h2>
+            <div className="grid grid-cols-5 gap-3 mb-3">
+              {statCard(<DollarSign className="h-4 w-4 text-primary" />, "Total Gasto", `R$ ${mockInbound.totalGasto.toLocaleString("pt-BR")}`)}
+              {statCard(<Users className="h-4 w-4 text-primary" />, "Total Leads", mockInbound.totalLeads.toLocaleString("pt-BR"))}
+              {statCard(<Target className="h-4 w-4 text-primary" />, "CPL", `R$ ${mockInbound.valorLead.toFixed(2)}`)}
+              {statCard(<ShoppingCart className="h-4 w-4 text-primary" />, "CPC", `R$ ${mockInbound.valorContrato.toFixed(2)}`)}
+              {statCard(<TrendingUp className="h-4 w-4 text-primary" />, "% Viabilidade", `${mockInbound.viabilidade}%`)}
+            </div>
+            <div className="grid grid-cols-3 gap-3 mb-6">
+              <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
+                <GaugeChart label="CPL" value={mockInbound.valorLead} max={50} />
+              </div>
+              <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
+                <GaugeChart label="CPC" value={mockInbound.valorContrato} max={500} />
+              </div>
+              <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
+                <GaugeChart label="Viabilidade" value={mockInbound.viabilidade} isPercentage />
+              </div>
+            </div>
+
+            {/* Funil de Conversão */}
+            <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+              <Filter className="h-4 w-4 text-primary" />
+              Funil de Conversão
+            </h2>
+            <div className="glass-card rounded-xl p-4 glow-primary mb-8 flex items-center justify-center">
+              <FunnelChart stages={computeFunnelStages(mockFunnel)} />
+            </div>
+          </>
+        )}
+
+        {/* Non-supervisor, non-coordenador, non-inbound: original vendedor layout */}
+        {!isSupervisor && !isCoordenador && !isInbound && (
           <>
             <h2 className="text-lg font-bold font-display text-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
               <ShoppingCart className="h-5 w-5 text-primary" />
