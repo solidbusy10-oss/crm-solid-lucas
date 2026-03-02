@@ -910,8 +910,96 @@ const Perfil = () => {
                   </div>
                 );
               })()}
+              {/* Classificação Geral lado a lado */}
+              {(() => {
+                const rankVendas = [
+                  { name: "João Silva", form: 42, cg: 22, conv: 52.4 },
+                  { name: "Maria Santos", form: 38, cg: 20, conv: 52.6 },
+                  { name: "Pedro Costa", form: 35, cg: 18, conv: 51.4 },
+                  { name: "Ana Oliveira", form: 40, cg: 19, conv: 47.5 },
+                  { name: "Carlos Lima", form: 32, cg: 15, conv: 46.9 },
+                  { name: "Lucas Ferreira", form: 28, cg: 12, conv: 42.9 },
+                  { name: "Juliana Reis", form: 30, cg: 14, conv: 46.7 },
+                ];
+                const rankInstalacoes = [
+                  { name: "Maria Santos", cg: 16, instalada: 14, perc: 87.5 },
+                  { name: "João Silva", cg: 18, instalada: 15, perc: 83.3 },
+                  { name: "Ana Oliveira", cg: 13, instalada: 12, perc: 92.3 },
+                  { name: "Pedro Costa", cg: 14, instalada: 11, perc: 78.6 },
+                  { name: "Carlos Lima", cg: 11, instalada: 8, perc: 72.7 },
+                  { name: "Lucas Ferreira", cg: 10, instalada: 7, perc: 70.0 },
+                  { name: "Juliana Reis", cg: 12, instalada: 9, perc: 75.0 },
+                ];
+                return (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div>
+                      <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <BarChart3 className="h-4 w-4 text-primary" />
+                        Classificação Geral
+                      </h2>
+                      <div className="glass-card rounded-xl p-3 overflow-x-auto">
+                        <table className="w-full text-xs">
+                          <thead>
+                            <tr className="border-b border-border/30">
+                              <th className="text-left py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">#</th>
+                              <th className="text-left py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Vendedor</th>
+                              <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Form</th>
+                              <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">CG</th>
+                              <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Conv.</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {rankVendas.map((m, i) => (
+                              <tr key={i} className="border-b border-border/10 hover:bg-primary/5 transition-colors">
+                                <td className="py-2 px-2">
+                                  <span className={`text-xs font-bold ${i === 0 ? 'text-rank-gold' : i === 1 ? 'text-rank-silver' : i === 2 ? 'text-rank-bronze' : 'text-muted-foreground'}`}>{i + 1}º</span>
+                                </td>
+                                <td className="py-2 px-2 font-medium text-foreground">{m.name}</td>
+                                <td className="py-2 px-2 text-center text-muted-foreground">{m.form}</td>
+                                <td className="py-2 px-2 text-center text-muted-foreground">{m.cg}</td>
+                                <td className="py-2 px-2 text-center font-semibold text-primary">{m.conv}%</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                    <div>
+                      <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <Package className="h-4 w-4 text-primary" />
+                        Classificação Geral — Instalações
+                      </h2>
+                      <div className="glass-card rounded-xl p-3 overflow-x-auto">
+                        <table className="w-full text-xs">
+                          <thead>
+                            <tr className="border-b border-border/30">
+                              <th className="text-left py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">#</th>
+                              <th className="text-left py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Vendedor</th>
+                              <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">CG</th>
+                              <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Instalada</th>
+                              <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">%</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {rankInstalacoes.map((m, i) => (
+                              <tr key={i} className="border-b border-border/10 hover:bg-primary/5 transition-colors">
+                                <td className="py-2 px-2">
+                                  <span className={`text-xs font-bold ${i === 0 ? 'text-rank-gold' : i === 1 ? 'text-rank-silver' : i === 2 ? 'text-rank-bronze' : 'text-muted-foreground'}`}>{i + 1}º</span>
+                                </td>
+                                <td className="py-2 px-2 font-medium text-foreground">{m.name}</td>
+                                <td className="py-2 px-2 text-center text-muted-foreground">{m.cg}</td>
+                                <td className="py-2 px-2 text-center text-muted-foreground">{m.instalada}</td>
+                                <td className="py-2 px-2 text-center font-semibold text-primary">{m.perc}%</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
 
-              {/* Funil de Conversão Total */}
               <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
                 <Filter className="h-4 w-4 text-primary" />
                 Funil de Conversão — Total
