@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useUserRole } from "@/hooks/useUserRole";
 import {
   Dialog,
   DialogContent,
@@ -16,6 +17,7 @@ import { toast } from "@/hooks/use-toast";
 import {
   MapPin, User, Phone, Mail, FileText, UserCheck,
   ClipboardCheck, Volume2, Save, CheckCircle2, AlertCircle,
+  Download, Lock,
 } from "lucide-react";
 
 interface PosVendaItem {
@@ -102,6 +104,33 @@ const statusColor = (s: string) => {
   }
 };
 
+const checkLabels: { field: keyof Checklist; label: string; group: "questionario" | "auditoria" }[] = [
+  { field: "endereco_correto", label: "Endereço está correto?", group: "questionario" },
+  { field: "confirmou_dados", label: "Confirmou o endereço e os dados do cliente?", group: "questionario" },
+  { field: "passou_info_plano", label: "Passou as informações do plano para o cliente?", group: "questionario" },
+  { field: "fez_upsell", label: "Fez upsell?", group: "questionario" },
+  { field: "passou_confianca", label: "Passou confiança para o cliente?", group: "questionario" },
+  { field: "entonacao_voz_boa", label: "Entonação da voz foi boa?", group: "questionario" },
+  { field: "nome_completo_confirmado", label: "Confirmou nome completo do titular", group: "auditoria" },
+  { field: "cpf_confirmado", label: "Confirmou CPF/CNPJ", group: "auditoria" },
+  { field: "telefone_confirmado", label: "Informou telefone para contato", group: "auditoria" },
+  { field: "endereco_confirmado", label: "Informou endereço de instalação", group: "auditoria" },
+  { field: "plano_informado", label: "Informou plano contratado (megas)", group: "auditoria" },
+  { field: "valor_informado", label: "Informou valor da mensalidade", group: "auditoria" },
+  { field: "fidelidade_informada", label: "Informou fidelidade de 12 meses e multa proporcional", group: "auditoria" },
+  { field: "primeira_fatura_informada", label: "Informou prazo de 25 dias para 1ª fatura + app NIO", group: "auditoria" },
+  { field: "app_nio_informado", label: "Apresentou o app da NIO e suas funcionalidades", group: "auditoria" },
+  { field: "seguranca_dados_informada", label: "Informou sobre segurança de dados e canais suspeitos", group: "auditoria" },
+  { field: "comodato_informado", label: "Informou que equipamento é comodato", group: "auditoria" },
+  { field: "multa_equipamento_informada", label: "Informou multa de R$400 por perda/dano do equipamento", group: "auditoria" },
+  { field: "congelamento_valor_informado", label: "Informou congelamento de valor até 31/01/2028", group: "auditoria" },
+  { field: "mensagem_oficial_informada", label: "Informou sobre mensagem oficial da NIO com detalhes", group: "auditoria" },
+  { field: "canais_atendimento_informados", label: "Informou canais de atendimento (0800, WhatsApp)", group: "auditoria" },
+  { field: "confirmacao_ok_sim", label: 'Solicitou confirmação com "OK" ou "SIM"', group: "auditoria" },
+  { field: "agendamento_confirmado", label: "Confirmou data do agendamento", group: "auditoria" },
+  { field: "duvidas_perguntadas", label: "Perguntou se há dúvidas", group: "auditoria" },
+];
+
 interface Props {
   venda: PosVendaItem | null;
   open: boolean;
@@ -113,6 +142,10 @@ export default function VendaDetailDialog({ venda, open, onOpenChange }: Props) 
   const [existingId, setExistingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { role } = useUserRole();
+
+  const isLocked = !!existingId;
+  const canEdit = !isLocked || role === "supervisor";
 
   useEffect(() => {
     if (!venda || !open) return;
@@ -137,13 +170,14 @@ export default function VendaDetailDialog({ venda, open, onOpenChange }: Props) 
   }, [venda, open]);
 
   const toggle = (key: keyof Checklist) => {
+    if (!canEdit) return;
     if (typeof checklist[key] === "boolean") {
       setChecklist((prev) => ({ ...prev, [key]: !prev[key] }));
     }
   };
 
   const handleSave = async () => {
-    if (!venda) return;
+    if (!venda || !canEdit) return;
     setSaving(true);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setSaving(false); return; }
@@ -166,7 +200,65 @@ export default function VendaDetailDialog({ venda, open, onOpenChange }: Props) 
       toast({ title: "Erro ao salvar", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Checklist salvo com sucesso!" });
+      if (!existingId) {
+        // Re-fetch to lock
+        const { data: newData } = await supabase
+          .from("pos_venda_checklist")
+          .select("id")
+          .eq("pos_venda_id", venda.id)
+          .maybeSingle();
+        if (newData) setExistingId(newData.id);
+      }
     }
+  };
+
+  const handleDownload = () => {
+    if (!venda) return;
+
+    const sim = (v: boolean) => v ? "Sim" : "Não";
+    const questionario = checkLabels.filter((c) => c.group === "questionario");
+    const auditoria = checkLabels.filter((c) => c.group === "auditoria");
+
+    const lines = [
+      `RELATÓRIO PÓS-VENDA — OS ${venda.numero_os}`,
+      `Gerado em: ${new Date().toLocaleString("pt-BR")}`,
+      "",
+      "═══════════════════════════════════",
+      "DADOS DA VENDA",
+      "═══════════════════════════════════",
+      `CPF: ${venda.cpf_cliente}`,
+      `Endereço: ${venda.endereco || "—"}`,
+      `Telefone: ${venda.telefone_contato || "—"}`,
+      `Email: ${venda.email_cliente || "—"}`,
+      `Nº OS: ${venda.numero_os}`,
+      `Vendedor: ${venda.vendedor_nome}`,
+      `Status: ${venda.status}`,
+      `Agendamento: ${venda.status_agendamento}`,
+      `Pendência: ${venda.pendencia || "—"}`,
+      "",
+      "═══════════════════════════════════",
+      "QUESTIONÁRIO PÓS-VENDA",
+      "═══════════════════════════════════",
+      ...questionario.map((c) => `[${sim(checklist[c.field] as boolean)}] ${c.label}`),
+      "",
+      "═══════════════════════════════════",
+      "CHECKLIST DA AUDITORIA",
+      "═══════════════════════════════════",
+      ...auditoria.map((c) => `[${sim(checklist[c.field] as boolean)}] ${c.label}`),
+      "",
+      "═══════════════════════════════════",
+      "OBSERVAÇÃO",
+      "═══════════════════════════════════",
+      checklist.observacao || "(sem observação)",
+    ];
+
+    const blob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `relatorio-pos-venda-${venda.numero_os}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   if (!venda) return null;
@@ -182,10 +274,11 @@ export default function VendaDetailDialog({ venda, open, onOpenChange }: Props) 
   );
 
   const CheckItem = ({ label, field }: { label: string; field: keyof Checklist }) => (
-    <label className="flex items-center gap-3 py-1.5 cursor-pointer hover:bg-muted/20 rounded px-2 -mx-2 transition-colors">
+    <label className={`flex items-center gap-3 py-1.5 rounded px-2 -mx-2 transition-colors ${canEdit ? "cursor-pointer hover:bg-muted/20" : "cursor-default opacity-80"}`}>
       <Checkbox
         checked={checklist[field] as boolean}
         onCheckedChange={() => toggle(field)}
+        disabled={!canEdit}
       />
       <span className="text-sm text-foreground">{label}</span>
     </label>
@@ -195,13 +288,19 @@ export default function VendaDetailDialog({ venda, open, onOpenChange }: Props) 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] p-0 gap-0 bg-card border-border">
         <DialogHeader className="p-5 pb-0">
-          <DialogTitle className="font-display text-xl flex items-center gap-2">
-            <FileText className="h-5 w-5 text-primary" />
-            OS {venda.numero_os}
-            <Badge variant="outline" className={`ml-2 text-xs ${statusColor(venda.status)}`}>
-              {venda.status}
-            </Badge>
-          </DialogTitle>
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <DialogTitle className="font-display text-xl flex items-center gap-2">
+              <FileText className="h-5 w-5 text-primary" />
+              OS {venda.numero_os}
+              <Badge variant="outline" className={`ml-2 text-xs ${statusColor(venda.status)}`}>
+                {venda.status}
+              </Badge>
+            </DialogTitle>
+            <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={handleDownload}>
+              <Download className="h-3.5 w-3.5" />
+              Baixar Relatório
+            </Button>
+          </div>
         </DialogHeader>
 
         <ScrollArea className="max-h-[calc(90vh-80px)]">
@@ -239,6 +338,25 @@ export default function VendaDetailDialog({ venda, open, onOpenChange }: Props) 
 
             <Separator className="bg-border/40" />
 
+            {/* Locked banner */}
+            {isLocked && role !== "supervisor" && (
+              <div className="flex items-center gap-2 bg-muted/40 rounded-lg px-4 py-3 border border-border/40">
+                <Lock className="h-4 w-4 text-muted-foreground shrink-0" />
+                <p className="text-sm text-muted-foreground">
+                  Este checklist já foi preenchido e está bloqueado para edição.
+                </p>
+              </div>
+            )}
+
+            {isLocked && role === "supervisor" && (
+              <div className="flex items-center gap-2 bg-primary/10 rounded-lg px-4 py-3 border border-primary/20">
+                <UserCheck className="h-4 w-4 text-primary shrink-0" />
+                <p className="text-sm text-primary">
+                  Modo supervisor — você pode editar este checklist.
+                </p>
+              </div>
+            )}
+
             {/* Questionário Pós-Venda */}
             {loading ? (
               <div className="flex justify-center py-8">
@@ -251,12 +369,9 @@ export default function VendaDetailDialog({ venda, open, onOpenChange }: Props) 
                     <ClipboardCheck className="h-4 w-4" /> Questionário Pós-Venda
                   </h3>
                   <div className="space-y-0.5">
-                    <CheckItem label="Endereço está correto?" field="endereco_correto" />
-                    <CheckItem label="Confirmou o endereço e os dados do cliente?" field="confirmou_dados" />
-                    <CheckItem label="Passou as informações do plano para o cliente?" field="passou_info_plano" />
-                    <CheckItem label="Fez upsell?" field="fez_upsell" />
-                    <CheckItem label="Passou confiança para o cliente?" field="passou_confianca" />
-                    <CheckItem label="Entonação da voz foi boa?" field="entonacao_voz_boa" />
+                    {checkLabels.filter((c) => c.group === "questionario").map((c) => (
+                      <CheckItem key={c.field} label={c.label} field={c.field} />
+                    ))}
                   </div>
                 </div>
 
@@ -269,24 +384,9 @@ export default function VendaDetailDialog({ venda, open, onOpenChange }: Props) 
                     Verifique se o colaborador seguiu o script corretamente
                   </p>
                   <div className="space-y-0.5">
-                    <CheckItem label="Confirmou nome completo do titular" field="nome_completo_confirmado" />
-                    <CheckItem label="Confirmou CPF/CNPJ" field="cpf_confirmado" />
-                    <CheckItem label="Informou telefone para contato" field="telefone_confirmado" />
-                    <CheckItem label="Informou endereço de instalação" field="endereco_confirmado" />
-                    <CheckItem label="Informou plano contratado (megas)" field="plano_informado" />
-                    <CheckItem label="Informou valor da mensalidade" field="valor_informado" />
-                    <CheckItem label="Informou fidelidade de 12 meses e multa proporcional" field="fidelidade_informada" />
-                    <CheckItem label="Informou prazo de 25 dias para 1ª fatura + app NIO" field="primeira_fatura_informada" />
-                    <CheckItem label="Apresentou o app da NIO e suas funcionalidades" field="app_nio_informado" />
-                    <CheckItem label="Informou sobre segurança de dados e canais suspeitos" field="seguranca_dados_informada" />
-                    <CheckItem label="Informou que equipamento é comodato" field="comodato_informado" />
-                    <CheckItem label="Informou multa de R$400 por perda/dano do equipamento" field="multa_equipamento_informada" />
-                    <CheckItem label="Informou congelamento de valor até 31/01/2028" field="congelamento_valor_informado" />
-                    <CheckItem label="Informou sobre mensagem oficial da NIO com detalhes" field="mensagem_oficial_informada" />
-                    <CheckItem label="Informou canais de atendimento (0800, WhatsApp)" field="canais_atendimento_informados" />
-                    <CheckItem label='Solicitou confirmação com "OK" ou "SIM"' field="confirmacao_ok_sim" />
-                    <CheckItem label="Confirmou data do agendamento" field="agendamento_confirmado" />
-                    <CheckItem label="Perguntou se há dúvidas" field="duvidas_perguntadas" />
+                    {checkLabels.filter((c) => c.group === "auditoria").map((c) => (
+                      <CheckItem key={c.field} label={c.label} field={c.field} />
+                    ))}
                   </div>
                 </div>
 
@@ -300,13 +400,16 @@ export default function VendaDetailDialog({ venda, open, onOpenChange }: Props) 
                     value={checklist.observacao}
                     onChange={(e) => setChecklist((p) => ({ ...p, observacao: e.target.value }))}
                     className="bg-secondary/50 border-border/40 min-h-[100px]"
+                    disabled={!canEdit}
                   />
                 </div>
 
-                <Button onClick={handleSave} disabled={saving} className="w-full gap-2">
-                  <Save className="h-4 w-4" />
-                  {saving ? "Salvando..." : "Salvar Checklist"}
-                </Button>
+                {canEdit && (
+                  <Button onClick={handleSave} disabled={saving} className="w-full gap-2">
+                    <Save className="h-4 w-4" />
+                    {saving ? "Salvando..." : existingId ? "Atualizar Checklist" : "Salvar Checklist"}
+                  </Button>
+                )}
               </>
             )}
           </div>
