@@ -29,12 +29,8 @@ const defaultIndicators: Indicators = {
   cg_posvenda: 0, instalada: 0, perc_instalacao: 0,
 };
 
-// Mock data for supervisor team view
 const mockTeamSales = {
-  totalForm: 187,
-  totalCG: 94,
-  convMedia: 50.3,
-  auditMedia: 88.5,
+  totalForm: 187, totalCG: 94, convMedia: 50.3, auditMedia: 88.5,
   members: [
     { name: "João Silva", form: 42, cg: 22, conv: 52.4 },
     { name: "Maria Santos", form: 38, cg: 20, conv: 52.6 },
@@ -45,9 +41,7 @@ const mockTeamSales = {
 };
 
 const mockTeamInstallations = {
-  totalCGPos: 72,
-  totalInstalada: 58,
-  percMedia: 80.6,
+  totalCGPos: 72, totalInstalada: 58, percMedia: 80.6,
   members: [
     { name: "João Silva", cg: 18, instalada: 15, perc: 83.3 },
     { name: "Maria Santos", cg: 16, instalada: 14, perc: 87.5 },
@@ -58,11 +52,8 @@ const mockTeamInstallations = {
 };
 
 const mockInbound = {
-  totalGasto: 28500,
-  totalLeads: 1425,
-  valorLead: 20.0,
-  valorContrato: 303.19,
-  viabilidade: 67.2,
+  totalGasto: 28500, totalLeads: 1425, valorLead: 20.0,
+  valorContrato: 303.19, viabilidade: 67.2,
 };
 
 const Perfil = () => {
@@ -77,41 +68,26 @@ const Perfil = () => {
     const fetchData = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { navigate("/auth"); return; }
-
       setUserEmail(user.email || "");
 
       const { data: profileData } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("user_id", user.id)
-        .single();
-
+        .from("profiles").select("*").eq("user_id", user.id).single();
       if (profileData) setProfile(profileData);
 
       const currentPeriod = new Date().toISOString().slice(0, 7);
       const { data: indicatorData } = await supabase
-        .from("seller_indicators")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("period", currentPeriod)
-        .single();
+        .from("seller_indicators").select("*").eq("user_id", user.id).eq("period", currentPeriod).single();
 
       if (indicatorData) {
         setIndicators({
-          form: indicatorData.form,
-          cg_vendas: indicatorData.cg_vendas,
-          conv_vendas: Number(indicatorData.conv_vendas),
-          audit_vendas: Number(indicatorData.audit_vendas),
-          audit_trc: Number(indicatorData.audit_trc),
-          cg_posvenda: indicatorData.cg_posvenda,
-          instalada: indicatorData.instalada,
-          perc_instalacao: Number(indicatorData.perc_instalacao),
+          form: indicatorData.form, cg_vendas: indicatorData.cg_vendas,
+          conv_vendas: Number(indicatorData.conv_vendas), audit_vendas: Number(indicatorData.audit_vendas),
+          audit_trc: Number(indicatorData.audit_trc), cg_posvenda: indicatorData.cg_posvenda,
+          instalada: indicatorData.instalada, perc_instalacao: Number(indicatorData.perc_instalacao),
         });
       }
-
       setLoading(false);
     };
-
     fetchData();
   }, [navigate]);
 
@@ -129,14 +105,14 @@ const Perfil = () => {
     );
   }
 
-  const statCard = (icon: React.ReactNode, label: string, value: string | number, color: string = "text-foreground") => (
-    <div className="glass-card rounded-xl p-4 flex items-center gap-4">
-      <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+  const statCard = (icon: React.ReactNode, label: string, value: string | number) => (
+    <div className="glass-card rounded-xl p-3 flex items-center gap-3">
+      <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
         {icon}
       </div>
-      <div>
-        <p className={`text-2xl font-bold font-display ${color}`}>{value}</p>
-        <p className="text-xs text-muted-foreground">{label}</p>
+      <div className="min-w-0">
+        <p className="text-lg font-bold font-display text-foreground truncate">{value}</p>
+        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{label}</p>
       </div>
     </div>
   );
@@ -145,32 +121,32 @@ const Perfil = () => {
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-6">
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         {/* Profile Header */}
-        <div className="glass-card rounded-xl p-6 mb-6 glow-primary">
+        <div className="glass-card rounded-xl p-5 mb-6 glow-primary">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-5">
-              <div className="h-20 w-20 rounded-full bg-gradient-to-br from-primary/40 to-accent/20 border-2 border-primary/30 flex items-center justify-center">
-                <span className="text-3xl font-bold font-display text-primary">
+            <div className="flex items-center gap-4">
+              <div className="h-16 w-16 rounded-full bg-gradient-to-br from-primary/40 to-accent/20 border-2 border-primary/30 flex items-center justify-center">
+                <span className="text-2xl font-bold font-display text-primary">
                   {(profile?.display_name || userEmail).charAt(0).toUpperCase()}
                 </span>
               </div>
               <div>
-                <h1 className="text-2xl font-bold font-display text-foreground">
+                <h1 className="text-xl font-bold font-display text-foreground">
                   {profile?.display_name || userEmail}
                 </h1>
-                <p className="text-sm text-muted-foreground">{userEmail}</p>
-                <div className="flex items-center gap-3 mt-1.5">
-                  <span className="text-xs bg-primary/15 text-primary px-2.5 py-0.5 rounded-full font-semibold">
+                <p className="text-xs text-muted-foreground">{userEmail}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-[10px] bg-primary/15 text-primary px-2 py-0.5 rounded-full font-semibold">
                     {profile?.cargo || "Vendedor"}
                   </span>
                   {role && (
-                    <span className="text-xs bg-accent/15 text-accent-foreground px-2.5 py-0.5 rounded-full font-semibold capitalize">
+                    <span className="text-[10px] bg-accent/15 text-accent-foreground px-2 py-0.5 rounded-full font-semibold capitalize">
                       {role}
                     </span>
                   )}
                   {profile?.equipe && (
-                    <span className="text-xs bg-muted/50 text-muted-foreground px-2.5 py-0.5 rounded-full">
+                    <span className="text-[10px] bg-muted/50 text-muted-foreground px-2 py-0.5 rounded-full">
                       {profile.equipe}
                     </span>
                   )}
@@ -179,7 +155,7 @@ const Perfil = () => {
             </div>
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-destructive/15 border border-destructive/30 text-destructive hover:bg-destructive/25 transition-all text-sm font-semibold"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-destructive/15 border border-destructive/30 text-destructive hover:bg-destructive/25 transition-all text-xs font-semibold"
             >
               <LogOut className="h-4 w-4" />
               Sair
@@ -187,160 +163,207 @@ const Perfil = () => {
           </div>
         </div>
 
-        {/* === SUPERVISOR TEAM VIEW === */}
         {isSupervisor && (
           <>
-            {/* Team Sales Overview */}
-            <h2 className="text-lg font-bold font-display text-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
-              <Users className="h-5 w-5 text-primary" />
-              Visão do Time — Vendas
-            </h2>
+            {/* Row 1: Vendas | Pós-Venda side by side */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              {/* Vendas */}
+              <div>
+                <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                  <ShoppingCart className="h-4 w-4 text-primary" />
+                  Indicadores de Vendas
+                </h2>
+                <div className="grid grid-cols-2 gap-3 mb-3">
+                  {statCard(<FileText className="h-4 w-4 text-primary" />, "Formulários", indicators.form)}
+                  {statCard(<ShoppingCart className="h-4 w-4 text-primary" />, "CG Vendas", indicators.cg_vendas)}
+                  {statCard(<Percent className="h-4 w-4 text-primary" />, "Auditoria", `${indicators.audit_vendas}%`)}
+                  {statCard(<BarChart3 className="h-4 w-4 text-primary" />, "Audit TRC", `${indicators.audit_trc}%`)}
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
+                    <GaugeChart label="Form" value={indicators.form} max={50} />
+                  </div>
+                  <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
+                    <GaugeChart label="CG" value={indicators.cg_vendas} max={30} />
+                  </div>
+                  <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
+                    <GaugeChart label="Conv." value={indicators.conv_vendas} isPercentage />
+                  </div>
+                </div>
+              </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-              {statCard(<FileText className="h-5 w-5 text-primary" />, "Total Forms", mockTeamSales.totalForm)}
-              {statCard(<ShoppingCart className="h-5 w-5 text-primary" />, "Total CG", mockTeamSales.totalCG)}
-              {statCard(<Percent className="h-5 w-5 text-primary" />, "Conv. Média", `${mockTeamSales.convMedia}%`)}
-              {statCard(<BarChart3 className="h-5 w-5 text-primary" />, "Audit. Média", `${mockTeamSales.auditMedia}%`)}
+              {/* Pós-Venda */}
+              <div>
+                <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                  <Package className="h-4 w-4 text-primary" />
+                  Indicadores Pós-Venda
+                </h2>
+                <div className="grid grid-cols-3 gap-3 mb-3">
+                  {statCard(<ShoppingCart className="h-4 w-4 text-primary" />, "CG Pós", indicators.cg_posvenda)}
+                  {statCard(<Package className="h-4 w-4 text-primary" />, "Instalada", indicators.instalada)}
+                  {statCard(<TrendingUp className="h-4 w-4 text-primary" />, "% Instal.", `${indicators.perc_instalacao}%`)}
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
+                    <GaugeChart label="CG" value={indicators.cg_posvenda} max={30} />
+                  </div>
+                  <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
+                    <GaugeChart label="Instalada" value={indicators.instalada} max={30} />
+                  </div>
+                  <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
+                    <GaugeChart label="% Instal." value={indicators.perc_instalacao} isPercentage />
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div className="glass-card rounded-xl p-4 mb-8 overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border/30">
-                    <th className="text-left py-2 px-3 text-xs text-muted-foreground uppercase tracking-wider">Vendedor</th>
-                    <th className="text-center py-2 px-3 text-xs text-muted-foreground uppercase tracking-wider">Form</th>
-                    <th className="text-center py-2 px-3 text-xs text-muted-foreground uppercase tracking-wider">CG</th>
-                    <th className="text-center py-2 px-3 text-xs text-muted-foreground uppercase tracking-wider">Conv.</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {mockTeamSales.members.map((m, i) => (
-                    <tr key={i} className="border-b border-border/10 hover:bg-primary/5 transition-colors">
-                      <td className="py-2.5 px-3 font-medium text-foreground">{m.name}</td>
-                      <td className="py-2.5 px-3 text-center text-muted-foreground">{m.form}</td>
-                      <td className="py-2.5 px-3 text-center text-muted-foreground">{m.cg}</td>
-                      <td className="py-2.5 px-3 text-center font-semibold text-primary">{m.conv}%</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Team Installations Overview */}
-            <h2 className="text-lg font-bold font-display text-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
-              <Package className="h-5 w-5 text-primary" />
-              Visão do Time — Instalações
-            </h2>
-
-            <div className="grid grid-cols-3 gap-4 mb-4">
-              {statCard(<ShoppingCart className="h-5 w-5 text-primary" />, "Total CG Pós", mockTeamInstallations.totalCGPos)}
-              {statCard(<Package className="h-5 w-5 text-primary" />, "Total Instalada", mockTeamInstallations.totalInstalada)}
-              {statCard(<TrendingUp className="h-5 w-5 text-primary" />, "% Média", `${mockTeamInstallations.percMedia}%`)}
-            </div>
-
-            <div className="glass-card rounded-xl p-4 mb-8 overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border/30">
-                    <th className="text-left py-2 px-3 text-xs text-muted-foreground uppercase tracking-wider">Vendedor</th>
-                    <th className="text-center py-2 px-3 text-xs text-muted-foreground uppercase tracking-wider">CG</th>
-                    <th className="text-center py-2 px-3 text-xs text-muted-foreground uppercase tracking-wider">Instalada</th>
-                    <th className="text-center py-2 px-3 text-xs text-muted-foreground uppercase tracking-wider">%</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {mockTeamInstallations.members.map((m, i) => (
-                    <tr key={i} className="border-b border-border/10 hover:bg-primary/5 transition-colors">
-                      <td className="py-2.5 px-3 font-medium text-foreground">{m.name}</td>
-                      <td className="py-2.5 px-3 text-center text-muted-foreground">{m.cg}</td>
-                      <td className="py-2.5 px-3 text-center text-muted-foreground">{m.instalada}</td>
-                      <td className="py-2.5 px-3 text-center font-semibold text-primary">{m.perc}%</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Inbound Metrics */}
-            <h2 className="text-lg font-bold font-display text-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
-              <Zap className="h-5 w-5 text-primary" />
+            {/* Row 2: Inbound */}
+            <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+              <Zap className="h-4 w-4 text-primary" />
               Inbound — Resumo
             </h2>
-
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
-              {statCard(<DollarSign className="h-5 w-5 text-primary" />, "Total Gasto", `R$ ${mockInbound.totalGasto.toLocaleString("pt-BR")}`)}
-              {statCard(<Target className="h-5 w-5 text-primary" />, "CPL (Lead)", `R$ ${mockInbound.valorLead.toFixed(2)}`)}
-              {statCard(<ShoppingCart className="h-5 w-5 text-primary" />, "CPC (Contrato)", `R$ ${mockInbound.valorContrato.toFixed(2)}`)}
-              {statCard(<TrendingUp className="h-5 w-5 text-primary" />, "% Viabilidade", `${mockInbound.viabilidade}%`)}
-              {statCard(<Users className="h-5 w-5 text-primary" />, "Total Leads", mockInbound.totalLeads.toLocaleString("pt-BR"))}
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-3">
+              {statCard(<DollarSign className="h-4 w-4 text-primary" />, "Total Gasto", `R$ ${mockInbound.totalGasto.toLocaleString("pt-BR")}`)}
+              {statCard(<Target className="h-4 w-4 text-primary" />, "CPL", `R$ ${mockInbound.valorLead.toFixed(2)}`)}
+              {statCard(<ShoppingCart className="h-4 w-4 text-primary" />, "CPC", `R$ ${mockInbound.valorContrato.toFixed(2)}`)}
+              {statCard(<TrendingUp className="h-4 w-4 text-primary" />, "% Viabilidade", `${mockInbound.viabilidade}%`)}
+              {statCard(<Users className="h-4 w-4 text-primary" />, "Total Leads", mockInbound.totalLeads.toLocaleString("pt-BR"))}
             </div>
-
-            <div className="grid grid-cols-3 gap-4 mb-8">
-              <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
+            <div className="grid grid-cols-3 gap-3 mb-6">
+              <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
                 <GaugeChart label="CPL" value={mockInbound.valorLead} max={50} />
               </div>
-              <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
+              <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
                 <GaugeChart label="CPC" value={mockInbound.valorContrato} max={500} />
               </div>
-              <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
+              <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
                 <GaugeChart label="Viabilidade" value={mockInbound.viabilidade} isPercentage />
               </div>
             </div>
 
-            {/* Divider */}
-            <div className="border-t border-border/30 my-8" />
-            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-6 text-center">Meus Indicadores Pessoais</p>
+            {/* Row 3: Team tables side by side */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Team Vendas */}
+              <div>
+                <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                  <Users className="h-4 w-4 text-primary" />
+                  Visão do Time — Vendas
+                </h2>
+                <div className="grid grid-cols-2 gap-3 mb-3">
+                  {statCard(<FileText className="h-4 w-4 text-primary" />, "Total Forms", mockTeamSales.totalForm)}
+                  {statCard(<ShoppingCart className="h-4 w-4 text-primary" />, "Total CG", mockTeamSales.totalCG)}
+                  {statCard(<Percent className="h-4 w-4 text-primary" />, "Conv. Média", `${mockTeamSales.convMedia}%`)}
+                  {statCard(<BarChart3 className="h-4 w-4 text-primary" />, "Audit. Média", `${mockTeamSales.auditMedia}%`)}
+                </div>
+                <div className="glass-card rounded-xl p-3 overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b border-border/30">
+                        <th className="text-left py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Vendedor</th>
+                        <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Form</th>
+                        <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">CG</th>
+                        <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Conv.</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {mockTeamSales.members.map((m, i) => (
+                        <tr key={i} className="border-b border-border/10 hover:bg-primary/5 transition-colors">
+                          <td className="py-2 px-2 font-medium text-foreground">{m.name}</td>
+                          <td className="py-2 px-2 text-center text-muted-foreground">{m.form}</td>
+                          <td className="py-2 px-2 text-center text-muted-foreground">{m.cg}</td>
+                          <td className="py-2 px-2 text-center font-semibold text-primary">{m.conv}%</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Team Instalações */}
+              <div>
+                <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                  <Package className="h-4 w-4 text-primary" />
+                  Visão do Time — Instalações
+                </h2>
+                <div className="grid grid-cols-3 gap-3 mb-3">
+                  {statCard(<ShoppingCart className="h-4 w-4 text-primary" />, "Total CG", mockTeamInstallations.totalCGPos)}
+                  {statCard(<Package className="h-4 w-4 text-primary" />, "Instalada", mockTeamInstallations.totalInstalada)}
+                  {statCard(<TrendingUp className="h-4 w-4 text-primary" />, "% Média", `${mockTeamInstallations.percMedia}%`)}
+                </div>
+                <div className="glass-card rounded-xl p-3 overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b border-border/30">
+                        <th className="text-left py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Vendedor</th>
+                        <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">CG</th>
+                        <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Instalada</th>
+                        <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">%</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {mockTeamInstallations.members.map((m, i) => (
+                        <tr key={i} className="border-b border-border/10 hover:bg-primary/5 transition-colors">
+                          <td className="py-2 px-2 font-medium text-foreground">{m.name}</td>
+                          <td className="py-2 px-2 text-center text-muted-foreground">{m.cg}</td>
+                          <td className="py-2 px-2 text-center text-muted-foreground">{m.instalada}</td>
+                          <td className="py-2 px-2 text-center font-semibold text-primary">{m.perc}%</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
           </>
         )}
 
-        {/* Vendas Section (personal) */}
-        <h2 className="text-lg font-bold font-display text-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
-          <ShoppingCart className="h-5 w-5 text-primary" />
-          Indicadores de Vendas
-        </h2>
+        {/* Non-supervisor: original layout */}
+        {!isSupervisor && (
+          <>
+            <h2 className="text-lg font-bold font-display text-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
+              <ShoppingCart className="h-5 w-5 text-primary" />
+              Indicadores de Vendas
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+              {statCard(<FileText className="h-5 w-5 text-primary" />, "Formulários", indicators.form)}
+              {statCard(<ShoppingCart className="h-5 w-5 text-primary" />, "CG Vendas", indicators.cg_vendas)}
+              {statCard(<Percent className="h-5 w-5 text-primary" />, "Auditoria", `${indicators.audit_vendas}%`)}
+              {statCard(<BarChart3 className="h-5 w-5 text-primary" />, "Audit TRC", `${indicators.audit_trc}%`)}
+            </div>
+            <div className="grid grid-cols-3 gap-4 mb-8">
+              <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
+                <GaugeChart label="Form" value={indicators.form} max={50} />
+              </div>
+              <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
+                <GaugeChart label="CG Vendas" value={indicators.cg_vendas} max={30} />
+              </div>
+              <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
+                <GaugeChart label="Conv. Vendas" value={indicators.conv_vendas} isPercentage />
+              </div>
+            </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-          {statCard(<FileText className="h-5 w-5 text-primary" />, "Formulários", indicators.form)}
-          {statCard(<ShoppingCart className="h-5 w-5 text-primary" />, "CG Vendas", indicators.cg_vendas)}
-          {statCard(<Percent className="h-5 w-5 text-primary" />, "Auditoria", `${indicators.audit_vendas}%`)}
-          {statCard(<BarChart3 className="h-5 w-5 text-primary" />, "Audit TRC", `${indicators.audit_trc}%`)}
-        </div>
-
-        <div className="grid grid-cols-3 gap-4 mb-8">
-          <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
-            <GaugeChart label="Form" value={indicators.form} max={50} />
-          </div>
-          <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
-            <GaugeChart label="CG Vendas" value={indicators.cg_vendas} max={30} />
-          </div>
-          <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
-            <GaugeChart label="Conv. Vendas" value={indicators.conv_vendas} isPercentage />
-          </div>
-        </div>
-
-        {/* Pós-Venda Section */}
-        <h2 className="text-lg font-bold font-display text-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
-          <Package className="h-5 w-5 text-primary" />
-          Indicadores Pós-Venda
-        </h2>
-
-        <div className="grid grid-cols-3 gap-4 mb-4">
-          {statCard(<ShoppingCart className="h-5 w-5 text-primary" />, "CG Pós-Venda", indicators.cg_posvenda)}
-          {statCard(<Package className="h-5 w-5 text-primary" />, "Instalada", indicators.instalada)}
-          {statCard(<TrendingUp className="h-5 w-5 text-primary" />, "% Instalação", `${indicators.perc_instalacao}%`)}
-        </div>
-
-        <div className="grid grid-cols-3 gap-4">
-          <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
-            <GaugeChart label="CG" value={indicators.cg_posvenda} max={30} />
-          </div>
-          <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
-            <GaugeChart label="Instalada" value={indicators.instalada} max={30} />
-          </div>
-          <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
-            <GaugeChart label="% Instalação" value={indicators.perc_instalacao} isPercentage />
-          </div>
-        </div>
+            <h2 className="text-lg font-bold font-display text-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
+              <Package className="h-5 w-5 text-primary" />
+              Indicadores Pós-Venda
+            </h2>
+            <div className="grid grid-cols-3 gap-4 mb-4">
+              {statCard(<ShoppingCart className="h-5 w-5 text-primary" />, "CG Pós-Venda", indicators.cg_posvenda)}
+              {statCard(<Package className="h-5 w-5 text-primary" />, "Instalada", indicators.instalada)}
+              {statCard(<TrendingUp className="h-5 w-5 text-primary" />, "% Instalação", `${indicators.perc_instalacao}%`)}
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
+                <GaugeChart label="CG" value={indicators.cg_posvenda} max={30} />
+              </div>
+              <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
+                <GaugeChart label="Instalada" value={indicators.instalada} max={30} />
+              </div>
+              <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
+                <GaugeChart label="% Instalação" value={indicators.perc_instalacao} isPercentage />
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
