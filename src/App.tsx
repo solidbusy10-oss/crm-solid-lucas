@@ -10,6 +10,7 @@ import Eficacia from "./pages/Eficacia";
 import Perfil from "./pages/Perfil";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -26,10 +27,10 @@ const App = () => (
             element={
               <CRMLayout>
                 <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/inbound" element={<Inbound />} />
-                  <Route path="/eficacia" element={<Eficacia />} />
-                  <Route path="/perfil" element={<Perfil />} />
+                  <Route path="/" element={<ProtectedRoute page="/"><Index /></ProtectedRoute>} />
+                  <Route path="/inbound" element={<ProtectedRoute page="/inbound"><Inbound /></ProtectedRoute>} />
+                  <Route path="/eficacia" element={<ProtectedRoute page="/eficacia"><Eficacia /></ProtectedRoute>} />
+                  <Route path="/perfil" element={<ProtectedRoute page="/perfil"><Perfil /></ProtectedRoute>} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </CRMLayout>

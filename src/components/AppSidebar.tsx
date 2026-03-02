@@ -12,8 +12,9 @@ import {
   SidebarHeader,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { useUserRole } from "@/hooks/useUserRole";
 
-const items = [
+const allItems = [
   { title: "Meu Perfil", url: "/perfil", icon: User },
   { title: "Ranking de Vendas", url: "/", icon: Trophy },
   { title: "Eficácia", url: "/eficacia", icon: CheckCircle },
@@ -23,6 +24,9 @@ const items = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
+  const { canAccess } = useUserRole();
+
+  const items = allItems.filter((item) => canAccess(item.url));
 
   return (
     <Sidebar collapsible="icon" className="border-r border-border/30">
