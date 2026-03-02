@@ -11,15 +11,23 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import VendaDetailDialog from "@/components/VendaDetailDialog";
 
 interface PosVendaItem {
   id: string;
   cpf_cliente: string;
   numero_os: string;
   vendedor_nome: string;
+  vendedor_id: string;
   status: string;
   status_agendamento: string;
   pendencia: string | null;
+  endereco: string | null;
+  telefone_contato: string | null;
+  email_cliente: string | null;
+  plano_contratado: string | null;
+  valor_mensalidade: string | null;
+  audio_auditoria_url: string | null;
   created_at: string;
 }
 
@@ -45,6 +53,8 @@ const PosVenda = () => {
   const [data, setData] = useState<PosVendaItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [selectedVenda, setSelectedVenda] = useState<PosVendaItem | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -55,7 +65,7 @@ const PosVenda = () => {
         .order("created_at", { ascending: false });
 
       if (!error && rows) {
-        setData(rows as PosVendaItem[]);
+        setData(rows as unknown as PosVendaItem[]);
       }
       setLoading(false);
     };
@@ -73,6 +83,11 @@ const PosVenda = () => {
       (item.pendencia && item.pendencia.toLowerCase().includes(q))
     );
   });
+
+  const handleRowClick = (item: PosVendaItem) => {
+    setSelectedVenda(item);
+    setDialogOpen(true);
+  };
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-6">
@@ -124,7 +139,11 @@ const PosVenda = () => {
                 </TableHeader>
                 <TableBody>
                   {filtered.map((item) => (
-                    <TableRow key={item.id} className="border-border/20 hover:bg-muted/30">
+                    <TableRow
+                      key={item.id}
+                      className="border-border/20 hover:bg-muted/30 cursor-pointer transition-colors"
+                      onClick={() => handleRowClick(item)}
+                    >
                       <TableCell className="font-mono text-sm">{item.cpf_cliente}</TableCell>
                       <TableCell className="font-mono text-sm font-semibold">{item.numero_os}</TableCell>
                       <TableCell className="text-sm">{item.vendedor_nome}</TableCell>
@@ -153,6 +172,12 @@ const PosVenda = () => {
           </div>
         </div>
       </div>
+
+      <VendaDetailDialog
+        venda={selectedVenda}
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+      />
     </div>
   );
 };
