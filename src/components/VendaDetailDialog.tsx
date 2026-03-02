@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import jsPDF from "jspdf";
 import { useUserRole } from "@/hooks/useUserRole";
 import {
   Dialog,
@@ -215,50 +216,154 @@ export default function VendaDetailDialog({ venda, open, onOpenChange }: Props) 
   const handleDownload = () => {
     if (!venda) return;
 
-    const sim = (v: boolean) => v ? "Sim" : "Não";
-    const questionario = checkLabels.filter((c) => c.group === "questionario");
-    const auditoria = checkLabels.filter((c) => c.group === "auditoria");
+    const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+    const w = doc.internal.pageSize.getWidth();
+    const h = doc.internal.pageSize.getHeight();
+    const margin = 18;
+    const contentW = w - margin * 2;
+    let y = 0;
 
-    const lines = [
-      `RELATÓRIO PÓS-VENDA — OS ${venda.numero_os}`,
-      `Gerado em: ${new Date().toLocaleString("pt-BR")}`,
-      "",
-      "═══════════════════════════════════",
-      "DADOS DA VENDA",
-      "═══════════════════════════════════",
-      `CPF: ${venda.cpf_cliente}`,
-      `Endereço: ${venda.endereco || "—"}`,
-      `Telefone: ${venda.telefone_contato || "—"}`,
-      `Email: ${venda.email_cliente || "—"}`,
-      `Nº OS: ${venda.numero_os}`,
-      `Vendedor: ${venda.vendedor_nome}`,
-      `Status: ${venda.status}`,
-      `Agendamento: ${venda.status_agendamento}`,
-      `Pendência: ${venda.pendencia || "—"}`,
-      "",
-      "═══════════════════════════════════",
-      "QUESTIONÁRIO PÓS-VENDA",
-      "═══════════════════════════════════",
-      ...questionario.map((c) => `[${sim(checklist[c.field] as boolean)}] ${c.label}`),
-      "",
-      "═══════════════════════════════════",
-      "CHECKLIST DA AUDITORIA",
-      "═══════════════════════════════════",
-      ...auditoria.map((c) => `[${sim(checklist[c.field] as boolean)}] ${c.label}`),
-      "",
-      "═══════════════════════════════════",
-      "OBSERVAÇÃO",
-      "═══════════════════════════════════",
-      checklist.observacao || "(sem observação)",
-    ];
+    // Colors matching CRM theme
+    const navy = [15, 23, 42] as const;       // bg
+    const darkBlue = [20, 30, 55] as const;   // sections
+    const accent = [59, 130, 246] as const;   // primary blue
+    const white = [255, 255, 255] as const;
+    const gray = [148, 163, 184] as const;
+    const green = [34, 197, 94] as const;
+    const red = [239, 68, 68] as const;
 
-    const blob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `relatorio-pos-venda-${venda.numero_os}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
+    const checkPage = (needed: number) => {
+      if (y + needed > h - 15) {
+        doc.addPage();
+        // page bg
+        doc.setFillColor(...navy);
+        doc.rect(0, 0, w, h, "F");
+        y = 15;
+      }
+    };
+
+    // Full page dark background
+    doc.setFillColor(...navy);
+    doc.rect(0, 0, w, h, "F");
+
+    // Header bar
+    doc.setFillColor(...accent);
+    doc.rect(0, 0, w, 32, "F");
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.setTextColor(...white);
+    doc.text("SOLID BUSINESS", margin, 14);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text("Relatório Pós-Venda", margin, 21);
+    doc.setFontSize(9);
+    doc.setTextColor(200, 210, 230);
+    doc.text(`Gerado em ${new Date().toLocaleString("pt-BR")}`, w - margin, 14, { align: "right" });
+    doc.text(`OS ${venda.numero_os}`, w - margin, 21, { align: "right" });
+
+    y = 40;
+
+    // --- Section helper ---
+    const drawSection = (title: string) => {
+      checkPage(14);
+      doc.setFillColor(...darkBlue);
+      doc.roundedRect(margin - 2, y - 2, contentW + 4, 10, 2, 2, "F");
+      doc.setFillColor(...accent);
+      doc.rect(margin - 2, y - 2, 3, 10, "F");
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(...white);
+      doc.text(title, margin + 4, y + 5);
+      y += 14;
+    };
+
+    // --- Info row helper ---
+    const drawInfo = (label: string, value: string) => {
+      checkPage(8);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(...gray);
+      doc.text(label, margin + 2, y);
+      doc.setTextColor(...white);
+      doc.setFont("helvetica", "bold");
+      doc.text(value || "—", margin + 45, y);
+      y += 7;
+    };
+
+    // --- Check row helper ---
+    const drawCheck = (label: string, checked: boolean) => {
+      checkPage(7);
+      // Checkbox
+      doc.setDrawColor(...gray);
+      doc.setLineWidth(0.4);
+      doc.roundedRect(margin + 2, y - 3.2, 4, 4, 0.8, 0.8, "S");
+      if (checked) {
+        doc.setFillColor(...green);
+        doc.roundedRect(margin + 2.6, y - 2.6, 2.8, 2.8, 0.5, 0.5, "F");
+      }
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8.5);
+      doc.setTextColor(checked ? [...white] as any : [...gray] as any);
+      doc.text(label, margin + 9, y);
+      // Status text
+      doc.setFontSize(7.5);
+      doc.setTextColor(checked ? [...green] as any : [...red] as any);
+      doc.text(checked ? "SIM" : "NÃO", w - margin, y, { align: "right" });
+      y += 6.5;
+    };
+
+    // ===== DADOS DA VENDA =====
+    drawSection("DADOS DA VENDA");
+    drawInfo("CPF:", venda.cpf_cliente);
+    drawInfo("Endereço:", venda.endereco || "—");
+    drawInfo("Telefone:", venda.telefone_contato || "—");
+    drawInfo("Email:", venda.email_cliente || "—");
+    drawInfo("Nº OS:", venda.numero_os);
+    drawInfo("Vendedor:", venda.vendedor_nome);
+    drawInfo("Status:", venda.status);
+    drawInfo("Agendamento:", venda.status_agendamento);
+    drawInfo("Pendência:", venda.pendencia || "—");
+    y += 4;
+
+    // ===== QUESTIONÁRIO =====
+    drawSection("QUESTIONÁRIO PÓS-VENDA");
+    checkLabels.filter((c) => c.group === "questionario").forEach((c) => {
+      drawCheck(c.label, checklist[c.field] as boolean);
+    });
+    y += 4;
+
+    // ===== AUDITORIA =====
+    drawSection("CHECKLIST DA AUDITORIA");
+    checkLabels.filter((c) => c.group === "auditoria").forEach((c) => {
+      drawCheck(c.label, checklist[c.field] as boolean);
+    });
+    y += 4;
+
+    // ===== OBSERVAÇÃO =====
+    drawSection("OBSERVAÇÃO");
+    checkPage(20);
+    doc.setFillColor(...darkBlue);
+    const obsText = checklist.observacao || "(sem observação)";
+    const splitObs = doc.splitTextToSize(obsText, contentW - 8);
+    const obsH = Math.max(splitObs.length * 5 + 8, 16);
+    doc.roundedRect(margin, y - 2, contentW, obsH, 2, 2, "F");
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(...white);
+    doc.text(splitObs, margin + 4, y + 4);
+    y += obsH + 6;
+
+    // Footer line
+    checkPage(12);
+    doc.setDrawColor(...accent);
+    doc.setLineWidth(0.5);
+    doc.line(margin, y, w - margin, y);
+    y += 6;
+    doc.setFontSize(7);
+    doc.setTextColor(...gray);
+    doc.text("Solid Business — Sistema CRM Pós-Venda", w / 2, y, { align: "center" });
+
+    doc.save(`relatorio-pos-venda-${venda.numero_os}.pdf`);
   };
 
   if (!venda) return null;
