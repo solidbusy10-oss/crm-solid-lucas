@@ -89,7 +89,7 @@ const FunnelChart = ({ stages }: FunnelChartProps) => {
                 dominantBaseline="middle"
                 fill="white"
                 fontWeight="bold"
-                style={{ fontSize: "12px", textShadow: "0 1px 3px rgba(0,0,0,0.5)" }}
+                style={{ fontSize: "14px", textShadow: "0 1px 3px rgba(0,0,0,0.5)" }}
               >
                 {stage.value}
               </text>
@@ -110,10 +110,10 @@ const FunnelChart = ({ stages }: FunnelChartProps) => {
                 textAnchor="end"
                 dominantBaseline="middle"
                 fill="hsl(var(--foreground))"
-                fontWeight="600"
-                style={{ fontSize: "10px" }}
+                fontWeight="700"
+                style={{ fontSize: "11px" }}
               >
-                {stage.label}
+                {stage.label.toUpperCase()}
               </text>
             </g>
           );
