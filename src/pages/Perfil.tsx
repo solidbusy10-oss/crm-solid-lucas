@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { User, LogOut, TrendingUp, Package, BarChart3, FileText, ShoppingCart, Percent, Users, DollarSign, Zap, Target, Filter, Settings, Trophy, Crown, Medal, Award, ShieldCheck, FileCheck, MapPin, CalendarIcon } from "lucide-react";
+import { User, LogOut, TrendingUp, Package, BarChart3, FileText, ShoppingCart, Percent, Users, DollarSign, Zap, Target, Filter, Settings, Trophy, Crown, Medal, Award, ShieldCheck, FileCheck, MapPin, CalendarIcon, Wifi } from "lucide-react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis } from "recharts";
 import GaugeChart from "@/components/GaugeChart";
 import FunnelChart from "@/components/FunnelChart";
@@ -759,6 +759,72 @@ const Perfil = () => {
               </div>
               <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
                 <GaugeChart label="% Instalação" value={indicators.perc_instalacao} isPercentage />
+              </div>
+            </div>
+
+            {/* Indicadores de Planos */}
+            <h2 className="text-lg font-bold font-display text-foreground uppercase tracking-wider mb-4 mt-8 flex items-center gap-2">
+              <Wifi className="h-5 w-5 text-primary" />
+              Indicadores de Planos
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+              {statCard(<Wifi className="h-4 w-4 text-primary" />, "500 MB", 12)}
+              {statCard(<Wifi className="h-4 w-4 text-primary" />, "700 MB", 8)}
+              {statCard(<Wifi className="h-4 w-4 text-primary" />, "1 GB", 5)}
+              {statCard(<TrendingUp className="h-4 w-4 text-primary" />, "Alto Valor", 13)}
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+              <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
+                <GaugeChart label="500 MB" value={12} max={30} />
+              </div>
+              <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
+                <GaugeChart label="700 MB" value={8} max={20} />
+              </div>
+              <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
+                <GaugeChart label="1 GB" value={5} max={15} />
+              </div>
+              <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
+                <GaugeChart label="Alto Valor" value={52} isPercentage />
+              </div>
+            </div>
+            <div className="glass-card rounded-xl p-4 glow-primary">
+              <h3 className="text-xs font-semibold font-display text-foreground mb-2">Distribuição de Planos</h3>
+              <div className="h-48">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={[
+                        { name: "500 MB", value: 12 },
+                        { name: "700 MB", value: 8 },
+                        { name: "1 GB", value: 5 },
+                      ]}
+                      cx="50%" cy="50%" innerRadius={40} outerRadius={65} paddingAngle={4} dataKey="value" strokeWidth={0}
+                    >
+                      <Cell fill="hsl(210 80% 55%)" />
+                      <Cell fill="hsl(170 80% 45%)" />
+                      <Cell fill="hsl(45 90% 55%)" />
+                    </Pie>
+                    <Tooltip content={<CustomTooltip />} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex justify-around text-xs mt-2">
+                <div className="text-center">
+                  <p className="font-bold font-display text-lg" style={{ color: "hsl(210 80% 55%)" }}>12</p>
+                  <p className="text-muted-foreground text-[10px]">500 MB</p>
+                </div>
+                <div className="text-center">
+                  <p className="font-bold font-display text-lg" style={{ color: "hsl(170 80% 45%)" }}>8</p>
+                  <p className="text-muted-foreground text-[10px]">700 MB</p>
+                </div>
+                <div className="text-center">
+                  <p className="font-bold font-display text-lg" style={{ color: "hsl(45 90% 55%)" }}>5</p>
+                  <p className="text-muted-foreground text-[10px]">1 GB</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-primary font-bold font-display text-lg">52%</p>
+                  <p className="text-muted-foreground text-[10px]">Alto Valor</p>
+                </div>
               </div>
             </div>
           </>
