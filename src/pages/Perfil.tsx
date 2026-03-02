@@ -768,16 +768,6 @@ const Perfil = () => {
 
           return (
             <>
-              {/* Funil de Conversão */}
-              <div className="mb-6">
-                <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
-                  <Filter className="h-4 w-4 text-primary" />
-                  Funil de Conversão
-                </h2>
-                <div className="glass-card rounded-xl p-4 glow-primary flex items-center justify-center">
-                  <FunnelChart stages={computeFunnelStages(mockFunnel)} />
-                </div>
-              </div>
 
               {/* Inbound KPIs */}
               <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
