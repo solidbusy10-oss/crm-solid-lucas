@@ -65,6 +65,19 @@ const mockInbound = {
   valorContrato: 303.19, viabilidade: 67.2,
 };
 
+// Mock data for supervisor teams (Manhã and Noturno)
+const mockTeamManha = {
+  funnel: { leads: 720, form: 98, formTratados: 76, cg: 50, fila: 22 },
+  vendas: { form: 98, cg_vendas: 50, conv_vendas: 51.0 },
+  posVenda: { cg_posvenda: 38, instalada: 30, perc_instalacao: 78.9 },
+};
+
+const mockTeamNoturno = {
+  funnel: { leads: 705, form: 89, formTratados: 69, cg: 44, fila: 20 },
+  vendas: { form: 89, cg_vendas: 44, conv_vendas: 49.4 },
+  posVenda: { cg_posvenda: 34, instalada: 28, perc_instalacao: 82.4 },
+};
+
 // Inbound city data for coordenador profile
 const inboundCities = [
   { city: "São Paulo", uf: "SP", cg: 68, instalado: 92, inviabilidade: 42, reprovado: 14, jaCliente: 22, fraude: 2, semCobertura: 5, semCondicao: 3 },
@@ -746,7 +759,7 @@ const Perfil = () => {
           </>
         )}
 
-        {/* Coordenador: visão Inbound */}
+        {/* Coordenador: visão dos times + Inbound total */}
         {isCoordenador && (() => {
           const tratativas = inboundCities.map(c => ({
             city: `${c.city} (${c.uf})`,
@@ -766,13 +779,99 @@ const Perfil = () => {
             "hsl(190 70% 50%)", "hsl(130 60% 45%)",
           ];
 
+          const TeamColumn = ({ team, label, icon }: { team: typeof mockTeamManha; label: string; icon: React.ReactNode }) => (
+            <div className="flex-1 min-w-0">
+              <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                {icon}
+                {label}
+              </h2>
+
+              {/* Funnel + Indicators side by side */}
+              <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-4 mb-4">
+                {/* Funnel */}
+                <div className="glass-card rounded-xl p-3 glow-primary flex items-center justify-center">
+                  <FunnelChart stages={computeFunnelStages(team.funnel)} />
+                </div>
+
+                {/* Vendas + Pós-Venda stacked */}
+                <div className="flex flex-col gap-4">
+                  {/* Vendas */}
+                  <div>
+                    <h3 className="text-xs font-bold font-display text-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
+                      <ShoppingCart className="h-3.5 w-3.5 text-primary" />
+                      Indicadores de Vendas
+                    </h3>
+                    <div className="grid grid-cols-3 gap-2 mb-2">
+                      {statCard(<FileText className="h-3.5 w-3.5 text-primary" />, "Formulários", team.vendas.form)}
+                      {statCard(<ShoppingCart className="h-3.5 w-3.5 text-primary" />, "CG Vendas", team.vendas.cg_vendas)}
+                      {statCard(<Percent className="h-3.5 w-3.5 text-primary" />, "Conv. Vendas", `${team.vendas.conv_vendas}%`)}
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="glass-card rounded-xl p-2 flex items-center justify-center glow-primary">
+                        <GaugeChart label="Form" value={team.vendas.form} max={50} />
+                      </div>
+                      <div className="glass-card rounded-xl p-2 flex items-center justify-center glow-primary">
+                        <GaugeChart label="CG" value={team.vendas.cg_vendas} max={30} />
+                      </div>
+                      <div className="glass-card rounded-xl p-2 flex items-center justify-center glow-primary">
+                        <GaugeChart label="Conv." value={team.vendas.conv_vendas} isPercentage />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Pós-Venda */}
+                  <div>
+                    <h3 className="text-xs font-bold font-display text-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
+                      <Package className="h-3.5 w-3.5 text-primary" />
+                      Indicadores Pós-Venda
+                    </h3>
+                    <div className="grid grid-cols-3 gap-2 mb-2">
+                      {statCard(<ShoppingCart className="h-3.5 w-3.5 text-primary" />, "CG Pós", team.posVenda.cg_posvenda)}
+                      {statCard(<Package className="h-3.5 w-3.5 text-primary" />, "Instalada", team.posVenda.instalada)}
+                      {statCard(<TrendingUp className="h-3.5 w-3.5 text-primary" />, "% Instal.", `${team.posVenda.perc_instalacao}%`)}
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="glass-card rounded-xl p-2 flex items-center justify-center glow-primary">
+                        <GaugeChart label="CG" value={team.posVenda.cg_posvenda} max={30} />
+                      </div>
+                      <div className="glass-card rounded-xl p-2 flex items-center justify-center glow-primary">
+                        <GaugeChart label="Instalada" value={team.posVenda.instalada} max={30} />
+                      </div>
+                      <div className="glass-card rounded-xl p-2 flex items-center justify-center glow-primary">
+                        <GaugeChart label="% Instal." value={team.posVenda.perc_instalacao} isPercentage />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+
           return (
             <>
+              {/* Teams Side by Side: Manhã | Noturno */}
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+                <div className="border border-border/30 rounded-xl p-4 bg-secondary/10">
+                  <TeamColumn team={mockTeamManha} label="Supervisor — Manhã" icon={<Users className="h-4 w-4 text-rank-gold" />} />
+                </div>
+                <div className="border border-border/30 rounded-xl p-4 bg-secondary/10">
+                  <TeamColumn team={mockTeamNoturno} label="Supervisor — Noturno" icon={<Users className="h-4 w-4 text-accent" />} />
+                </div>
+              </div>
 
-              {/* Inbound KPIs */}
+              {/* Funil de Conversão Total */}
+              <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                <Filter className="h-4 w-4 text-primary" />
+                Funil de Conversão — Total
+              </h2>
+              <div className="glass-card rounded-xl p-4 glow-primary mb-8 flex items-center justify-center">
+                <FunnelChart stages={computeFunnelStages(mockFunnel)} />
+              </div>
+
+              {/* Inbound KPIs — Total */}
               <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
                 <Zap className="h-4 w-4 text-primary" />
-                Inbound — Resumo
+                Inbound — Total
               </h2>
               <div className="grid grid-cols-5 gap-3 mb-3">
                 {statCard(<DollarSign className="h-4 w-4 text-primary" />, "Total Gasto", `R$ ${mockInbound.totalGasto.toLocaleString("pt-BR")}`)}
@@ -829,7 +928,6 @@ const Perfil = () => {
 
               {/* Cobertura + Tratativas */}
               <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-6 mb-6">
-                {/* Pie - Cabeado vs Não Cabeado */}
                 <div>
                   <h3 className="text-xs font-bold font-display text-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
                     <MapPin className="h-3.5 w-3.5 text-primary" /> Cobertura
@@ -857,7 +955,6 @@ const Perfil = () => {
                   </div>
                 </div>
 
-                {/* Bar - Tratativas por cidade */}
                 <div>
                   <h3 className="text-xs font-bold font-display text-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
                     <BarChart3 className="h-3.5 w-3.5 text-primary" /> Tratativas por Cidade
