@@ -752,11 +752,13 @@ const Perfil = () => {
             supervisor: "Supervisor Manhã",
             vendas: { form: 95, cg: 48, conv: 50.5, audit: 90.2, auditTrc: 88.0 },
             posVenda: { cg: 38, instalada: 31, perc: 81.6 },
+            planos: { p500: 12, p700: 8, p1gb: 5 },
           };
           const mockNoturno = {
             supervisor: "Supervisor Noturno",
             vendas: { form: 92, cg: 46, conv: 50.0, audit: 86.8, auditTrc: 84.5 },
             posVenda: { cg: 34, instalada: 27, perc: 79.4 },
+            planos: { p500: 10, p700: 6, p1gb: 4 },
           };
 
           const renderTeamColumn = (team: typeof mockManha, label: string, icon: React.ReactNode) => (
@@ -813,6 +815,41 @@ const Perfil = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Indicadores de Planos / Alto Valor */}
+              {(() => {
+                const totalPlanos = team.planos.p500 + team.planos.p700 + team.planos.p1gb;
+                const altoValor = team.planos.p700 + team.planos.p1gb;
+                const percAltoValor = totalPlanos > 0 ? Math.round((altoValor / totalPlanos) * 100) : 0;
+                return (
+                  <div>
+                    <h3 className="text-xs font-bold font-display text-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
+                      <Wifi className="h-3.5 w-3.5 text-primary" />
+                      Indicadores de Planos
+                    </h3>
+                    <div className="grid grid-cols-2 gap-2 mb-2">
+                      {statCard(<Wifi className="h-4 w-4 text-primary" />, "500 MB", team.planos.p500)}
+                      {statCard(<Wifi className="h-4 w-4 text-primary" />, "700 MB", team.planos.p700)}
+                      {statCard(<Wifi className="h-4 w-4 text-primary" />, "1 GB", team.planos.p1gb)}
+                      {statCard(<TrendingUp className="h-4 w-4 text-primary" />, "Alto Valor", `${percAltoValor}%`)}
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="glass-card rounded-xl p-2 flex items-center justify-center glow-primary">
+                        <GaugeChart label="500 MB" value={team.planos.p500} max={20} />
+                      </div>
+                      <div className="glass-card rounded-xl p-2 flex items-center justify-center glow-primary">
+                        <GaugeChart label="700 MB" value={team.planos.p700} max={15} />
+                      </div>
+                      <div className="glass-card rounded-xl p-2 flex items-center justify-center glow-primary">
+                        <GaugeChart label="1 GB" value={team.planos.p1gb} max={10} />
+                      </div>
+                      <div className="glass-card rounded-xl p-2 flex items-center justify-center glow-primary">
+                        <GaugeChart label="Alto Valor" value={percAltoValor} isPercentage />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           );
 
