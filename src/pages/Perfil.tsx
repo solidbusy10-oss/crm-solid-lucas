@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { User, LogOut, TrendingUp, Package, BarChart3, FileText, ShoppingCart, Percent, Users, DollarSign, Zap, Target, Filter, Settings } from "lucide-react";
+import { User, LogOut, TrendingUp, Package, BarChart3, FileText, ShoppingCart, Percent, Users, DollarSign, Zap, Target, Filter, Settings, Trophy, Crown, Medal, Award, ShieldCheck, FileCheck, MapPin } from "lucide-react";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import GaugeChart from "@/components/GaugeChart";
 import FunnelChart from "@/components/FunnelChart";
 import { toast } from "sonner";
@@ -55,6 +56,74 @@ const mockTeamInstallations = {
 const mockInbound = {
   totalGasto: 28500, totalLeads: 1425, valorLead: 20.0,
   valorContrato: 303.19, viabilidade: 67.2,
+};
+
+// Inbound city data for coordenador profile
+const inboundCities = [
+  { city: "São Paulo", uf: "SP", cg: 68, instalado: 92, inviabilidade: 42, reprovado: 14, jaCliente: 22, fraude: 2, semCobertura: 5, semCondicao: 3 },
+  { city: "Rio de Janeiro", uf: "RJ", cg: 45, instalado: 58, inviabilidade: 35, reprovado: 10, jaCliente: 18, fraude: 1, semCobertura: 12, semCondicao: 8 },
+  { city: "Belo Horizonte", uf: "MG", cg: 38, instalado: 42, inviabilidade: 28, reprovado: 8, jaCliente: 12, fraude: 1, semCobertura: 18, semCondicao: 10 },
+  { city: "Curitiba", uf: "PR", cg: 35, instalado: 40, inviabilidade: 15, reprovado: 5, jaCliente: 10, fraude: 0, semCobertura: 8, semCondicao: 4 },
+  { city: "Porto Alegre", uf: "RS", cg: 32, instalado: 35, inviabilidade: 14, reprovado: 4, jaCliente: 8, fraude: 0, semCobertura: 10, semCondicao: 5 },
+  { city: "Salvador", uf: "BA", cg: 28, instalado: 30, inviabilidade: 20, reprovado: 6, jaCliente: 8, fraude: 1, semCobertura: 25, semCondicao: 15 },
+  { city: "Florianópolis", uf: "SC", cg: 25, instalado: 30, inviabilidade: 8, reprovado: 3, jaCliente: 6, fraude: 0, semCobertura: 6, semCondicao: 3 },
+];
+
+const topCG = [...inboundCities].sort((a, b) => b.cg - a.cg).slice(0, 3);
+const topInstalado = [...inboundCities].sort((a, b) => b.instalado - a.instalado).slice(0, 3);
+const citiesWithViab = inboundCities.map(c => {
+  const total = c.inviabilidade + c.cg + c.reprovado + c.jaCliente + c.fraude + c.semCobertura + c.semCondicao + c.instalado;
+  return { ...c, viabilidade: total > 0 ? Math.round((c.instalado / total) * 100) : 0 };
+});
+const topViab = [...citiesWithViab].sort((a, b) => b.viabilidade - a.viabilidade).slice(0, 3);
+
+const inboundTotalCabeado = inboundCities.reduce((s, c) => s + c.inviabilidade + c.cg + c.reprovado + c.jaCliente + c.fraude, 0);
+const inboundTotalNaoCabeado = inboundCities.reduce((s, c) => s + c.semCobertura + c.semCondicao, 0);
+const inboundPieData = [
+  { name: "CEP Cabeado", value: inboundTotalCabeado },
+  { name: "CEP Não Cabeado", value: inboundTotalNaoCabeado },
+];
+const PIE_COLORS = ["hsl(170 80% 45%)", "hsl(0 70% 55%)"];
+
+const podiumStyles = {
+  0: { border: "border-rank-gold/50", glow: "shadow-[0_0_25px_hsl(45_90%_55%/0.18)]", bg: "bg-gradient-to-br from-rank-gold/12 via-rank-gold/4 to-transparent", text: "text-rank-gold", badge: "bg-rank-gold text-primary-foreground", Icon: Crown, label: "1º" },
+  1: { border: "border-rank-silver/40", glow: "shadow-[0_0_15px_hsl(210_10%_70%/0.1)]", bg: "bg-gradient-to-br from-rank-silver/8 via-rank-silver/2 to-transparent", text: "text-rank-silver", badge: "bg-rank-silver text-primary-foreground", Icon: Medal, label: "2º" },
+  2: { border: "border-rank-bronze/40", glow: "shadow-[0_0_15px_hsl(25_60%_45%/0.1)]", bg: "bg-gradient-to-br from-rank-bronze/8 via-rank-bronze/2 to-transparent", text: "text-rank-bronze", badge: "bg-rank-bronze text-primary-foreground", Icon: Award, label: "3º" },
+};
+
+const PodiumCard = ({ city, uf, value, label, idx }: { city: string; uf: string; value: string | number; label: string; idx: number }) => {
+  const style = podiumStyles[idx as 0 | 1 | 2];
+  const Icon = style.Icon;
+  return (
+    <div className={`relative rounded-lg border ${style.border} ${style.bg} ${style.glow} p-3 transition-all duration-300 hover:scale-[1.01]`}>
+      <div className={`absolute -top-2 -left-1 px-2 py-0.5 rounded-full text-[10px] font-bold font-display ${style.badge} flex items-center gap-1`}>
+        <Icon className="h-3 w-3" />{style.label}
+      </div>
+      <div className="flex items-center justify-between mt-1">
+        <div>
+          <p className="font-bold text-foreground text-sm">{city}</p>
+          <p className="text-[10px] text-muted-foreground">{uf}</p>
+        </div>
+        <div className="text-right">
+          <p className={`text-xl font-bold font-display ${style.text} leading-none`}>{value}</p>
+          <p className="text-[9px] uppercase tracking-widest text-muted-foreground mt-0.5">{label}</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const CustomTooltip = ({ active, payload }: any) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="glass-card rounded-lg p-3 text-xs border border-border/50">
+      {payload.map((p: any) => (
+        <p key={p.name} className="text-muted-foreground">
+          {p.name}: <span className="font-semibold" style={{ color: p.fill || p.color }}>{p.value}</span>
+        </p>
+      ))}
+    </div>
+  );
 };
 
 const mockFunnel = {
@@ -384,49 +453,99 @@ const Perfil = () => {
         {/* Coordenador/Inbound: inbound metrics */}
         {isCoordenador && (
           <>
+            {/* Stats cards */}
             <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
               <Zap className="h-4 w-4 text-primary" />
               Métricas Inbound
             </h2>
-            <div className="grid grid-cols-3 gap-3 mb-4">
+            <div className="grid grid-cols-3 gap-3 mb-6">
               {statCard(<Users className="h-4 w-4 text-primary" />, "Total de Leads", mockInboundProfile.totalLeads.toLocaleString("pt-BR"))}
               {statCard(<DollarSign className="h-4 w-4 text-primary" />, "Custo por Lead", `R$ ${mockInboundProfile.custoLead.toFixed(2)}`)}
               {statCard(<TrendingUp className="h-4 w-4 text-primary" />, "Viabilidade", `${mockInboundProfile.viabilidade}%`)}
             </div>
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
-                <GaugeChart label="CPL" value={mockInboundProfile.custoLead} max={50} />
+
+            {/* Top 3 Podiums */}
+            <div className="flex items-center gap-2 mb-4">
+              <Trophy className="h-5 w-5 text-rank-gold" />
+              <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider">
+                Top 3 Cidades
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              {/* Mais CG */}
+              <div className="glass-card rounded-xl p-4 glow-primary">
+                <div className="flex items-center gap-2 mb-3">
+                  <ShieldCheck className="h-4 w-4 text-rank-gold" />
+                  <h3 className="text-xs font-bold font-display text-foreground uppercase tracking-wider">Mais CG</h3>
+                </div>
+                <div className="flex flex-col gap-3">
+                  {topCG.map((c, idx) => (
+                    <PodiumCard key={c.city} city={c.city} uf={c.uf} value={c.cg} label="contratos" idx={idx} />
+                  ))}
+                </div>
               </div>
-              <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
-                <GaugeChart label="Viabilidade" value={mockInboundProfile.viabilidade} isPercentage />
+
+              {/* Mais Instalação */}
+              <div className="glass-card rounded-xl p-4 glow-primary">
+                <div className="flex items-center gap-2 mb-3">
+                  <FileCheck className="h-4 w-4 text-rank-gold" />
+                  <h3 className="text-xs font-bold font-display text-foreground uppercase tracking-wider">Mais Instalação</h3>
+                </div>
+                <div className="flex flex-col gap-3">
+                  {topInstalado.map((c, idx) => (
+                    <PodiumCard key={c.city} city={c.city} uf={c.uf} value={c.instalado} label="instalados" idx={idx} />
+                  ))}
+                </div>
+              </div>
+
+              {/* Mais Viabilidade */}
+              <div className="glass-card rounded-xl p-4 glow-primary">
+                <div className="flex items-center gap-2 mb-3">
+                  <MapPin className="h-4 w-4 text-rank-gold" />
+                  <h3 className="text-xs font-bold font-display text-foreground uppercase tracking-wider">Mais Viabilidade</h3>
+                </div>
+                <div className="flex flex-col gap-3">
+                  {topViab.map((c, idx) => (
+                    <PodiumCard key={c.city} city={c.city} uf={c.uf} value={`${c.viabilidade}%`} label="viável" idx={idx} />
+                  ))}
+                </div>
               </div>
             </div>
 
+            {/* Cabeado vs Não Cabeado */}
             <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
               <Target className="h-4 w-4 text-primary" />
-              Top 3 Cidades
+              Cabeado vs Não Cabeado
             </h2>
-            <div className="glass-card rounded-xl p-3 mb-6 overflow-x-auto">
-              <table className="w-full text-xs">
-                <thead>
-                  <tr className="border-b border-border/30">
-                    <th className="text-left py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">#</th>
-                    <th className="text-left py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Cidade</th>
-                    <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Leads</th>
-                    <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Viabilidade</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {mockInboundProfile.topCidades.map((c, i) => (
-                    <tr key={i} className="border-b border-border/10 hover:bg-primary/5 transition-colors">
-                      <td className="py-2 px-2 font-bold text-primary">{i + 1}º</td>
-                      <td className="py-2 px-2 font-medium text-foreground">{c.nome}</td>
-                      <td className="py-2 px-2 text-center text-muted-foreground">{c.leads.toLocaleString("pt-BR")}</td>
-                      <td className="py-2 px-2 text-center font-semibold text-primary">{c.viabilidade}%</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="glass-card rounded-xl p-4 glow-primary mb-6">
+              <div className="h-48">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={inboundPieData} cx="50%" cy="50%" innerRadius={45} outerRadius={70} paddingAngle={4} dataKey="value" strokeWidth={0}>
+                      {inboundPieData.map((_, i) => (
+                        <Cell key={i} fill={PIE_COLORS[i]} />
+                      ))}
+                    </Pie>
+                    <Tooltip content={<CustomTooltip />} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex justify-around text-xs mt-2">
+                <div className="text-center">
+                  <p className="text-primary font-bold font-display text-lg">{inboundTotalCabeado}</p>
+                  <p className="text-muted-foreground text-[10px]">Cabeado</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-destructive font-bold font-display text-lg">{inboundTotalNaoCabeado}</p>
+                  <p className="text-muted-foreground text-[10px]">Não Cabeado</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-foreground font-bold font-display text-lg">
+                    {inboundTotalCabeado + inboundTotalNaoCabeado > 0 ? ((inboundTotalCabeado / (inboundTotalCabeado + inboundTotalNaoCabeado)) * 100).toFixed(1) : 0}%
+                  </p>
+                  <p className="text-muted-foreground text-[10px]">% Cabeado</p>
+                </div>
+              </div>
             </div>
           </>
         )}
