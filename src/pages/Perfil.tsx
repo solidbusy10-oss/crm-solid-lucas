@@ -195,52 +195,66 @@ const Perfil = () => {
 
         {isSupervisor && (
           <>
-            {/* Row 1: Vendas | Pós-Venda side by side */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              {/* Vendas */}
+            {/* Row 1: Funnel (left) | Vendas + Pós-Venda stacked (right) */}
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_1.4fr] gap-6 mb-6">
+              {/* Funnel */}
               <div>
                 <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
-                  <ShoppingCart className="h-4 w-4 text-primary" />
-                  Indicadores de Vendas
+                  <Filter className="h-4 w-4 text-primary" />
+                  Funil de Conversão
                 </h2>
-                <div className="grid grid-cols-3 gap-3 mb-3">
-                  {statCard(<FileText className="h-4 w-4 text-primary" />, "Formulários", indicators.form)}
-                  {statCard(<ShoppingCart className="h-4 w-4 text-primary" />, "CG Vendas", indicators.cg_vendas)}
-                  {statCard(<Percent className="h-4 w-4 text-primary" />, "Conv. Vendas", `${indicators.conv_vendas}%`)}
-                </div>
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
-                    <GaugeChart label="Form" value={indicators.form} max={50} />
-                  </div>
-                  <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
-                    <GaugeChart label="CG" value={indicators.cg_vendas} max={30} />
-                  </div>
-                  <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
-                    <GaugeChart label="Conv." value={indicators.conv_vendas} isPercentage />
-                  </div>
+                <div className="glass-card rounded-xl p-4 glow-primary h-[calc(100%-32px)] flex items-center justify-center">
+                  <FunnelChart stages={computeFunnelStages(mockFunnel)} />
                 </div>
               </div>
 
-              {/* Pós-Venda */}
-              <div>
-                <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
-                  <Package className="h-4 w-4 text-primary" />
-                  Indicadores Pós-Venda
-                </h2>
-                <div className="grid grid-cols-3 gap-3 mb-3">
-                  {statCard(<ShoppingCart className="h-4 w-4 text-primary" />, "CG Pós", indicators.cg_posvenda)}
-                  {statCard(<Package className="h-4 w-4 text-primary" />, "Instalada", indicators.instalada)}
-                  {statCard(<TrendingUp className="h-4 w-4 text-primary" />, "% Instal.", `${indicators.perc_instalacao}%`)}
+              {/* Vendas + Pós-Venda stacked */}
+              <div className="flex flex-col gap-6">
+                {/* Vendas */}
+                <div>
+                  <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <ShoppingCart className="h-4 w-4 text-primary" />
+                    Indicadores de Vendas
+                  </h2>
+                  <div className="grid grid-cols-3 gap-3 mb-3">
+                    {statCard(<FileText className="h-4 w-4 text-primary" />, "Formulários", indicators.form)}
+                    {statCard(<ShoppingCart className="h-4 w-4 text-primary" />, "CG Vendas", indicators.cg_vendas)}
+                    {statCard(<Percent className="h-4 w-4 text-primary" />, "Conv. Vendas", `${indicators.conv_vendas}%`)}
+                  </div>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
+                      <GaugeChart label="Form" value={indicators.form} max={50} />
+                    </div>
+                    <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
+                      <GaugeChart label="CG" value={indicators.cg_vendas} max={30} />
+                    </div>
+                    <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
+                      <GaugeChart label="Conv." value={indicators.conv_vendas} isPercentage />
+                    </div>
+                  </div>
                 </div>
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
-                    <GaugeChart label="CG" value={indicators.cg_posvenda} max={30} />
+
+                {/* Pós-Venda */}
+                <div>
+                  <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <Package className="h-4 w-4 text-primary" />
+                    Indicadores Pós-Venda
+                  </h2>
+                  <div className="grid grid-cols-3 gap-3 mb-3">
+                    {statCard(<ShoppingCart className="h-4 w-4 text-primary" />, "CG Pós", indicators.cg_posvenda)}
+                    {statCard(<Package className="h-4 w-4 text-primary" />, "Instalada", indicators.instalada)}
+                    {statCard(<TrendingUp className="h-4 w-4 text-primary" />, "% Instal.", `${indicators.perc_instalacao}%`)}
                   </div>
-                  <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
-                    <GaugeChart label="Instalada" value={indicators.instalada} max={30} />
-                  </div>
-                  <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
-                    <GaugeChart label="% Instal." value={indicators.perc_instalacao} isPercentage />
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
+                      <GaugeChart label="CG" value={indicators.cg_posvenda} max={30} />
+                    </div>
+                    <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
+                      <GaugeChart label="Instalada" value={indicators.instalada} max={30} />
+                    </div>
+                    <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
+                      <GaugeChart label="% Instal." value={indicators.perc_instalacao} isPercentage />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -268,15 +282,6 @@ const Perfil = () => {
               <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
                 <GaugeChart label="Viabilidade" value={mockInbound.viabilidade} isPercentage />
               </div>
-            </div>
-
-            {/* Row 3: Funnel */}
-            <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
-              <Filter className="h-4 w-4 text-primary" />
-              Funil de Conversão
-            </h2>
-            <div className="glass-card rounded-xl p-5 mb-6 glow-primary">
-              <FunnelChart stages={computeFunnelStages(mockFunnel)} />
             </div>
 
             {/* Row 4: Team tables side by side */}
