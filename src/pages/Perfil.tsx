@@ -148,6 +148,18 @@ const Perfil = () => {
   );
 
   const isSupervisor = role === "supervisor";
+  const isCoordenador = role === "coordenador";
+
+  const mockInboundProfile = {
+    totalLeads: 3420,
+    custoLead: 18.50,
+    viabilidade: 72.4,
+    topCidades: [
+      { nome: "São Paulo", leads: 680, viabilidade: 78.2 },
+      { nome: "Rio de Janeiro", leads: 520, viabilidade: 74.5 },
+      { nome: "Belo Horizonte", leads: 390, viabilidade: 71.8 },
+    ],
+  };
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-6">
@@ -369,8 +381,58 @@ const Perfil = () => {
           </>
         )}
 
-        {/* Non-supervisor: original layout */}
-        {!isSupervisor && (
+        {/* Coordenador/Inbound: inbound metrics */}
+        {isCoordenador && (
+          <>
+            <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+              <Zap className="h-4 w-4 text-primary" />
+              Métricas Inbound
+            </h2>
+            <div className="grid grid-cols-3 gap-3 mb-4">
+              {statCard(<Users className="h-4 w-4 text-primary" />, "Total de Leads", mockInboundProfile.totalLeads.toLocaleString("pt-BR"))}
+              {statCard(<DollarSign className="h-4 w-4 text-primary" />, "Custo por Lead", `R$ ${mockInboundProfile.custoLead.toFixed(2)}`)}
+              {statCard(<TrendingUp className="h-4 w-4 text-primary" />, "Viabilidade", `${mockInboundProfile.viabilidade}%`)}
+            </div>
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
+                <GaugeChart label="CPL" value={mockInboundProfile.custoLead} max={50} />
+              </div>
+              <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
+                <GaugeChart label="Viabilidade" value={mockInboundProfile.viabilidade} isPercentage />
+              </div>
+            </div>
+
+            <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+              <Target className="h-4 w-4 text-primary" />
+              Top 3 Cidades
+            </h2>
+            <div className="glass-card rounded-xl p-3 mb-6 overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-border/30">
+                    <th className="text-left py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">#</th>
+                    <th className="text-left py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Cidade</th>
+                    <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Leads</th>
+                    <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Viabilidade</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {mockInboundProfile.topCidades.map((c, i) => (
+                    <tr key={i} className="border-b border-border/10 hover:bg-primary/5 transition-colors">
+                      <td className="py-2 px-2 font-bold text-primary">{i + 1}º</td>
+                      <td className="py-2 px-2 font-medium text-foreground">{c.nome}</td>
+                      <td className="py-2 px-2 text-center text-muted-foreground">{c.leads.toLocaleString("pt-BR")}</td>
+                      <td className="py-2 px-2 text-center font-semibold text-primary">{c.viabilidade}%</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+
+        {/* Non-supervisor, non-coordenador: original vendedor layout */}
+        {!isSupervisor && !isCoordenador && (
           <>
             <h2 className="text-lg font-bold font-display text-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
               <ShoppingCart className="h-5 w-5 text-primary" />
