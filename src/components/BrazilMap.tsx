@@ -453,6 +453,8 @@ const BrazilMap = ({ onStateClick, onCityClick, onClearFilter }: BrazilMapProps)
         zoom={4}
         minZoom={3}
         maxZoom={18}
+        maxBounds={BRAZIL_BOUNDS as L.LatLngBoundsExpression}
+        maxBoundsViscosity={0.8}
         style={{ width: "100%", height: "100%" }}
         zoomControl={true}
       >
