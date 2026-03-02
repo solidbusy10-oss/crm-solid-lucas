@@ -14,10 +14,10 @@ import {
 } from "@/components/ui/sidebar";
 
 const items = [
-  { title: "Inbound", url: "/inbound", icon: Magnet },
+  { title: "Meu Perfil", url: "/perfil", icon: User },
   { title: "Ranking de Vendas", url: "/", icon: Trophy },
   { title: "Eficácia", url: "/eficacia", icon: CheckCircle },
-  { title: "Meu Perfil", url: "/perfil", icon: User },
+  { title: "Inbound", url: "/inbound", icon: Magnet },
 ];
 
 export function AppSidebar() {
