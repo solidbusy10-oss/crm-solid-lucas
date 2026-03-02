@@ -269,7 +269,7 @@ const Perfil = () => {
                 <div className="flex items-center gap-2 mt-1">
                   {role && (
                     <span className="text-[10px] bg-accent/15 text-accent-foreground px-2 py-0.5 rounded-full font-semibold capitalize">
-                      {role === "coordenador" ? "Inbound" : role}
+                      {role === "coordenador" ? "Coordenador" : role}
                     </span>
                   )}
                   {profile?.equipe && (
@@ -855,6 +855,17 @@ const Perfil = () => {
 
           return (
             <>
+              {/* Funil de Conversão */}
+              <div className="mb-6">
+                <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                  <Filter className="h-4 w-4 text-primary" />
+                  Funil de Conversão
+                </h2>
+                <div className="glass-card rounded-xl p-4 glow-primary flex items-center justify-center">
+                  <FunnelChart stages={computeFunnelStages(mockFunnel)} />
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 {renderTeamColumn(mockManha, "Equipe Manhã", <Users className="h-4 w-4 text-rank-gold" />)}
                 {renderTeamColumn(mockNoturno, "Equipe Noturno", <Users className="h-4 w-4 text-accent" />)}
