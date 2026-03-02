@@ -49,7 +49,7 @@ const Auth = () => {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-3">
             <img src={logoIcon} alt="Solid Business" className="h-12 w-12 object-contain" />
-            <img src={logoText} alt="Solid Business" className="h-9 object-contain brightness-0 invert opacity-90" />
+            <img src={logoText} alt="Solid Business" className="h-9 object-contain opacity-90" />
           </div>
           <p className="text-muted-foreground text-xs mb-1">CRM — Gestão de Vendas</p>
           <p className="text-muted-foreground text-sm">
