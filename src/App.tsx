@@ -7,6 +7,8 @@ import CRMLayout from "./layouts/CRMLayout";
 import Index from "./pages/Index";
 import Inbound from "./pages/Inbound";
 import Eficacia from "./pages/Eficacia";
+import Perfil from "./pages/Perfil";
+import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -17,14 +19,23 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <CRMLayout>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/inbound" element={<Inbound />} />
-            <Route path="/eficacia" element={<Eficacia />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </CRMLayout>
+        <Routes>
+          <Route path="/auth" element={<Auth />} />
+          <Route
+            path="/*"
+            element={
+              <CRMLayout>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/inbound" element={<Inbound />} />
+                  <Route path="/eficacia" element={<Eficacia />} />
+                  <Route path="/perfil" element={<Perfil />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </CRMLayout>
+            }
+          />
+        </Routes>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
