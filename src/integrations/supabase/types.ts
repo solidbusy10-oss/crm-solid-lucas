@@ -16,42 +16,167 @@ export type Database = {
     Tables: {
       pos_venda: {
         Row: {
+          audio_auditoria_url: string | null
           cpf_cliente: string
           created_at: string
+          email_cliente: string | null
+          endereco: string | null
           id: string
           numero_os: string
           pendencia: string | null
+          plano_contratado: string | null
           status: string
           status_agendamento: string
+          telefone_contato: string | null
           updated_at: string
+          valor_mensalidade: string | null
           vendedor_id: string
           vendedor_nome: string
         }
         Insert: {
+          audio_auditoria_url?: string | null
           cpf_cliente: string
           created_at?: string
+          email_cliente?: string | null
+          endereco?: string | null
           id?: string
           numero_os: string
           pendencia?: string | null
+          plano_contratado?: string | null
           status?: string
           status_agendamento?: string
+          telefone_contato?: string | null
           updated_at?: string
+          valor_mensalidade?: string | null
           vendedor_id: string
           vendedor_nome: string
         }
         Update: {
+          audio_auditoria_url?: string | null
           cpf_cliente?: string
           created_at?: string
+          email_cliente?: string | null
+          endereco?: string | null
           id?: string
           numero_os?: string
           pendencia?: string | null
+          plano_contratado?: string | null
           status?: string
           status_agendamento?: string
+          telefone_contato?: string | null
           updated_at?: string
+          valor_mensalidade?: string | null
           vendedor_id?: string
           vendedor_nome?: string
         }
         Relationships: []
+      }
+      pos_venda_checklist: {
+        Row: {
+          agendamento_confirmado: boolean | null
+          app_nio_informado: boolean | null
+          canais_atendimento_informados: boolean | null
+          comodato_informado: boolean | null
+          confirmacao_ok_sim: boolean | null
+          confirmou_dados: boolean | null
+          congelamento_valor_informado: boolean | null
+          cpf_confirmado: boolean | null
+          created_at: string
+          duvidas_perguntadas: boolean | null
+          endereco_confirmado: boolean | null
+          endereco_correto: boolean | null
+          entonacao_voz_boa: boolean | null
+          fez_upsell: boolean | null
+          fidelidade_informada: boolean | null
+          id: string
+          mensagem_oficial_informada: boolean | null
+          multa_equipamento_informada: boolean | null
+          nome_completo_confirmado: boolean | null
+          observacao: string | null
+          passou_confianca: boolean | null
+          passou_info_plano: boolean | null
+          plano_informado: boolean | null
+          pos_venda_id: string
+          primeira_fatura_informada: boolean | null
+          respondido_por: string
+          seguranca_dados_informada: boolean | null
+          telefone_confirmado: boolean | null
+          updated_at: string
+          valor_informado: boolean | null
+        }
+        Insert: {
+          agendamento_confirmado?: boolean | null
+          app_nio_informado?: boolean | null
+          canais_atendimento_informados?: boolean | null
+          comodato_informado?: boolean | null
+          confirmacao_ok_sim?: boolean | null
+          confirmou_dados?: boolean | null
+          congelamento_valor_informado?: boolean | null
+          cpf_confirmado?: boolean | null
+          created_at?: string
+          duvidas_perguntadas?: boolean | null
+          endereco_confirmado?: boolean | null
+          endereco_correto?: boolean | null
+          entonacao_voz_boa?: boolean | null
+          fez_upsell?: boolean | null
+          fidelidade_informada?: boolean | null
+          id?: string
+          mensagem_oficial_informada?: boolean | null
+          multa_equipamento_informada?: boolean | null
+          nome_completo_confirmado?: boolean | null
+          observacao?: string | null
+          passou_confianca?: boolean | null
+          passou_info_plano?: boolean | null
+          plano_informado?: boolean | null
+          pos_venda_id: string
+          primeira_fatura_informada?: boolean | null
+          respondido_por: string
+          seguranca_dados_informada?: boolean | null
+          telefone_confirmado?: boolean | null
+          updated_at?: string
+          valor_informado?: boolean | null
+        }
+        Update: {
+          agendamento_confirmado?: boolean | null
+          app_nio_informado?: boolean | null
+          canais_atendimento_informados?: boolean | null
+          comodato_informado?: boolean | null
+          confirmacao_ok_sim?: boolean | null
+          confirmou_dados?: boolean | null
+          congelamento_valor_informado?: boolean | null
+          cpf_confirmado?: boolean | null
+          created_at?: string
+          duvidas_perguntadas?: boolean | null
+          endereco_confirmado?: boolean | null
+          endereco_correto?: boolean | null
+          entonacao_voz_boa?: boolean | null
+          fez_upsell?: boolean | null
+          fidelidade_informada?: boolean | null
+          id?: string
+          mensagem_oficial_informada?: boolean | null
+          multa_equipamento_informada?: boolean | null
+          nome_completo_confirmado?: boolean | null
+          observacao?: string | null
+          passou_confianca?: boolean | null
+          passou_info_plano?: boolean | null
+          plano_informado?: boolean | null
+          pos_venda_id?: string
+          primeira_fatura_informada?: boolean | null
+          respondido_por?: string
+          seguranca_dados_informada?: boolean | null
+          telefone_confirmado?: boolean | null
+          updated_at?: string
+          valor_informado?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pos_venda_checklist_pos_venda_id_fkey"
+            columns: ["pos_venda_id"]
+            isOneToOne: true
+            referencedRelation: "pos_venda"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
