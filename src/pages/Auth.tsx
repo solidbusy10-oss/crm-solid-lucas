@@ -2,15 +2,13 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { LogIn, UserPlus, Mail, Lock, User } from "lucide-react";
+import { LogIn, Mail, Lock } from "lucide-react";
 import logoIcon from "@/assets/logo-solid-icon.png";
 import logoText from "@/assets/logo-solid-text.png";
 
 const Auth = () => {
-  const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -19,23 +17,10 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        toast.success("Login realizado com sucesso!");
-        navigate("/");
-      } else {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: { full_name: fullName },
-            emailRedirectTo: window.location.origin,
-          },
-        });
-        if (error) throw error;
-        toast.success("Conta criada! Verifique seu email para confirmar.");
-      }
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      toast.success("Login realizado com sucesso!");
+      navigate("/");
     } catch (error: any) {
       toast.error(error.message);
     } finally {
@@ -52,32 +37,11 @@ const Auth = () => {
             <img src={logoText} alt="Solid Business" className="h-8 object-contain" style={{filter: 'brightness(0) invert(1) brightness(0.85)'}} />
           </div>
           <p className="text-muted-foreground text-xs mb-1">CRM — Gestão de Vendas</p>
-          <p className="text-muted-foreground text-sm">
-            {isLogin ? "Entre na sua conta" : "Crie sua conta"}
-          </p>
+          <p className="text-muted-foreground text-sm">Entre na sua conta</p>
         </div>
 
         <div className="glass-card rounded-xl p-8 glow-primary">
           <form onSubmit={handleSubmit} className="space-y-5">
-            {!isLogin && (
-              <div>
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
-                  Nome completo
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <input
-                    type="text"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    className="w-full bg-secondary/50 border border-border/40 rounded-lg py-2.5 pl-10 pr-4 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all"
-                    placeholder="Seu nome"
-                    required
-                  />
-                </div>
-              </div>
-            )}
-
             <div>
               <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
                 Email
@@ -120,28 +84,14 @@ const Auth = () => {
             >
               {loading ? (
                 <div className="h-5 w-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-              ) : isLogin ? (
+              ) : (
                 <>
                   <LogIn className="h-4 w-4" />
                   Entrar
                 </>
-              ) : (
-                <>
-                  <UserPlus className="h-4 w-4" />
-                  Criar conta
-                </>
               )}
             </button>
           </form>
-
-          <div className="mt-6 text-center">
-            <button
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-sm text-muted-foreground hover:text-primary transition-colors"
-            >
-              {isLogin ? "Não tem conta? Criar agora" : "Já tem conta? Entrar"}
-            </button>
-          </div>
         </div>
       </div>
     </div>
