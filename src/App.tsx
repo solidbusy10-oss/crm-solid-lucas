@@ -7,6 +7,7 @@ import CRMLayout from "./layouts/CRMLayout";
 import Index from "./pages/Index";
 import Inbound from "./pages/Inbound";
 import Eficacia from "./pages/Eficacia";
+import PosVenda from "./pages/PosVenda";
 import Perfil from "./pages/Perfil";
 import Configuracoes from "./pages/Configuracoes";
 import Auth from "./pages/Auth";
@@ -31,7 +32,8 @@ const App = () => (
                   <Route path="/" element={<ProtectedRoute page="/"><Index /></ProtectedRoute>} />
                   <Route path="/inbound" element={<ProtectedRoute page="/inbound"><Inbound /></ProtectedRoute>} />
                   <Route path="/eficacia" element={<ProtectedRoute page="/eficacia"><Eficacia /></ProtectedRoute>} />
-                  <Route path="/perfil" element={<ProtectedRoute page="/perfil"><Perfil /></ProtectedRoute>} />
+                  <Route path="/pos-venda" element={<ProtectedRoute page="/pos-venda"><PosVenda /></ProtectedRoute>} />
+                   <Route path="/perfil" element={<ProtectedRoute page="/perfil"><Perfil /></ProtectedRoute>} />
                   <Route path="/configuracoes" element={<ProtectedRoute page="/perfil"><Configuracoes /></ProtectedRoute>} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>

@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      pos_venda: {
+        Row: {
+          cpf_cliente: string
+          created_at: string
+          id: string
+          numero_os: string
+          pendencia: string | null
+          status: string
+          status_agendamento: string
+          updated_at: string
+          vendedor_id: string
+          vendedor_nome: string
+        }
+        Insert: {
+          cpf_cliente: string
+          created_at?: string
+          id?: string
+          numero_os: string
+          pendencia?: string | null
+          status?: string
+          status_agendamento?: string
+          updated_at?: string
+          vendedor_id: string
+          vendedor_nome: string
+        }
+        Update: {
+          cpf_cliente?: string
+          created_at?: string
+          id?: string
+          numero_os?: string
+          pendencia?: string | null
+          status?: string
+          status_agendamento?: string
+          updated_at?: string
+          vendedor_id?: string
+          vendedor_nome?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

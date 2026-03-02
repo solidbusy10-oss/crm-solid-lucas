@@ -27,7 +27,7 @@ export function useUserRole() {
     if (!role) return false;
     
     // Pages accessible by all roles
-    const allAccess = ["/perfil", "/", "/eficacia"];
+    const allAccess = ["/perfil", "/", "/eficacia", "/pos-venda"];
     if (allAccess.includes(page)) return true;
 
     // Inbound only for supervisor and coordenador
