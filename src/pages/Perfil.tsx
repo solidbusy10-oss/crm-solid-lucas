@@ -173,11 +173,10 @@ const Perfil = () => {
                   <ShoppingCart className="h-4 w-4 text-primary" />
                   Indicadores de Vendas
                 </h2>
-                <div className="grid grid-cols-2 gap-3 mb-3">
+                <div className="grid grid-cols-3 gap-3 mb-3">
                   {statCard(<FileText className="h-4 w-4 text-primary" />, "Formulários", indicators.form)}
                   {statCard(<ShoppingCart className="h-4 w-4 text-primary" />, "CG Vendas", indicators.cg_vendas)}
-                  {statCard(<Percent className="h-4 w-4 text-primary" />, "Auditoria", `${indicators.audit_vendas}%`)}
-                  {statCard(<BarChart3 className="h-4 w-4 text-primary" />, "Audit TRC", `${indicators.audit_trc}%`)}
+                  {statCard(<Percent className="h-4 w-4 text-primary" />, "Conv. Vendas", `${indicators.conv_vendas}%`)}
                 </div>
                 <div className="grid grid-cols-3 gap-3">
                   <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
@@ -222,12 +221,12 @@ const Perfil = () => {
               <Zap className="h-4 w-4 text-primary" />
               Inbound — Resumo
             </h2>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-3">
+            <div className="grid grid-cols-5 gap-3 mb-3">
               {statCard(<DollarSign className="h-4 w-4 text-primary" />, "Total Gasto", `R$ ${mockInbound.totalGasto.toLocaleString("pt-BR")}`)}
+              {statCard(<Users className="h-4 w-4 text-primary" />, "Total Leads", mockInbound.totalLeads.toLocaleString("pt-BR"))}
               {statCard(<Target className="h-4 w-4 text-primary" />, "CPL", `R$ ${mockInbound.valorLead.toFixed(2)}`)}
               {statCard(<ShoppingCart className="h-4 w-4 text-primary" />, "CPC", `R$ ${mockInbound.valorContrato.toFixed(2)}`)}
               {statCard(<TrendingUp className="h-4 w-4 text-primary" />, "% Viabilidade", `${mockInbound.viabilidade}%`)}
-              {statCard(<Users className="h-4 w-4 text-primary" />, "Total Leads", mockInbound.totalLeads.toLocaleString("pt-BR"))}
             </div>
             <div className="grid grid-cols-3 gap-3 mb-6">
               <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
@@ -249,11 +248,10 @@ const Perfil = () => {
                   <Users className="h-4 w-4 text-primary" />
                   Visão do Time — Vendas
                 </h2>
-                <div className="grid grid-cols-2 gap-3 mb-3">
+                <div className="grid grid-cols-3 gap-3 mb-3">
                   {statCard(<FileText className="h-4 w-4 text-primary" />, "Total Forms", mockTeamSales.totalForm)}
                   {statCard(<ShoppingCart className="h-4 w-4 text-primary" />, "Total CG", mockTeamSales.totalCG)}
                   {statCard(<Percent className="h-4 w-4 text-primary" />, "Conv. Média", `${mockTeamSales.convMedia}%`)}
-                  {statCard(<BarChart3 className="h-4 w-4 text-primary" />, "Audit. Média", `${mockTeamSales.auditMedia}%`)}
                 </div>
                 <div className="glass-card rounded-xl p-3 overflow-x-auto">
                   <table className="w-full text-xs">
