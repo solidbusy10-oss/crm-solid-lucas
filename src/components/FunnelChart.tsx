@@ -9,16 +9,16 @@ interface FunnelChartProps {
 }
 
 const FUNNEL_COLORS = [
-  "hsl(0, 75%, 50%)",
-  "hsl(20, 90%, 55%)",
-  "hsl(30, 95%, 55%)",
-  "hsl(40, 95%, 55%)",
-  "hsl(50, 95%, 50%)",
-  "hsl(80, 65%, 45%)",
-  "hsl(140, 60%, 42%)",
-  "hsl(170, 60%, 42%)",
-  "hsl(195, 80%, 50%)",
-  "hsl(210, 80%, 55%)",
+  "hsl(170, 80%, 45%)",     // primary
+  "hsl(170, 70%, 40%)",     // accent
+  "hsl(170, 60%, 36%)",
+  "hsl(180, 55%, 32%)",
+  "hsl(195, 50%, 34%)",
+  "hsl(210, 45%, 36%)",
+  "hsl(215, 40%, 32%)",     // secondary zone
+  "hsl(215, 35%, 28%)",
+  "hsl(215, 30%, 25%)",     // border/muted zone
+  "hsl(215, 50%, 20%)",
 ];
 
 const FunnelChart = ({ stages }: FunnelChartProps) => {
