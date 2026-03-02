@@ -48,8 +48,8 @@ const Auth = () => {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="flex flex-col items-center gap-1 mb-3">
-            <img src={logoIcon} alt="Solid Business" className="h-16 w-16 object-contain mix-blend-lighten" />
-            <img src={logoText} alt="Solid Business" className="h-8 object-contain mix-blend-lighten" />
+            <img src={logoIcon} alt="Solid Business" className="h-16 w-16 object-contain" style={{filter: 'brightness(0) invert(1) brightness(0.85)'}} />
+            <img src={logoText} alt="Solid Business" className="h-8 object-contain" style={{filter: 'brightness(0) invert(1) brightness(0.85)'}} />
           </div>
           <p className="text-muted-foreground text-xs mb-1">CRM — Gestão de Vendas</p>
           <p className="text-muted-foreground text-sm">
