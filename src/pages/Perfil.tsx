@@ -76,12 +76,12 @@ const computeFunnelStages = (f: typeof mockFunnel) => {
     { label: "Leads", value: f.leads.toLocaleString("pt-BR"), raw: f.leads },
     { label: "Form", value: f.form, raw: f.form },
     { label: "Form Tratados", value: f.formTratados, raw: f.formTratados },
-    { label: "Conv. Form", value: `${convForm.toFixed(1)}%`, raw: convForm },
-    { label: "Conv. Form×Contrato", value: `${convFormContrato.toFixed(1)}%`, raw: convFormContrato },
-    { label: "Conv. Lead", value: `${convLead.toFixed(1)}%`, raw: convLead },
-    { label: "CG", value: f.cg, raw: f.cg },
+    { label: "Lead x Form", value: `${convForm.toFixed(1)}%`, raw: convForm },
+    { label: "Form x Contrato", value: `${convFormContrato.toFixed(1)}%`, raw: convFormContrato },
+    { label: "Conversão Geral", value: `${convLead.toFixed(1)}%`, raw: convLead },
+    { label: "Contratos", value: f.cg, raw: f.cg },
     { label: "Fila", value: f.fila, raw: f.fila },
-    { label: "Conv. Projetada", value: `${convProjetada.toFixed(1)}%`, raw: convProjetada },
+    { label: "Conversão Projetada", value: `${convProjetada.toFixed(1)}%`, raw: convProjetada },
     { label: "CG Projetado", value: cgProjetado, raw: cgProjetado },
   ];
 };
