@@ -1,12 +1,18 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { User, LogOut, TrendingUp, Package, BarChart3, FileText, ShoppingCart, Percent, Users, DollarSign, Zap, Target, Filter, Settings, Trophy, Crown, Medal, Award, ShieldCheck, FileCheck, MapPin } from "lucide-react";
+import { User, LogOut, TrendingUp, Package, BarChart3, FileText, ShoppingCart, Percent, Users, DollarSign, Zap, Target, Filter, Settings, Trophy, Crown, Medal, Award, ShieldCheck, FileCheck, MapPin, CalendarIcon } from "lucide-react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis } from "recharts";
 import GaugeChart from "@/components/GaugeChart";
 import FunnelChart from "@/components/FunnelChart";
 import { toast } from "sonner";
 import { useUserRole } from "@/hooks/useUserRole";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface Profile {
   display_name: string | null;
@@ -155,6 +161,8 @@ const computeFunnelStages = (f: typeof mockFunnel) => {
   ];
 };
 
+type DateMode = "single" | "range";
+
 const Perfil = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [indicators, setIndicators] = useState<Indicators>(defaultIndicators);
@@ -162,6 +170,9 @@ const Perfil = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { role } = useUserRole();
+  const [dateMode, setDateMode] = useState<DateMode>("single");
+  const [singleDate, setSingleDate] = useState<Date | undefined>(new Date());
+  const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({ from: undefined, to: undefined });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -281,6 +292,125 @@ const Perfil = () => {
                 Sair
               </button>
             </div>
+          </div>
+        </div>
+
+        {/* Date Filter */}
+        <div className="glass-card rounded-xl p-4 mb-6 glow-primary">
+          <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-2">
+              <CalendarIcon className="h-4 w-4 text-primary" />
+              <span className="text-xs font-bold font-display text-foreground uppercase tracking-wider">Período</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setDateMode("single")}
+                className={cn(
+                  "text-xs px-3 py-1.5 rounded-lg font-semibold transition-all border",
+                  dateMode === "single"
+                    ? "bg-primary/20 border-primary/40 text-primary"
+                    : "bg-secondary/40 border-border/30 text-muted-foreground hover:bg-secondary/60"
+                )}
+              >
+                Dia específico
+              </button>
+              <button
+                onClick={() => setDateMode("range")}
+                className={cn(
+                  "text-xs px-3 py-1.5 rounded-lg font-semibold transition-all border",
+                  dateMode === "range"
+                    ? "bg-primary/20 border-primary/40 text-primary"
+                    : "bg-secondary/40 border-border/30 text-muted-foreground hover:bg-secondary/60"
+                )}
+              >
+                Período
+              </button>
+            </div>
+
+            {dateMode === "single" ? (
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-[200px] justify-start text-left text-xs font-normal bg-secondary/60 border-border/50",
+                      !singleDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-3.5 w-3.5" />
+                    {singleDate ? format(singleDate, "dd/MM/yyyy", { locale: ptBR }) : "Selecione uma data"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={singleDate}
+                    onSelect={setSingleDate}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-[150px] justify-start text-left text-xs font-normal bg-secondary/60 border-border/50",
+                        !dateRange.from && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-3.5 w-3.5" />
+                      {dateRange.from ? format(dateRange.from, "dd/MM/yyyy", { locale: ptBR }) : "De"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={dateRange.from}
+                      onSelect={(d) => setDateRange(prev => ({ ...prev, from: d }))}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+                <span className="text-xs text-muted-foreground">até</span>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-[150px] justify-start text-left text-xs font-normal bg-secondary/60 border-border/50",
+                        !dateRange.to && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-3.5 w-3.5" />
+                      {dateRange.to ? format(dateRange.to, "dd/MM/yyyy", { locale: ptBR }) : "Até"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={dateRange.to}
+                      onSelect={(d) => setDateRange(prev => ({ ...prev, to: d }))}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            )}
+
+            {(singleDate || dateRange.from || dateRange.to) && (
+              <button
+                onClick={() => { setSingleDate(new Date()); setDateRange({ from: undefined, to: undefined }); }}
+                className="text-xs text-destructive hover:text-destructive/80 underline transition-colors"
+              >
+                Limpar
+              </button>
+            )}
           </div>
         </div>
 
