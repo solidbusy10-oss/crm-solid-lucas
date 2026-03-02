@@ -141,7 +141,15 @@ const Eficacia = () => {
               {sellers.length} colaboradores
             </span>
           </div>
-          <RankingTable sellers={sellers} hideColumns={['form', 'audit', 'auditTrc']} />
+          <RankingTable
+            sellers={sellers}
+            subtitle={(s) => `${Math.round(s.cg * s.conv / 100)} instaladas`}
+            customStats={[
+              { label: "CG", value: (s) => s.cg },
+              { label: "Instalada", value: (s) => Math.round(s.cg * s.conv / 100) },
+              { label: "% Instal.", value: (s) => s.conv, isBadge: true },
+            ]}
+          />
         </div>
       </div>
     </div>

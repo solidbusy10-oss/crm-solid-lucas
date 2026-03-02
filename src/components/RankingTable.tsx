@@ -10,9 +10,17 @@ interface Seller {
   auditTrc: number;
 }
 
+interface StatColumn {
+  label: string;
+  value: (seller: Seller) => string | number;
+  isBadge?: boolean;
+}
+
 interface RankingTableProps {
   sellers: Seller[];
   hideColumns?: ('form' | 'audit' | 'auditTrc')[];
+  subtitle?: (seller: Seller) => string;
+  customStats?: StatColumn[];
 }
 
 const getRankStyle = (rank: number) => {
@@ -34,7 +42,7 @@ const getAuditBadge = (value: number) => {
   return "bg-muted/20 text-muted-foreground border-border/20";
 };
 
-const RankingTable = ({ sellers, hideColumns = [] }: RankingTableProps) => {
+const RankingTable = ({ sellers, hideColumns = [], subtitle, customStats }: RankingTableProps) => {
   return (
     <div className="w-full space-y-2">
       {sellers.map((seller, i) => {
@@ -70,44 +78,69 @@ const RankingTable = ({ sellers, hideColumns = [] }: RankingTableProps) => {
                 {seller.name}
               </p>
               <p className="text-xs text-muted-foreground">
-                {seller.cg} vendas
+                {subtitle ? subtitle(seller) : `${seller.cg} vendas`}
               </p>
             </div>
 
-            {/* Stats */}
-            <div className="hidden sm:flex items-center gap-2">
-              {!hideColumns.includes('form') && (
-                <div className="text-center px-3 py-1 rounded-md bg-muted/30">
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Form</p>
-                  <p className="text-sm font-bold text-foreground font-display">{seller.form}</p>
+            {customStats ? (
+              <div className="flex items-center gap-2">
+                {customStats.map((col) => {
+                  const val = col.value(seller);
+                  if (col.isBadge) {
+                    const badge = getPercentBadge(Number(val));
+                    return (
+                      <div key={col.label} className={`flex items-center gap-1 px-2.5 py-1 rounded-full border text-xs font-semibold ${badge.color}`}>
+                        <badge.icon className="h-3 w-3" />
+                        {val}%
+                      </div>
+                    );
+                  }
+                  return (
+                    <div key={col.label} className="text-center px-3 py-1 rounded-md bg-muted/30">
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">{col.label}</p>
+                      <p className="text-sm font-bold text-foreground font-display">{val}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <>
+                {/* Stats */}
+                <div className="hidden sm:flex items-center gap-2">
+                  {!hideColumns.includes('form') && (
+                    <div className="text-center px-3 py-1 rounded-md bg-muted/30">
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Form</p>
+                      <p className="text-sm font-bold text-foreground font-display">{seller.form}</p>
+                    </div>
+                  )}
+                  <div className="text-center px-3 py-1 rounded-md bg-muted/30">
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">CG</p>
+                    <p className="text-sm font-bold text-foreground font-display">{seller.cg}</p>
+                  </div>
                 </div>
-              )}
-              <div className="text-center px-3 py-1 rounded-md bg-muted/30">
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">CG</p>
-                <p className="text-sm font-bold text-foreground font-display">{seller.cg}</p>
-              </div>
-            </div>
 
-            {/* Conv Badge */}
-            <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full border text-xs font-semibold ${convBadge.color}`}>
-              <convBadge.icon className="h-3 w-3" />
-              {seller.conv}%
-            </div>
+                {/* Conv Badge */}
+                <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full border text-xs font-semibold ${convBadge.color}`}>
+                  <convBadge.icon className="h-3 w-3" />
+                  {seller.conv}%
+                </div>
 
-            {/* Audit Badges */}
-            {(!hideColumns.includes('audit') || !hideColumns.includes('auditTrc')) && (
-              <div className="hidden md:flex items-center gap-1.5">
-                {!hideColumns.includes('audit') && (
-                  <span className={`px-2 py-0.5 rounded-full border text-[11px] font-medium ${getAuditBadge(seller.audit)}`}>
-                    A {seller.audit}%
-                  </span>
+                {/* Audit Badges */}
+                {(!hideColumns.includes('audit') || !hideColumns.includes('auditTrc')) && (
+                  <div className="hidden md:flex items-center gap-1.5">
+                    {!hideColumns.includes('audit') && (
+                      <span className={`px-2 py-0.5 rounded-full border text-[11px] font-medium ${getAuditBadge(seller.audit)}`}>
+                        A {seller.audit}%
+                      </span>
+                    )}
+                    {!hideColumns.includes('auditTrc') && (
+                      <span className={`px-2 py-0.5 rounded-full border text-[11px] font-medium ${getAuditBadge(seller.auditTrc)}`}>
+                        T {seller.auditTrc}%
+                      </span>
+                    )}
+                  </div>
                 )}
-                {!hideColumns.includes('auditTrc') && (
-                  <span className={`px-2 py-0.5 rounded-full border text-[11px] font-medium ${getAuditBadge(seller.auditTrc)}`}>
-                    T {seller.auditTrc}%
-                  </span>
-                )}
-              </div>
+              </>
             )}
           </div>
         );
