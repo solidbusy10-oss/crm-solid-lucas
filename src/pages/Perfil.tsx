@@ -538,88 +538,29 @@ const Perfil = () => {
               </div>
             </div>
 
-            {/* Row 4: Team tables side by side */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Team Vendas */}
-              <div>
-                <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
-                  <Users className="h-4 w-4 text-primary" />
-                  Visão do Time — Vendas
-                </h2>
-                <div className="grid grid-cols-3 gap-3 mb-3">
-                  {statCard(<FileText className="h-4 w-4 text-primary" />, "Total Forms", mockTeamSales.totalForm)}
-                  {statCard(<ShoppingCart className="h-4 w-4 text-primary" />, "Total CG", mockTeamSales.totalCG)}
-                  {statCard(<Percent className="h-4 w-4 text-primary" />, "Conv. Média", `${mockTeamSales.convMedia}%`)}
-                </div>
-                <div className="glass-card rounded-xl p-3 overflow-x-auto">
-                  <table className="w-full text-xs">
-                    <thead>
-                      <tr className="border-b border-border/30">
-                        <th className="text-left py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Vendedor</th>
-                        <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Form</th>
-                        <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">CG</th>
-                        <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Conv.</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {mockTeamSales.members.map((m, i) => (
-                        <tr key={i} className="border-b border-border/10 hover:bg-primary/5 transition-colors">
-                          <td className="py-2 px-2 font-medium text-foreground">{m.name}</td>
-                          <td className="py-2 px-2 text-center text-muted-foreground">{m.form}</td>
-                          <td className="py-2 px-2 text-center text-muted-foreground">{m.cg}</td>
-                          <td className="py-2 px-2 text-center font-semibold text-primary">{m.conv}%</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* Team Instalações */}
-              <div>
-                <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
-                  <Package className="h-4 w-4 text-primary" />
-                  Visão do Time — Instalações
-                </h2>
-                <div className="grid grid-cols-3 gap-3 mb-3">
-                  {statCard(<ShoppingCart className="h-4 w-4 text-primary" />, "Total CG", mockTeamInstallations.totalCGPos)}
-                  {statCard(<Package className="h-4 w-4 text-primary" />, "Instalada", mockTeamInstallations.totalInstalada)}
-                  {statCard(<TrendingUp className="h-4 w-4 text-primary" />, "% Média", `${mockTeamInstallations.percMedia}%`)}
-                </div>
-                <div className="glass-card rounded-xl p-3 overflow-x-auto">
-                  <table className="w-full text-xs">
-                    <thead>
-                      <tr className="border-b border-border/30">
-                        <th className="text-left py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Vendedor</th>
-                        <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">CG</th>
-                        <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Instalada</th>
-                        <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">%</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {mockTeamInstallations.members.map((m, i) => (
-                        <tr key={i} className="border-b border-border/10 hover:bg-primary/5 transition-colors">
-                          <td className="py-2 px-2 font-medium text-foreground">{m.name}</td>
-                          <td className="py-2 px-2 text-center text-muted-foreground">{m.cg}</td>
-                          <td className="py-2 px-2 text-center text-muted-foreground">{m.instalada}</td>
-                          <td className="py-2 px-2 text-center font-semibold text-primary">{m.perc}%</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-
-            {/* Indicadores de Planos — Visão do Time */}
+            {/* Row 4: Team tables + Planos (filtered) */}
             {(() => {
-              const teamPlans = [
+              const filteredSalesMembers = selectedSeller === "todos"
+                ? mockTeamSales.members
+                : mockTeamSales.members.filter(m => m.name === selectedSeller);
+              const filteredInstMembers = selectedSeller === "todos"
+                ? mockTeamInstallations.members
+                : mockTeamInstallations.members.filter(m => m.name === selectedSeller);
+              const fTotalForm = filteredSalesMembers.reduce((s, m) => s + m.form, 0);
+              const fTotalCG = filteredSalesMembers.reduce((s, m) => s + m.cg, 0);
+              const fConvMedia = fTotalForm > 0 ? Math.round((fTotalCG / fTotalForm) * 1000) / 10 : 0;
+              const fTotalCGPos = filteredInstMembers.reduce((s, m) => s + m.cg, 0);
+              const fTotalInstalada = filteredInstMembers.reduce((s, m) => s + m.instalada, 0);
+              const fPercMedia = fTotalCGPos > 0 ? Math.round((fTotalInstalada / fTotalCGPos) * 1000) / 10 : 0;
+
+              const allTeamPlans = [
                 { name: "João Silva", p500: 3, p700: 2, p1gb: 1 },
                 { name: "Maria Santos", p500: 2, p700: 3, p1gb: 2 },
                 { name: "Pedro Costa", p500: 4, p700: 1, p1gb: 1 },
                 { name: "Ana Oliveira", p500: 2, p700: 1, p1gb: 1 },
                 { name: "Carlos Lima", p500: 1, p700: 1, p1gb: 0 },
               ];
+              const teamPlans = selectedSeller === "todos" ? allTeamPlans : allTeamPlans.filter(m => m.name === selectedSeller);
               const total500 = teamPlans.reduce((s, m) => s + m.p500, 0);
               const total700 = teamPlans.reduce((s, m) => s + m.p700, 0);
               const total1gb = teamPlans.reduce((s, m) => s + m.p1gb, 0);
@@ -628,105 +569,178 @@ const Perfil = () => {
               const percAlto = totalAll > 0 ? Math.round((altoValor / totalAll) * 100) : 0;
 
               return (
-                <div className="mt-6">
-                  <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <Wifi className="h-4 w-4 text-primary" />
-                    Indicadores de Planos — Time
-                  </h2>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
-                    {statCard(<Wifi className="h-4 w-4 text-primary" />, "500 MB", total500)}
-                    {statCard(<Wifi className="h-4 w-4 text-primary" />, "700 MB", total700)}
-                    {statCard(<Wifi className="h-4 w-4 text-primary" />, "1 GB", total1gb)}
-                    {statCard(<TrendingUp className="h-4 w-4 text-primary" />, "Alto Valor", `${percAlto}%`)}
-                  </div>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
-                    <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
-                      <GaugeChart label="500 MB" value={total500} max={30} />
-                    </div>
-                    <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
-                      <GaugeChart label="700 MB" value={total700} max={20} />
-                    </div>
-                    <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
-                      <GaugeChart label="1 GB" value={total1gb} max={15} />
-                    </div>
-                    <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
-                      <GaugeChart label="Alto Valor" value={percAlto} isPercentage />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-6">
-                    {/* Tabela por vendedor */}
-                    <div className="glass-card rounded-xl p-3 overflow-x-auto">
-                      <table className="w-full text-xs">
-                        <thead>
-                          <tr className="border-b border-border/30">
-                            <th className="text-left py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Vendedor</th>
-                            <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">500 MB</th>
-                            <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">700 MB</th>
-                            <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">1 GB</th>
-                            <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Alto Valor</th>
-                            <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">%</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {teamPlans.map((m, i) => {
-                            const mTotal = m.p500 + m.p700 + m.p1gb;
-                            const mAlto = m.p700 + m.p1gb;
-                            const mPerc = mTotal > 0 ? Math.round((mAlto / mTotal) * 100) : 0;
-                            return (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Team Vendas */}
+                    <div>
+                      <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <Users className="h-4 w-4 text-primary" />
+                        Visão do Time — Vendas
+                      </h2>
+                      <div className="grid grid-cols-3 gap-3 mb-3">
+                        {statCard(<FileText className="h-4 w-4 text-primary" />, "Total Forms", fTotalForm)}
+                        {statCard(<ShoppingCart className="h-4 w-4 text-primary" />, "Total CG", fTotalCG)}
+                        {statCard(<Percent className="h-4 w-4 text-primary" />, "Conv. Média", `${fConvMedia}%`)}
+                      </div>
+                      <div className="glass-card rounded-xl p-3 overflow-x-auto">
+                        <table className="w-full text-xs">
+                          <thead>
+                            <tr className="border-b border-border/30">
+                              <th className="text-left py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Vendedor</th>
+                              <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Form</th>
+                              <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">CG</th>
+                              <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Conv.</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {filteredSalesMembers.map((m, i) => (
                               <tr key={i} className="border-b border-border/10 hover:bg-primary/5 transition-colors">
                                 <td className="py-2 px-2 font-medium text-foreground">{m.name}</td>
-                                <td className="py-2 px-2 text-center text-muted-foreground">{m.p500}</td>
-                                <td className="py-2 px-2 text-center text-muted-foreground">{m.p700}</td>
-                                <td className="py-2 px-2 text-center text-muted-foreground">{m.p1gb}</td>
-                                <td className="py-2 px-2 text-center font-semibold text-primary">{mAlto}</td>
-                                <td className="py-2 px-2 text-center font-semibold text-primary">{mPerc}%</td>
+                                <td className="py-2 px-2 text-center text-muted-foreground">{m.form}</td>
+                                <td className="py-2 px-2 text-center text-muted-foreground">{m.cg}</td>
+                                <td className="py-2 px-2 text-center font-semibold text-primary">{m.conv}%</td>
                               </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-                    {/* Distribuição Pie */}
-                    <div className="glass-card rounded-xl p-4 glow-primary min-w-[220px]">
-                      <h3 className="text-xs font-semibold font-display text-foreground mb-2">Distribuição</h3>
-                      <div className="h-44">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <PieChart>
-                            <Pie
-                              data={[
-                                { name: "500 MB", value: total500 },
-                                { name: "700 MB", value: total700 },
-                                { name: "1 GB", value: total1gb },
-                              ]}
-                              cx="50%" cy="50%" innerRadius={40} outerRadius={65} paddingAngle={3} dataKey="value" strokeWidth={0}
-                            >
-                              <Cell fill="hsl(210 80% 55%)" />
-                              <Cell fill="hsl(170 80% 45%)" />
-                              <Cell fill="hsl(45 90% 55%)" />
-                            </Pie>
-                            <Tooltip content={<CustomTooltip />} />
-                          </PieChart>
-                        </ResponsiveContainer>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
-                      <div className="flex flex-col gap-2 mt-2">
-                        {[
-                          { label: "500 MB", value: total500, color: "hsl(210 80% 55%)" },
-                          { label: "700 MB", value: total700, color: "hsl(170 80% 45%)" },
-                          { label: "1 GB", value: total1gb, color: "hsl(45 90% 55%)" },
-                        ].map((item) => (
-                          <div key={item.label} className="flex items-center gap-2">
-                            <div className="h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
-                            <span className="text-[10px] text-muted-foreground">{item.label}: <span className="font-semibold text-foreground">{item.value}</span></span>
+                    </div>
+
+                    {/* Team Instalações */}
+                    <div>
+                      <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <Package className="h-4 w-4 text-primary" />
+                        Visão do Time — Instalações
+                      </h2>
+                      <div className="grid grid-cols-3 gap-3 mb-3">
+                        {statCard(<ShoppingCart className="h-4 w-4 text-primary" />, "Total CG", fTotalCGPos)}
+                        {statCard(<Package className="h-4 w-4 text-primary" />, "Instalada", fTotalInstalada)}
+                        {statCard(<TrendingUp className="h-4 w-4 text-primary" />, "% Média", `${fPercMedia}%`)}
+                      </div>
+                      <div className="glass-card rounded-xl p-3 overflow-x-auto">
+                        <table className="w-full text-xs">
+                          <thead>
+                            <tr className="border-b border-border/30">
+                              <th className="text-left py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Vendedor</th>
+                              <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">CG</th>
+                              <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Instalada</th>
+                              <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">%</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {filteredInstMembers.map((m, i) => (
+                              <tr key={i} className="border-b border-border/10 hover:bg-primary/5 transition-colors">
+                                <td className="py-2 px-2 font-medium text-foreground">{m.name}</td>
+                                <td className="py-2 px-2 text-center text-muted-foreground">{m.cg}</td>
+                                <td className="py-2 px-2 text-center text-muted-foreground">{m.instalada}</td>
+                                <td className="py-2 px-2 text-center font-semibold text-primary">{m.perc}%</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Indicadores de Planos — Time */}
+                  <div className="mt-6">
+                    <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                      <Wifi className="h-4 w-4 text-primary" />
+                      Indicadores de Planos — Time
+                    </h2>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
+                      {statCard(<Wifi className="h-4 w-4 text-primary" />, "500 MB", total500)}
+                      {statCard(<Wifi className="h-4 w-4 text-primary" />, "700 MB", total700)}
+                      {statCard(<Wifi className="h-4 w-4 text-primary" />, "1 GB", total1gb)}
+                      {statCard(<TrendingUp className="h-4 w-4 text-primary" />, "Alto Valor", `${percAlto}%`)}
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
+                      <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
+                        <GaugeChart label="500 MB" value={total500} max={30} />
+                      </div>
+                      <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
+                        <GaugeChart label="700 MB" value={total700} max={20} />
+                      </div>
+                      <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
+                        <GaugeChart label="1 GB" value={total1gb} max={15} />
+                      </div>
+                      <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
+                        <GaugeChart label="Alto Valor" value={percAlto} isPercentage />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-6">
+                      <div className="glass-card rounded-xl p-3 overflow-x-auto">
+                        <table className="w-full text-xs">
+                          <thead>
+                            <tr className="border-b border-border/30">
+                              <th className="text-left py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Vendedor</th>
+                              <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">500 MB</th>
+                              <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">700 MB</th>
+                              <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">1 GB</th>
+                              <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Alto Valor</th>
+                              <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">%</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {teamPlans.map((m, i) => {
+                              const mTotal = m.p500 + m.p700 + m.p1gb;
+                              const mAlto = m.p700 + m.p1gb;
+                              const mPerc = mTotal > 0 ? Math.round((mAlto / mTotal) * 100) : 0;
+                              return (
+                                <tr key={i} className="border-b border-border/10 hover:bg-primary/5 transition-colors">
+                                  <td className="py-2 px-2 font-medium text-foreground">{m.name}</td>
+                                  <td className="py-2 px-2 text-center text-muted-foreground">{m.p500}</td>
+                                  <td className="py-2 px-2 text-center text-muted-foreground">{m.p700}</td>
+                                  <td className="py-2 px-2 text-center text-muted-foreground">{m.p1gb}</td>
+                                  <td className="py-2 px-2 text-center font-semibold text-primary">{mAlto}</td>
+                                  <td className="py-2 px-2 text-center font-semibold text-primary">{mPerc}%</td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                      <div className="glass-card rounded-xl p-4 glow-primary min-w-[220px]">
+                        <h3 className="text-xs font-semibold font-display text-foreground mb-2">Distribuição</h3>
+                        <div className="h-44">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                              <Pie
+                                data={[
+                                  { name: "500 MB", value: total500 },
+                                  { name: "700 MB", value: total700 },
+                                  { name: "1 GB", value: total1gb },
+                                ]}
+                                cx="50%" cy="50%" innerRadius={40} outerRadius={65} paddingAngle={3} dataKey="value" strokeWidth={0}
+                              >
+                                <Cell fill="hsl(210 80% 55%)" />
+                                <Cell fill="hsl(170 80% 45%)" />
+                                <Cell fill="hsl(45 90% 55%)" />
+                              </Pie>
+                              <Tooltip content={<CustomTooltip />} />
+                            </PieChart>
+                          </ResponsiveContainer>
+                        </div>
+                        <div className="flex flex-col gap-2 mt-2">
+                          {[
+                            { label: "500 MB", value: total500, color: "hsl(210 80% 55%)" },
+                            { label: "700 MB", value: total700, color: "hsl(170 80% 45%)" },
+                            { label: "1 GB", value: total1gb, color: "hsl(45 90% 55%)" },
+                          ].map((item) => (
+                            <div key={item.label} className="flex items-center gap-2">
+                              <div className="h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
+                              <span className="text-[10px] text-muted-foreground">{item.label}: <span className="font-semibold text-foreground">{item.value}</span></span>
+                            </div>
+                          ))}
+                          <div className="border-t border-border/30 pt-1.5 mt-1">
+                            <p className="text-[10px] text-muted-foreground">Alto Valor (700MB + 1GB)</p>
+                            <p className="text-primary font-bold font-display text-lg">{percAlto}%</p>
                           </div>
-                        ))}
-                        <div className="border-t border-border/30 pt-1.5 mt-1">
-                          <p className="text-[10px] text-muted-foreground">Alto Valor (700MB + 1GB)</p>
-                          <p className="text-primary font-bold font-display text-lg">{percAlto}%</p>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                </>
               );
             })()}
           </>
