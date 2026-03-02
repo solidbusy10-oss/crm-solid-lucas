@@ -49,8 +49,8 @@ const LABELS_TILE_URL = "https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/
 
 // Brazil bounding box
 const BRAZIL_BOUNDS: L.LatLngBoundsExpression = [
-  [-34.0, -74.0], // SW
-  [6.0, -32.0],   // NE
+  [-38.0, -80.0], // SW
+  [10.0, -28.0],   // NE
 ];
 
 function FitBrazil() {
@@ -451,10 +451,10 @@ const BrazilMap = ({ onStateClick, onCityClick, onClearFilter }: BrazilMapProps)
       <MapContainer
         center={[-14.5, -51]}
         zoom={4}
-        minZoom={4}
+        minZoom={3}
         maxZoom={18}
         maxBounds={BRAZIL_BOUNDS as L.LatLngBoundsExpression}
-        maxBoundsViscosity={1.0}
+        maxBoundsViscosity={0.5}
         style={{ width: "100%", height: "100%" }}
         zoomControl={true}
       >
