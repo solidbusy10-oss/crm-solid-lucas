@@ -850,6 +850,67 @@ const Perfil = () => {
                 </div>
               </div>
 
+              {/* Top 3 Vendedores */}
+              {(() => {
+                const topVendedores = [
+                  { name: "João Silva", cg: 22 },
+                  { name: "Maria Santos", cg: 20 },
+                  { name: "Pedro Costa", cg: 18 },
+                ];
+                const topInstaladores = [
+                  { name: "Maria Santos", instalada: 15 },
+                  { name: "João Silva", instalada: 14 },
+                  { name: "Ana Oliveira", instalada: 12 },
+                ];
+                const SellerPodiumCard = ({ name, value, label, idx }: { name: string; value: number; label: string; idx: number }) => {
+                  const style = podiumStyles[idx as 0 | 1 | 2];
+                  const Icon = style.Icon;
+                  return (
+                    <div className={`relative rounded-lg border ${style.border} ${style.bg} ${style.glow} p-3 transition-all duration-300 hover:scale-[1.01]`}>
+                      <div className={`absolute -top-2 -left-1 px-2 py-0.5 rounded-full text-[10px] font-bold font-display ${style.badge} flex items-center gap-1`}>
+                        <Icon className="h-3 w-3" />{style.label}
+                      </div>
+                      <div className="flex items-center justify-between mt-1">
+                        <div className="flex items-center gap-2">
+                          <div className="h-8 w-8 rounded-full bg-muted border border-muted-foreground/30 flex items-center justify-center">
+                            <span className="text-xs font-bold font-display text-muted-foreground">{name.charAt(0)}</span>
+                          </div>
+                          <p className="font-bold text-foreground text-sm">{name}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className={`text-xl font-bold font-display ${style.text} leading-none`}>{value}</p>
+                          <p className="text-[9px] uppercase tracking-widest text-muted-foreground mt-0.5">{label}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                };
+                return (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div>
+                      <h3 className="text-xs font-bold font-display text-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
+                        <Trophy className="h-3.5 w-3.5 text-rank-gold" /> Top 3 — Melhores Vendedores
+                      </h3>
+                      <div className="flex flex-col gap-2">
+                        {topVendedores.map((v, i) => (
+                          <SellerPodiumCard key={v.name} name={v.name} value={v.cg} label="CG" idx={i} />
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="text-xs font-bold font-display text-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
+                        <Trophy className="h-3.5 w-3.5 text-rank-gold" /> Top 3 — Mais Instala
+                      </h3>
+                      <div className="flex flex-col gap-2">
+                        {topInstaladores.map((v, i) => (
+                          <SellerPodiumCard key={v.name} name={v.name} value={v.instalada} label="Instalada" idx={i} />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+
               {/* Funil de Conversão Total */}
               <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
                 <Filter className="h-4 w-4 text-primary" />
