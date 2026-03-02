@@ -586,13 +586,11 @@ const Perfil = () => {
             supervisor: "Supervisor Manhã",
             vendas: { form: 95, cg: 48, conv: 50.5, audit: 90.2, auditTrc: 88.0 },
             posVenda: { cg: 38, instalada: 31, perc: 81.6 },
-            inbound: { totalGasto: 14200, totalLeads: 720, cpl: 19.72, cpc: 295.83, viabilidade: 69.4 },
           };
           const mockNoturno = {
             supervisor: "Supervisor Noturno",
             vendas: { form: 92, cg: 46, conv: 50.0, audit: 86.8, auditTrc: 84.5 },
             posVenda: { cg: 34, instalada: 27, perc: 79.4 },
-            inbound: { totalGasto: 14300, totalLeads: 705, cpl: 20.28, cpc: 310.87, viabilidade: 65.0 },
           };
 
           const renderTeamColumn = (team: typeof mockManha, label: string, icon: React.ReactNode) => (
@@ -649,42 +647,40 @@ const Perfil = () => {
                   </div>
                 </div>
               </div>
-
-              {/* Inbound Resumo */}
-              <div>
-                <h3 className="text-xs font-bold font-display text-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
-                  <Zap className="h-3.5 w-3.5 text-primary" />
-                  Inbound — Resumo
-                </h3>
-                <div className="grid grid-cols-3 gap-2 mb-2">
-                  {statCard(<DollarSign className="h-4 w-4 text-primary" />, "Total Gasto", `R$ ${team.inbound.totalGasto.toLocaleString("pt-BR")}`)}
-                  {statCard(<Users className="h-4 w-4 text-primary" />, "Total Leads", team.inbound.totalLeads.toLocaleString("pt-BR"))}
-                  {statCard(<TrendingUp className="h-4 w-4 text-primary" />, "% Viabilidade", `${team.inbound.viabilidade}%`)}
-                </div>
-                <div className="grid grid-cols-2 gap-2 mb-2">
-                  {statCard(<Target className="h-4 w-4 text-primary" />, "CPL", `R$ ${team.inbound.cpl.toFixed(2)}`)}
-                  {statCard(<ShoppingCart className="h-4 w-4 text-primary" />, "CPC", `R$ ${team.inbound.cpc.toFixed(2)}`)}
-                </div>
-                <div className="grid grid-cols-3 gap-2">
-                  <div className="glass-card rounded-xl p-2 flex items-center justify-center glow-primary">
-                    <GaugeChart label="CPL" value={team.inbound.cpl} max={50} />
-                  </div>
-                  <div className="glass-card rounded-xl p-2 flex items-center justify-center glow-primary">
-                    <GaugeChart label="CPC" value={team.inbound.cpc} max={500} />
-                  </div>
-                  <div className="glass-card rounded-xl p-2 flex items-center justify-center glow-primary">
-                    <GaugeChart label="Viabilidade" value={team.inbound.viabilidade} isPercentage />
-                  </div>
-                </div>
-              </div>
             </div>
           );
 
           return (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {renderTeamColumn(mockManha, "Equipe Manhã", <Users className="h-4 w-4 text-rank-gold" />)}
-              {renderTeamColumn(mockNoturno, "Equipe Noturno", <Users className="h-4 w-4 text-accent" />)}
-            </div>
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                {renderTeamColumn(mockManha, "Equipe Manhã", <Users className="h-4 w-4 text-rank-gold" />)}
+                {renderTeamColumn(mockNoturno, "Equipe Noturno", <Users className="h-4 w-4 text-accent" />)}
+              </div>
+
+              {/* Inbound unificado - igual ao supervisor */}
+              <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                <Zap className="h-4 w-4 text-primary" />
+                Inbound — Resumo
+              </h2>
+              <div className="grid grid-cols-5 gap-3 mb-3">
+                {statCard(<DollarSign className="h-4 w-4 text-primary" />, "Total Gasto", `R$ ${mockInbound.totalGasto.toLocaleString("pt-BR")}`)}
+                {statCard(<Users className="h-4 w-4 text-primary" />, "Total Leads", mockInbound.totalLeads.toLocaleString("pt-BR"))}
+                {statCard(<Target className="h-4 w-4 text-primary" />, "CPL", `R$ ${mockInbound.valorLead.toFixed(2)}`)}
+                {statCard(<ShoppingCart className="h-4 w-4 text-primary" />, "CPC", `R$ ${mockInbound.valorContrato.toFixed(2)}`)}
+                {statCard(<TrendingUp className="h-4 w-4 text-primary" />, "% Viabilidade", `${mockInbound.viabilidade}%`)}
+              </div>
+              <div className="grid grid-cols-3 gap-3 mb-6">
+                <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
+                  <GaugeChart label="CPL" value={mockInbound.valorLead} max={50} />
+                </div>
+                <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
+                  <GaugeChart label="CPC" value={mockInbound.valorContrato} max={500} />
+                </div>
+                <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
+                  <GaugeChart label="Viabilidade" value={mockInbound.viabilidade} isPercentage />
+                </div>
+              </div>
+            </>
           );
         })()}
 
