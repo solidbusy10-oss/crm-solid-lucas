@@ -580,141 +580,113 @@ const Perfil = () => {
           </>
         )}
 
-        {/* Coordenador/Inbound: inbound metrics */}
-        {isCoordenador && (
-          <>
-            {/* Stats cards */}
-            <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
-              <Zap className="h-4 w-4 text-primary" />
-              Métricas Inbound
-            </h2>
-            <div className="grid grid-cols-3 gap-3 mb-6">
-              {statCard(<Users className="h-4 w-4 text-primary" />, "Total de Leads", mockInboundProfile.totalLeads.toLocaleString("pt-BR"))}
-              {statCard(<DollarSign className="h-4 w-4 text-primary" />, "Custo por Lead", `R$ ${mockInboundProfile.custoLead.toFixed(2)}`)}
-              {statCard(<TrendingUp className="h-4 w-4 text-primary" />, "Viabilidade", `${mockInboundProfile.viabilidade}%`)}
-            </div>
+        {/* Coordenador: visão dos times dos supervisores */}
+        {isCoordenador && (() => {
+          const mockManha = {
+            supervisor: "Supervisor Manhã",
+            vendas: { form: 95, cg: 48, conv: 50.5, audit: 90.2, auditTrc: 88.0 },
+            posVenda: { cg: 38, instalada: 31, perc: 81.6 },
+            inbound: { totalGasto: 14200, totalLeads: 720, cpl: 19.72, cpc: 295.83, viabilidade: 69.4 },
+          };
+          const mockNoturno = {
+            supervisor: "Supervisor Noturno",
+            vendas: { form: 92, cg: 46, conv: 50.0, audit: 86.8, auditTrc: 84.5 },
+            posVenda: { cg: 34, instalada: 27, perc: 79.4 },
+            inbound: { totalGasto: 14300, totalLeads: 705, cpl: 20.28, cpc: 310.87, viabilidade: 65.0 },
+          };
 
-            {/* Top 3 Podiums */}
-            <div className="flex items-center gap-2 mb-4">
-              <Trophy className="h-5 w-5 text-rank-gold" />
-              <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider">
-                Top 3 Cidades
+          const renderTeamColumn = (team: typeof mockManha, label: string, icon: React.ReactNode) => (
+            <div className="flex flex-col gap-4">
+              <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider flex items-center gap-2">
+                {icon}
+                {label}
               </h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              {/* Mais CG */}
-              <div className="glass-card rounded-xl p-4 glow-primary">
-                <div className="flex items-center gap-2 mb-3">
-                  <ShieldCheck className="h-4 w-4 text-rank-gold" />
-                  <h3 className="text-xs font-bold font-display text-foreground uppercase tracking-wider">Mais CG</h3>
-                </div>
-                <div className="flex flex-col gap-3">
-                  {topCG.map((c, idx) => (
-                    <PodiumCard key={c.city} city={c.city} uf={c.uf} value={c.cg} label="contratos" idx={idx} />
-                  ))}
-                </div>
-              </div>
 
-              {/* Mais Instalação */}
-              <div className="glass-card rounded-xl p-4 glow-primary">
-                <div className="flex items-center gap-2 mb-3">
-                  <FileCheck className="h-4 w-4 text-rank-gold" />
-                  <h3 className="text-xs font-bold font-display text-foreground uppercase tracking-wider">Mais Instalação</h3>
+              {/* Indicadores de Vendas */}
+              <div>
+                <h3 className="text-xs font-bold font-display text-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
+                  <ShoppingCart className="h-3.5 w-3.5 text-primary" />
+                  Indicadores de Vendas
+                </h3>
+                <div className="grid grid-cols-3 gap-2 mb-2">
+                  {statCard(<FileText className="h-4 w-4 text-primary" />, "Formulários", team.vendas.form)}
+                  {statCard(<ShoppingCart className="h-4 w-4 text-primary" />, "CG Vendas", team.vendas.cg)}
+                  {statCard(<Percent className="h-4 w-4 text-primary" />, "Conv. Vendas", `${team.vendas.conv}%`)}
                 </div>
-                <div className="flex flex-col gap-3">
-                  {topInstalado.map((c, idx) => (
-                    <PodiumCard key={c.city} city={c.city} uf={c.uf} value={c.instalado} label="instalados" idx={idx} />
-                  ))}
-                </div>
-              </div>
-
-              {/* Mais Viabilidade */}
-              <div className="glass-card rounded-xl p-4 glow-primary">
-                <div className="flex items-center gap-2 mb-3">
-                  <MapPin className="h-4 w-4 text-rank-gold" />
-                  <h3 className="text-xs font-bold font-display text-foreground uppercase tracking-wider">Mais Viabilidade</h3>
-                </div>
-                <div className="flex flex-col gap-3">
-                  {topViab.map((c, idx) => (
-                    <PodiumCard key={c.city} city={c.city} uf={c.uf} value={`${c.viabilidade}%`} label="viável" idx={idx} />
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Cabeado vs Não Cabeado + Barras horizontais */}
-            <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
-              <Target className="h-4 w-4 text-primary" />
-              Cabeado vs Não Cabeado
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              {/* Pie Chart */}
-              <div className="glass-card rounded-xl p-4 glow-primary">
-                <h3 className="text-xs font-semibold font-display text-foreground mb-2">Distribuição</h3>
-                <div className="h-48">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie data={inboundPieData} cx="50%" cy="50%" innerRadius={45} outerRadius={70} paddingAngle={4} dataKey="value" strokeWidth={0}>
-                        {inboundPieData.map((_, i) => (
-                          <Cell key={i} fill={PIE_COLORS[i]} />
-                        ))}
-                      </Pie>
-                      <Tooltip content={<CustomTooltip />} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-                <div className="flex justify-around text-xs mt-2">
-                  <div className="text-center">
-                    <p className="text-primary font-bold font-display text-lg">{inboundTotalCabeado}</p>
-                    <p className="text-muted-foreground text-[10px]">Cabeado</p>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="glass-card rounded-xl p-2 flex items-center justify-center glow-primary">
+                    <GaugeChart label="Form" value={team.vendas.form} max={120} />
                   </div>
-                  <div className="text-center">
-                    <p className="text-destructive font-bold font-display text-lg">{inboundTotalNaoCabeado}</p>
-                    <p className="text-muted-foreground text-[10px]">Não Cabeado</p>
+                  <div className="glass-card rounded-xl p-2 flex items-center justify-center glow-primary">
+                    <GaugeChart label="CG" value={team.vendas.cg} max={60} />
                   </div>
-                  <div className="text-center">
-                    <p className="text-foreground font-bold font-display text-lg">
-                      {inboundTotalCabeado + inboundTotalNaoCabeado > 0 ? ((inboundTotalCabeado / (inboundTotalCabeado + inboundTotalNaoCabeado)) * 100).toFixed(1) : 0}%
-                    </p>
-                    <p className="text-muted-foreground text-[10px]">% Cabeado</p>
+                  <div className="glass-card rounded-xl p-2 flex items-center justify-center glow-primary">
+                    <GaugeChart label="Conv." value={team.vendas.conv} isPercentage />
                   </div>
                 </div>
               </div>
 
-              {/* Horizontal Bar Chart - Tratativas */}
-              <div className="glass-card rounded-xl p-4 glow-primary">
-                <h3 className="text-xs font-semibold font-display text-foreground mb-2">Tratativas</h3>
-                <div className="h-[280px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      data={[
-                        { name: "CG", value: inboundCities.reduce((s, c) => s + c.cg, 0), fill: "hsl(170 80% 45%)" },
-                        { name: "Instalado", value: inboundCities.reduce((s, c) => s + c.instalado, 0), fill: "hsl(145 65% 42%)" },
-                        { name: "Inviab.", value: inboundCities.reduce((s, c) => s + c.inviabilidade, 0), fill: "hsl(0 70% 55%)" },
-                        { name: "Reprov.", value: inboundCities.reduce((s, c) => s + c.reprovado, 0), fill: "hsl(25 60% 45%)" },
-                        { name: "Já Cliente", value: inboundCities.reduce((s, c) => s + c.jaCliente, 0), fill: "hsl(210 10% 70%)" },
-                        { name: "Fraude", value: inboundCities.reduce((s, c) => s + c.fraude, 0), fill: "hsl(0 90% 40%)" },
-                        { name: "S/ Cobert.", value: inboundCities.reduce((s, c) => s + c.semCobertura, 0), fill: "hsl(45 90% 55%)" },
-                        { name: "S/ Cond.", value: inboundCities.reduce((s, c) => s + c.semCondicao, 0), fill: "hsl(280 50% 55%)" },
-                      ]}
-                      layout="vertical"
-                      margin={{ top: 5, right: 20, left: 60, bottom: 5 }}
-                    >
-                      <XAxis type="number" tick={{ fill: "hsl(215 15% 55%)", fontSize: 9 }} axisLine={false} tickLine={false} />
-                      <YAxis type="category" dataKey="name" tick={{ fill: "hsl(215 15% 55%)", fontSize: 9 }} axisLine={false} tickLine={false} width={55} />
-                      <Tooltip content={<CustomTooltip />} />
-                      <Bar dataKey="value" radius={[0, 6, 6, 0]}>
-                        {[0,1,2,3,4,5,6,7].map((i) => (
-                          <Cell key={i} fill={["hsl(170 80% 45%)","hsl(145 65% 42%)","hsl(0 70% 55%)","hsl(25 60% 45%)","hsl(210 10% 70%)","hsl(0 90% 40%)","hsl(45 90% 55%)","hsl(280 50% 55%)"][i]} />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
+              {/* Indicadores Pós-Venda */}
+              <div>
+                <h3 className="text-xs font-bold font-display text-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
+                  <Package className="h-3.5 w-3.5 text-primary" />
+                  Indicadores Pós-Venda
+                </h3>
+                <div className="grid grid-cols-3 gap-2 mb-2">
+                  {statCard(<ShoppingCart className="h-4 w-4 text-primary" />, "CG Pós", team.posVenda.cg)}
+                  {statCard(<Package className="h-4 w-4 text-primary" />, "Instalada", team.posVenda.instalada)}
+                  {statCard(<TrendingUp className="h-4 w-4 text-primary" />, "% Instal.", `${team.posVenda.perc}%`)}
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="glass-card rounded-xl p-2 flex items-center justify-center glow-primary">
+                    <GaugeChart label="CG" value={team.posVenda.cg} max={50} />
+                  </div>
+                  <div className="glass-card rounded-xl p-2 flex items-center justify-center glow-primary">
+                    <GaugeChart label="Instalada" value={team.posVenda.instalada} max={40} />
+                  </div>
+                  <div className="glass-card rounded-xl p-2 flex items-center justify-center glow-primary">
+                    <GaugeChart label="% Instal." value={team.posVenda.perc} isPercentage />
+                  </div>
+                </div>
+              </div>
+
+              {/* Inbound Resumo */}
+              <div>
+                <h3 className="text-xs font-bold font-display text-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
+                  <Zap className="h-3.5 w-3.5 text-primary" />
+                  Inbound — Resumo
+                </h3>
+                <div className="grid grid-cols-3 gap-2 mb-2">
+                  {statCard(<DollarSign className="h-4 w-4 text-primary" />, "Total Gasto", `R$ ${team.inbound.totalGasto.toLocaleString("pt-BR")}`)}
+                  {statCard(<Users className="h-4 w-4 text-primary" />, "Total Leads", team.inbound.totalLeads.toLocaleString("pt-BR"))}
+                  {statCard(<TrendingUp className="h-4 w-4 text-primary" />, "% Viabilidade", `${team.inbound.viabilidade}%`)}
+                </div>
+                <div className="grid grid-cols-2 gap-2 mb-2">
+                  {statCard(<Target className="h-4 w-4 text-primary" />, "CPL", `R$ ${team.inbound.cpl.toFixed(2)}`)}
+                  {statCard(<ShoppingCart className="h-4 w-4 text-primary" />, "CPC", `R$ ${team.inbound.cpc.toFixed(2)}`)}
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="glass-card rounded-xl p-2 flex items-center justify-center glow-primary">
+                    <GaugeChart label="CPL" value={team.inbound.cpl} max={50} />
+                  </div>
+                  <div className="glass-card rounded-xl p-2 flex items-center justify-center glow-primary">
+                    <GaugeChart label="CPC" value={team.inbound.cpc} max={500} />
+                  </div>
+                  <div className="glass-card rounded-xl p-2 flex items-center justify-center glow-primary">
+                    <GaugeChart label="Viabilidade" value={team.inbound.viabilidade} isPercentage />
+                  </div>
                 </div>
               </div>
             </div>
-          </>
-        )}
+          );
+
+          return (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {renderTeamColumn(mockManha, "Equipe Manhã", <Users className="h-4 w-4 text-rank-gold" />)}
+              {renderTeamColumn(mockNoturno, "Equipe Noturno", <Users className="h-4 w-4 text-accent" />)}
+            </div>
+          );
+        })()}
 
         {/* Non-supervisor, non-coordenador: original vendedor layout */}
         {!isSupervisor && !isCoordenador && (
