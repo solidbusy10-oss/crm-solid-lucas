@@ -38,7 +38,7 @@ export function AppSidebar() {
         ) : (
           <div className="flex items-center gap-3">
             <img src={logoIcon} alt="Solid Business" className="h-9 w-9 object-contain" />
-            <img src={logoText} alt="Solid Business" className="h-7 object-contain brightness-0 invert opacity-90" />
+            <img src={logoText} alt="Solid Business" className="h-7 object-contain opacity-90" />
           </div>
         )}
       </SidebarHeader>
