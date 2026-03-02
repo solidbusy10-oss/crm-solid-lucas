@@ -14,7 +14,87 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          cargo: string | null
+          created_at: string
+          display_name: string | null
+          equipe: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          cargo?: string | null
+          created_at?: string
+          display_name?: string | null
+          equipe?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          cargo?: string | null
+          created_at?: string
+          display_name?: string | null
+          equipe?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      seller_indicators: {
+        Row: {
+          audit_trc: number
+          audit_vendas: number
+          cg_posvenda: number
+          cg_vendas: number
+          conv_vendas: number
+          created_at: string
+          form: number
+          id: string
+          instalada: number
+          perc_instalacao: number
+          period: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          audit_trc?: number
+          audit_vendas?: number
+          cg_posvenda?: number
+          cg_vendas?: number
+          conv_vendas?: number
+          created_at?: string
+          form?: number
+          id?: string
+          instalada?: number
+          perc_instalacao?: number
+          period?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          audit_trc?: number
+          audit_vendas?: number
+          cg_posvenda?: number
+          cg_vendas?: number
+          conv_vendas?: number
+          created_at?: string
+          form?: number
+          id?: string
+          instalada?: number
+          perc_instalacao?: number
+          period?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

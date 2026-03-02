@@ -1,4 +1,4 @@
-import { Magnet, Trophy, CheckCircle } from "lucide-react";
+import { Magnet, Trophy, CheckCircle, User } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import {
   Sidebar,
@@ -17,6 +17,7 @@ const items = [
   { title: "Inbound", url: "/inbound", icon: Magnet },
   { title: "Ranking de Vendas", url: "/", icon: Trophy },
   { title: "Eficácia", url: "/eficacia", icon: CheckCircle },
+  { title: "Meu Perfil", url: "/perfil", icon: User },
 ];
 
 export function AppSidebar() {
