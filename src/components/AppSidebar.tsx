@@ -13,7 +13,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useUserRole } from "@/hooks/useUserRole";
-import logoText from "@/assets/logo-solid-text.png";
+import logoCombined from "@/assets/logo-solid-combined.png";
 import logoIcon from "@/assets/logo-solid-icon.png";
 
 const allItems = [
@@ -36,10 +36,7 @@ export function AppSidebar() {
         {collapsed ? (
           <img src={logoIcon} alt="Solid Business" className="h-8 w-8 object-contain" />
         ) : (
-          <div className="flex items-center gap-3">
-            <img src={logoIcon} alt="Solid Business" className="h-9 w-9 object-contain" />
-            <img src={logoText} alt="Solid Business" className="h-7 object-contain opacity-90" />
-          </div>
+          <img src={logoCombined} alt="Solid Business" className="h-14 object-contain" />
         )}
       </SidebarHeader>
       <SidebarContent>

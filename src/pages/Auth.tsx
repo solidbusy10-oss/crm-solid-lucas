@@ -3,8 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { LogIn, UserPlus, Mail, Lock, User } from "lucide-react";
-import logoIcon from "@/assets/logo-solid-icon.png";
-import logoText from "@/assets/logo-solid-text.png";
+import logoCombined from "@/assets/logo-solid-combined.png";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -47,9 +46,8 @@ const Auth = () => {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-3 mb-3">
-            <img src={logoIcon} alt="Solid Business" className="h-12 w-12 object-contain" />
-            <img src={logoText} alt="Solid Business" className="h-9 object-contain opacity-90" />
+          <div className="flex items-center justify-center mb-3">
+            <img src={logoCombined} alt="Solid Business" className="h-20 object-contain" />
           </div>
           <p className="text-muted-foreground text-xs mb-1">CRM — Gestão de Vendas</p>
           <p className="text-muted-foreground text-sm">
