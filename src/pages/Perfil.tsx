@@ -254,7 +254,7 @@ const Perfil = () => {
                 <div className="flex items-center gap-2 mt-1">
                   {role && (
                     <span className="text-[10px] bg-accent/15 text-accent-foreground px-2 py-0.5 rounded-full font-semibold capitalize">
-                      {role}
+                      {role === "coordenador" ? "Inbound" : role}
                     </span>
                   )}
                   {profile?.equipe && (
