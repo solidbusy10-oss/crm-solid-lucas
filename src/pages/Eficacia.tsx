@@ -141,7 +141,7 @@ const Eficacia = () => {
               {sellers.length} colaboradores
             </span>
           </div>
-          <RankingTable sellers={sellers} />
+          <RankingTable sellers={sellers} hideColumns={['form', 'audit', 'auditTrc']} />
         </div>
       </div>
     </div>
