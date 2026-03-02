@@ -34,11 +34,11 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="border-r border-border/30">
       <SidebarHeader className="p-4 flex items-center justify-center">
         {collapsed ? (
-          <img src={logoIcon} alt="Solid Business" className="h-8 w-8 object-contain mix-blend-lighten" />
+          <img src={logoIcon} alt="Solid Business" className="h-8 w-8 object-contain mix-blend-lighten brightness-[3] sepia saturate-0" style={{filter: 'brightness(0) invert(1) brightness(0.85)'}} />
         ) : (
           <div className="flex flex-col items-center gap-1">
-            <img src={logoIcon} alt="Solid Business" className="h-12 w-12 object-contain mix-blend-lighten" />
-            <img src={logoText} alt="Solid Business" className="h-6 object-contain mix-blend-lighten" />
+            <img src={logoIcon} alt="Solid Business" className="h-12 w-12 object-contain" style={{filter: 'brightness(0) invert(1) brightness(0.85)'}} />
+            <img src={logoText} alt="Solid Business" className="h-6 object-contain" style={{filter: 'brightness(0) invert(1) brightness(0.85)'}} />
           </div>
         )}
       </SidebarHeader>
