@@ -786,60 +786,51 @@ const Perfil = () => {
                 {label}
               </h2>
 
-              {/* Funnel + Indicators side by side */}
-              <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-4 mb-4">
-                {/* Funnel */}
-                <div className="glass-card rounded-xl p-3 glow-primary flex items-center justify-center">
-                  <FunnelChart stages={computeFunnelStages(team.funnel)} />
-                </div>
-
-                {/* Vendas + Pós-Venda stacked */}
-                <div className="flex flex-col gap-4">
-                  {/* Vendas */}
-                  <div>
-                    <h3 className="text-xs font-bold font-display text-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
-                      <ShoppingCart className="h-3.5 w-3.5 text-primary" />
-                      Indicadores de Vendas
-                    </h3>
-                    <div className="grid grid-cols-3 gap-2 mb-2">
-                      {statCard(<FileText className="h-3.5 w-3.5 text-primary" />, "Formulários", team.vendas.form)}
-                      {statCard(<ShoppingCart className="h-3.5 w-3.5 text-primary" />, "CG Vendas", team.vendas.cg_vendas)}
-                      {statCard(<Percent className="h-3.5 w-3.5 text-primary" />, "Conv. Vendas", `${team.vendas.conv_vendas}%`)}
+              <div className="flex flex-col gap-4">
+                {/* Vendas */}
+                <div>
+                  <h3 className="text-xs font-bold font-display text-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <ShoppingCart className="h-3.5 w-3.5 text-primary" />
+                    Indicadores de Vendas
+                  </h3>
+                  <div className="grid grid-cols-3 gap-2 mb-2">
+                    {statCard(<FileText className="h-3.5 w-3.5 text-primary" />, "Formulários", team.vendas.form)}
+                    {statCard(<ShoppingCart className="h-3.5 w-3.5 text-primary" />, "CG Vendas", team.vendas.cg_vendas)}
+                    {statCard(<Percent className="h-3.5 w-3.5 text-primary" />, "Conv. Vendas", `${team.vendas.conv_vendas}%`)}
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="glass-card rounded-xl p-2 flex items-center justify-center glow-primary">
+                      <GaugeChart label="Form" value={team.vendas.form} max={50} />
                     </div>
-                    <div className="grid grid-cols-3 gap-2">
-                      <div className="glass-card rounded-xl p-2 flex items-center justify-center glow-primary">
-                        <GaugeChart label="Form" value={team.vendas.form} max={50} />
-                      </div>
-                      <div className="glass-card rounded-xl p-2 flex items-center justify-center glow-primary">
-                        <GaugeChart label="CG" value={team.vendas.cg_vendas} max={30} />
-                      </div>
-                      <div className="glass-card rounded-xl p-2 flex items-center justify-center glow-primary">
-                        <GaugeChart label="Conv." value={team.vendas.conv_vendas} isPercentage />
-                      </div>
+                    <div className="glass-card rounded-xl p-2 flex items-center justify-center glow-primary">
+                      <GaugeChart label="CG" value={team.vendas.cg_vendas} max={30} />
+                    </div>
+                    <div className="glass-card rounded-xl p-2 flex items-center justify-center glow-primary">
+                      <GaugeChart label="Conv." value={team.vendas.conv_vendas} isPercentage />
                     </div>
                   </div>
+                </div>
 
-                  {/* Pós-Venda */}
-                  <div>
-                    <h3 className="text-xs font-bold font-display text-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
-                      <Package className="h-3.5 w-3.5 text-primary" />
-                      Indicadores Pós-Venda
-                    </h3>
-                    <div className="grid grid-cols-3 gap-2 mb-2">
-                      {statCard(<ShoppingCart className="h-3.5 w-3.5 text-primary" />, "CG Pós", team.posVenda.cg_posvenda)}
-                      {statCard(<Package className="h-3.5 w-3.5 text-primary" />, "Instalada", team.posVenda.instalada)}
-                      {statCard(<TrendingUp className="h-3.5 w-3.5 text-primary" />, "% Instal.", `${team.posVenda.perc_instalacao}%`)}
+                {/* Pós-Venda */}
+                <div>
+                  <h3 className="text-xs font-bold font-display text-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <Package className="h-3.5 w-3.5 text-primary" />
+                    Indicadores Pós-Venda
+                  </h3>
+                  <div className="grid grid-cols-3 gap-2 mb-2">
+                    {statCard(<ShoppingCart className="h-3.5 w-3.5 text-primary" />, "CG Pós", team.posVenda.cg_posvenda)}
+                    {statCard(<Package className="h-3.5 w-3.5 text-primary" />, "Instalada", team.posVenda.instalada)}
+                    {statCard(<TrendingUp className="h-3.5 w-3.5 text-primary" />, "% Instal.", `${team.posVenda.perc_instalacao}%`)}
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="glass-card rounded-xl p-2 flex items-center justify-center glow-primary">
+                      <GaugeChart label="CG" value={team.posVenda.cg_posvenda} max={30} />
                     </div>
-                    <div className="grid grid-cols-3 gap-2">
-                      <div className="glass-card rounded-xl p-2 flex items-center justify-center glow-primary">
-                        <GaugeChart label="CG" value={team.posVenda.cg_posvenda} max={30} />
-                      </div>
-                      <div className="glass-card rounded-xl p-2 flex items-center justify-center glow-primary">
-                        <GaugeChart label="Instalada" value={team.posVenda.instalada} max={30} />
-                      </div>
-                      <div className="glass-card rounded-xl p-2 flex items-center justify-center glow-primary">
-                        <GaugeChart label="% Instal." value={team.posVenda.perc_instalacao} isPercentage />
-                      </div>
+                    <div className="glass-card rounded-xl p-2 flex items-center justify-center glow-primary">
+                      <GaugeChart label="Instalada" value={team.posVenda.instalada} max={30} />
+                    </div>
+                    <div className="glass-card rounded-xl p-2 flex items-center justify-center glow-primary">
+                      <GaugeChart label="% Instal." value={team.posVenda.perc_instalacao} isPercentage />
                     </div>
                   </div>
                 </div>
