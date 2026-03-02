@@ -13,8 +13,8 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useUserRole } from "@/hooks/useUserRole";
-import logoCombined from "@/assets/logo-solid-combined.png";
 import logoIcon from "@/assets/logo-solid-icon.png";
+import logoText from "@/assets/logo-solid-text.png";
 
 const allItems = [
   { title: "Meu Perfil", url: "/perfil", icon: User },
@@ -34,9 +34,12 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="border-r border-border/30">
       <SidebarHeader className="p-4 flex items-center justify-center">
         {collapsed ? (
-          <img src={logoIcon} alt="Solid Business" className="h-8 w-8 object-contain" />
+          <img src={logoIcon} alt="Solid Business" className="h-8 w-8 object-contain mix-blend-lighten" />
         ) : (
-          <img src={logoCombined} alt="Solid Business" className="h-14 object-contain" />
+          <div className="flex flex-col items-center gap-1">
+            <img src={logoIcon} alt="Solid Business" className="h-12 w-12 object-contain mix-blend-lighten" />
+            <img src={logoText} alt="Solid Business" className="h-6 object-contain mix-blend-lighten" />
+          </div>
         )}
       </SidebarHeader>
       <SidebarContent>
