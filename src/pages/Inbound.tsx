@@ -357,6 +357,10 @@ const Inbound = () => {
                   }
                   setSelectedCity(cityName);
                 }}
+                onClearFilter={() => {
+                  setSelectedState("all");
+                  setSelectedCity("all");
+                }}
               />
             </div>
           </div>

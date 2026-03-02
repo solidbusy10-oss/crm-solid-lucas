@@ -14,6 +14,7 @@ const allCitiesFlat = Object.entries(citiesByState).flatMap(([state, cities]) =>
 interface BrazilMapProps {
   onStateClick?: (stateName: string) => void;
   onCityClick?: (cityName: string, stateName: string) => void;
+  onClearFilter?: () => void;
 }
 
 const stateStyle: L.PathOptions = {
@@ -91,11 +92,21 @@ function ResetMap({ trigger, onDone }: { trigger: number; onDone: () => void }) 
   return null;
 }
 
-function MapClickHandler({ onCityFound }: { onCityFound: (city: string, state: string) => void }) {
+function MapClickHandler({ onCityFound, clearTrigger }: { onCityFound: (city: string, state: string) => void; clearTrigger: number }) {
   const [marker, setMarker] = useState<L.LatLng | null>(null);
   const [loading, setLoading] = useState(false);
   const [cityLabel, setCityLabel] = useState<string | null>(null);
   const markerRef = useRef<L.Marker | null>(null);
+
+  // Clear marker when clearTrigger changes
+  useEffect(() => {
+    if (clearTrigger > 0 && markerRef.current) {
+      markerRef.current.remove();
+      markerRef.current = null;
+      setMarker(null);
+      setCityLabel(null);
+    }
+  }, [clearTrigger]);
 
   const map = useMapEvents({
     click: async (e) => {
@@ -176,7 +187,7 @@ function MapClickHandler({ onCityFound }: { onCityFound: (city: string, state: s
   return null;
 }
 
-const BrazilMap = ({ onStateClick, onCityClick }: BrazilMapProps) => {
+const BrazilMap = ({ onStateClick, onCityClick, onClearFilter }: BrazilMapProps) => {
   const [geoData, setGeoData] = useState<any>(null);
   const [selectedState, setSelectedState] = useState<string | null>(null);
   const [flyBounds, setFlyBounds] = useState<L.LatLngBounds | null>(null);
@@ -184,6 +195,7 @@ const BrazilMap = ({ onStateClick, onCityClick }: BrazilMapProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const [resetTrigger, setResetTrigger] = useState(0);
+  const [clearMarkerTrigger, setClearMarkerTrigger] = useState(0);
   const geoJsonRef = useRef<L.GeoJSON | null>(null);
 
   useEffect(() => {
@@ -228,10 +240,12 @@ const BrazilMap = ({ onStateClick, onCityClick }: BrazilMapProps) => {
     setFlyBounds(null);
     setFlyPoint(null);
     setResetTrigger(prev => prev + 1);
+    setClearMarkerTrigger(prev => prev + 1);
     geoJsonRef.current?.eachLayer((l: any) => {
       l.setStyle(stateStyle);
     });
-  }, []);
+    onClearFilter?.();
+  }, [onClearFilter]);
 
   const onEachFeature = useCallback((feature: any, layer: L.Layer) => {
     const stateName = feature.properties.name;
@@ -410,13 +424,14 @@ const BrazilMap = ({ onStateClick, onCityClick }: BrazilMapProps) => {
           )}
         </div>
 
-        {/* Reset button */}
+        {/* Clear filter button */}
         <button
           onClick={handleReset}
-          className="w-9 h-9 rounded-lg flex items-center justify-center bg-background/70 backdrop-blur-xl border border-border/40 hover:bg-muted/50 hover:border-border/60 transition-all duration-200"
-          title="Voltar ao Brasil"
+          className="flex items-center gap-1.5 h-9 px-3 rounded-lg bg-destructive/15 backdrop-blur-xl border border-destructive/30 hover:bg-destructive/25 hover:border-destructive/50 transition-all duration-200"
+          title="Limpar filtro do mapa"
         >
-          <RotateCcw className="h-3.5 w-3.5 text-muted-foreground" />
+          <X className="h-3.5 w-3.5 text-destructive" />
+          <span className="text-[10px] font-semibold text-destructive">Limpar filtro</span>
         </button>
       </div>
 
@@ -465,7 +480,7 @@ const BrazilMap = ({ onStateClick, onCityClick }: BrazilMapProps) => {
             onEachFeature={onEachFeature}
           />
         )}
-        <MapClickHandler onCityFound={handleCityFromMap} />
+        <MapClickHandler onCityFound={handleCityFromMap} clearTrigger={clearMarkerTrigger} />
       </MapContainer>
     </div>
   );
