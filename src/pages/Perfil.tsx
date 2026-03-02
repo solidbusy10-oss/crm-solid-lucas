@@ -1120,43 +1120,147 @@ const Perfil = () => {
           );
         })()}
 
-        {/* Inbound: apenas indicadores de inbound + funil */}
-        {isInbound && (
-          <>
-            {/* Inbound KPIs */}
-            <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
-              <Zap className="h-4 w-4 text-primary" />
-              Inbound — Resumo
-            </h2>
-            <div className="grid grid-cols-5 gap-3 mb-3">
-              {statCard(<DollarSign className="h-4 w-4 text-primary" />, "Total Gasto", `R$ ${mockInbound.totalGasto.toLocaleString("pt-BR")}`)}
-              {statCard(<Users className="h-4 w-4 text-primary" />, "Total Leads", mockInbound.totalLeads.toLocaleString("pt-BR"))}
-              {statCard(<Target className="h-4 w-4 text-primary" />, "CPL", `R$ ${mockInbound.valorLead.toFixed(2)}`)}
-              {statCard(<ShoppingCart className="h-4 w-4 text-primary" />, "CPC", `R$ ${mockInbound.valorContrato.toFixed(2)}`)}
-              {statCard(<TrendingUp className="h-4 w-4 text-primary" />, "% Viabilidade", `${mockInbound.viabilidade}%`)}
-            </div>
-            <div className="grid grid-cols-3 gap-3 mb-6">
-              <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
-                <GaugeChart label="CPL" value={mockInbound.valorLead} max={50} />
-              </div>
-              <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
-                <GaugeChart label="CPC" value={mockInbound.valorContrato} max={500} />
-              </div>
-              <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
-                <GaugeChart label="Viabilidade" value={mockInbound.viabilidade} isPercentage />
-              </div>
-            </div>
+        {/* Inbound: indicadores completos de inbound */}
+        {isInbound && (() => {
+          const tratativas = inboundCities.map(c => ({
+            city: `${c.city} (${c.uf})`,
+            Inviabilidade: c.inviabilidade,
+            CG: c.cg,
+            Reprovado: c.reprovado,
+            "Já Cliente": c.jaCliente,
+            Fraude: c.fraude,
+            "Sem Cobertura": c.semCobertura,
+            "Sem Condição": c.semCondicao,
+            Instalado: c.instalado,
+          }));
 
-            {/* Funil de Conversão */}
-            <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
-              <Filter className="h-4 w-4 text-primary" />
-              Funil de Conversão
-            </h2>
-            <div className="glass-card rounded-xl p-4 glow-primary mb-8 flex items-center justify-center">
-              <FunnelChart stages={computeFunnelStages(mockFunnel)} />
-            </div>
-          </>
-        )}
+          const BAR_COLORS = [
+            "hsl(0 70% 55%)", "hsl(170 80% 45%)", "hsl(35 90% 55%)",
+            "hsl(210 80% 55%)", "hsl(280 60% 55%)", "hsl(45 90% 55%)",
+            "hsl(190 70% 50%)", "hsl(130 60% 45%)",
+          ];
+
+          return (
+            <>
+              {/* Inbound KPIs */}
+              <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                <Zap className="h-4 w-4 text-primary" />
+                Inbound — Total
+              </h2>
+              <div className="grid grid-cols-5 gap-3 mb-3">
+                {statCard(<DollarSign className="h-4 w-4 text-primary" />, "Total Gasto", `R$ ${mockInbound.totalGasto.toLocaleString("pt-BR")}`)}
+                {statCard(<Users className="h-4 w-4 text-primary" />, "Total Leads", mockInbound.totalLeads.toLocaleString("pt-BR"))}
+                {statCard(<Target className="h-4 w-4 text-primary" />, "CPL", `R$ ${mockInbound.valorLead.toFixed(2)}`)}
+                {statCard(<ShoppingCart className="h-4 w-4 text-primary" />, "CPC", `R$ ${mockInbound.valorContrato.toFixed(2)}`)}
+                {statCard(<TrendingUp className="h-4 w-4 text-primary" />, "% Viabilidade", `${mockInbound.viabilidade}%`)}
+              </div>
+              <div className="grid grid-cols-3 gap-3 mb-6">
+                <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
+                  <GaugeChart label="CPL" value={mockInbound.valorLead} max={50} />
+                </div>
+                <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
+                  <GaugeChart label="CPC" value={mockInbound.valorContrato} max={500} />
+                </div>
+                <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
+                  <GaugeChart label="Viabilidade" value={mockInbound.viabilidade} isPercentage />
+                </div>
+              </div>
+
+              {/* Pódios Top 3 */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div>
+                  <h3 className="text-xs font-bold font-display text-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <Trophy className="h-3.5 w-3.5 text-rank-gold" /> Top CG
+                  </h3>
+                  <div className="flex flex-col gap-2">
+                    {topCG.map((c, i) => (
+                      <PodiumCard key={c.city} city={c.city} uf={c.uf} value={c.cg} label="CG" idx={i} />
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-xs font-bold font-display text-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <Trophy className="h-3.5 w-3.5 text-rank-gold" /> Top Instalação
+                  </h3>
+                  <div className="flex flex-col gap-2">
+                    {topInstalado.map((c, i) => (
+                      <PodiumCard key={c.city} city={c.city} uf={c.uf} value={c.instalado} label="Instalado" idx={i} />
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-xs font-bold font-display text-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <Trophy className="h-3.5 w-3.5 text-rank-gold" /> Top Viabilidade
+                  </h3>
+                  <div className="flex flex-col gap-2">
+                    {topViab.map((c, i) => (
+                      <PodiumCard key={c.city} city={c.city} uf={c.uf} value={`${c.viabilidade}%`} label="Viabilidade" idx={i} />
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Cobertura + Tratativas */}
+              <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-6 mb-6">
+                <div>
+                  <h3 className="text-xs font-bold font-display text-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <MapPin className="h-3.5 w-3.5 text-primary" /> Cobertura
+                  </h3>
+                  <div className="glass-card rounded-xl p-4 glow-primary">
+                    <div className="h-48">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie data={inboundPieData} cx="50%" cy="50%" innerRadius={45} outerRadius={70} paddingAngle={3} dataKey="value" strokeWidth={0}>
+                            <Cell fill={PIE_COLORS[0]} />
+                            <Cell fill={PIE_COLORS[1]} />
+                          </Pie>
+                          <Tooltip content={<CustomTooltip />} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <div className="flex flex-col gap-2 mt-2">
+                      {inboundPieData.map((item, i) => (
+                        <div key={item.name} className="flex items-center gap-2">
+                          <div className="h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: PIE_COLORS[i] }} />
+                          <span className="text-[10px] text-muted-foreground">{item.name}: <span className="font-semibold text-foreground">{item.value}</span></span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-xs font-bold font-display text-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <BarChart3 className="h-3.5 w-3.5 text-primary" /> Tratativas por Cidade
+                  </h3>
+                  <div className="glass-card rounded-xl p-4 glow-primary">
+                    <div className="h-64">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={tratativas} layout="vertical" margin={{ left: 10 }}>
+                          <XAxis type="number" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
+                          <YAxis type="category" dataKey="city" tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }} width={120} />
+                          <Tooltip content={<CustomTooltip />} />
+                          {["Inviabilidade", "CG", "Reprovado", "Já Cliente", "Fraude", "Sem Cobertura", "Sem Condição", "Instalado"].map((key, i) => (
+                            <Bar key={key} dataKey={key} stackId="a" fill={BAR_COLORS[i]} />
+                          ))}
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Funil de Conversão */}
+              <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                <Filter className="h-4 w-4 text-primary" />
+                Funil de Conversão
+              </h2>
+              <div className="glass-card rounded-xl p-4 glow-primary mb-8 flex items-center justify-center">
+                <FunnelChart stages={computeFunnelStages(mockFunnel)} />
+              </div>
+            </>
+          );
+        })()}
 
         {/* Non-supervisor, non-coordenador, non-inbound: original vendedor layout */}
         {!isSupervisor && !isCoordenador && !isInbound && (
