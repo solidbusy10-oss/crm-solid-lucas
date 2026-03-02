@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { User, LogOut, TrendingUp, Package, BarChart3, FileText, ShoppingCart, Percent, Users, DollarSign, Zap, Target } from "lucide-react";
+import { User, LogOut, TrendingUp, Package, BarChart3, FileText, ShoppingCart, Percent, Users, DollarSign, Zap, Target, Filter } from "lucide-react";
 import GaugeChart from "@/components/GaugeChart";
+import FunnelChart from "@/components/FunnelChart";
 import { toast } from "sonner";
 import { useUserRole } from "@/hooks/useUserRole";
 
@@ -54,6 +55,35 @@ const mockTeamInstallations = {
 const mockInbound = {
   totalGasto: 28500, totalLeads: 1425, valorLead: 20.0,
   valorContrato: 303.19, viabilidade: 67.2,
+};
+
+const mockFunnel = {
+  leads: 1425,
+  form: 187,
+  formTratados: 145,
+  cg: 94,
+  fila: 42,
+};
+
+const computeFunnelStages = (f: typeof mockFunnel) => {
+  const convForm = f.leads > 0 ? (f.form / f.leads) * 100 : 0;
+  const convFormContrato = f.form > 0 ? (f.cg / f.form) * 100 : 0;
+  const convLead = f.leads > 0 ? (f.cg / f.leads) * 100 : 0;
+  const cgProjetado = Math.round(f.fila * (convFormContrato / 100) + f.cg);
+  const convProjetada = f.leads > 0 ? (cgProjetado / f.leads) * 100 : 0;
+
+  return [
+    { label: "Leads", value: f.leads.toLocaleString("pt-BR"), raw: f.leads },
+    { label: "Form", value: f.form, raw: f.form },
+    { label: "Form Tratados", value: f.formTratados, raw: f.formTratados },
+    { label: "Conv. Form", value: `${convForm.toFixed(1)}%`, raw: convForm },
+    { label: "Conv. Form×Contrato", value: `${convFormContrato.toFixed(1)}%`, raw: convFormContrato },
+    { label: "Conv. Lead", value: `${convLead.toFixed(1)}%`, raw: convLead },
+    { label: "CG", value: f.cg, raw: f.cg },
+    { label: "Fila", value: f.fila, raw: f.fila },
+    { label: "Conv. Projetada", value: `${convProjetada.toFixed(1)}%`, raw: convProjetada },
+    { label: "CG Projetado", value: cgProjetado, raw: cgProjetado },
+  ];
 };
 
 const Perfil = () => {
@@ -240,7 +270,16 @@ const Perfil = () => {
               </div>
             </div>
 
-            {/* Row 3: Team tables side by side */}
+            {/* Row 3: Funnel */}
+            <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+              <Filter className="h-4 w-4 text-primary" />
+              Funil de Conversão
+            </h2>
+            <div className="glass-card rounded-xl p-5 mb-6 glow-primary">
+              <FunnelChart stages={computeFunnelStages(mockFunnel)} />
+            </div>
+
+            {/* Row 4: Team tables side by side */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Team Vendas */}
               <div>
