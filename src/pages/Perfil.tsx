@@ -156,10 +156,14 @@ const Perfil = () => {
         <div className="glass-card rounded-xl p-5 mb-6 glow-primary">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="h-16 w-16 rounded-full bg-gradient-to-br from-primary/40 to-accent/20 border-2 border-primary/30 flex items-center justify-center">
-                <span className="text-2xl font-bold font-display text-primary">
-                  {(profile?.display_name || userEmail).charAt(0).toUpperCase()}
-                </span>
+              <div className="h-16 w-16 rounded-full bg-gradient-to-br from-primary/40 to-accent/20 border-2 border-primary/30 flex items-center justify-center overflow-hidden">
+                {profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt="Avatar" className="h-full w-full object-cover" />
+                ) : (
+                  <span className="text-2xl font-bold font-display text-primary">
+                    {(profile?.display_name || userEmail).charAt(0).toUpperCase()}
+                  </span>
+                )}
               </div>
               <div>
                 <h1 className="text-xl font-bold font-display text-foreground">
@@ -167,9 +171,6 @@ const Perfil = () => {
                 </h1>
                 <p className="text-xs text-muted-foreground">{userEmail}</p>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="text-[10px] bg-primary/15 text-primary px-2 py-0.5 rounded-full font-semibold">
-                    {profile?.cargo || "Vendedor"}
-                  </span>
                   {role && (
                     <span className="text-[10px] bg-accent/15 text-accent-foreground px-2 py-0.5 rounded-full font-semibold capitalize">
                       {role}
