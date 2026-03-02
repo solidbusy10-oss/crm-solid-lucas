@@ -420,35 +420,6 @@ const Perfil = () => {
 
         {isSupervisor && (
           <>
-            {/* Filtro por vendedor */}
-            <div className="glass-card rounded-xl p-4 mb-6 glow-primary">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4 text-primary" />
-                  <span className="text-xs font-bold font-display text-foreground uppercase tracking-wider">Vendedor</span>
-                </div>
-                <Select value={selectedSeller} onValueChange={setSelectedSeller}>
-                  <SelectTrigger className="w-[220px] text-xs bg-secondary/60 border-border/50">
-                    <SelectValue placeholder="Todos os vendedores" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="todos">Todos os vendedores</SelectItem>
-                    {allSellers.map((name) => (
-                      <SelectItem key={name} value={name}>{name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {selectedSeller !== "todos" && (
-                  <button
-                    onClick={() => setSelectedSeller("todos")}
-                    className="text-xs text-destructive hover:text-destructive/80 underline transition-colors"
-                  >
-                    Limpar
-                  </button>
-                )}
-              </div>
-            </div>
-
             {/* Row 1: Funnel (left) | Vendas + Pós-Venda stacked (right) */}
             <div className="grid grid-cols-1 md:grid-cols-[1fr_1.4fr] gap-6 mb-6">
               {/* Funnel */}
@@ -535,6 +506,35 @@ const Perfil = () => {
               </div>
               <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
                 <GaugeChart label="Viabilidade" value={mockInbound.viabilidade} isPercentage />
+              </div>
+            </div>
+
+            {/* Filtro por vendedor */}
+            <div className="glass-card rounded-xl p-4 mb-6 glow-primary">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4 text-primary" />
+                  <span className="text-xs font-bold font-display text-foreground uppercase tracking-wider">Vendedor</span>
+                </div>
+                <Select value={selectedSeller} onValueChange={setSelectedSeller}>
+                  <SelectTrigger className="w-[220px] text-xs bg-secondary/60 border-border/50">
+                    <SelectValue placeholder="Todos os vendedores" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos os vendedores</SelectItem>
+                    {allSellers.map((name) => (
+                      <SelectItem key={name} value={name}>{name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {selectedSeller !== "todos" && (
+                  <button
+                    onClick={() => setSelectedSeller("todos")}
+                    className="text-xs text-destructive hover:text-destructive/80 underline transition-colors"
+                  >
+                    Limpar
+                  </button>
+                )}
               </div>
             </div>
 
