@@ -789,41 +789,44 @@ const Perfil = () => {
             </div>
             <div className="glass-card rounded-xl p-4 glow-primary">
               <h3 className="text-xs font-semibold font-display text-foreground mb-2">Distribuição de Planos</h3>
-              <div className="h-48">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={[
-                        { name: "500 MB", value: 12 },
-                        { name: "700 MB", value: 8 },
-                        { name: "1 GB", value: 5 },
-                      ]}
-                      cx="50%" cy="50%" innerRadius={40} outerRadius={65} paddingAngle={4} dataKey="value" strokeWidth={0}
-                    >
-                      <Cell fill="hsl(210 80% 55%)" />
-                      <Cell fill="hsl(170 80% 45%)" />
-                      <Cell fill="hsl(45 90% 55%)" />
-                    </Pie>
-                    <Tooltip content={<CustomTooltip />} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="flex justify-around text-xs mt-2">
-                <div className="text-center">
-                  <p className="font-bold font-display text-lg" style={{ color: "hsl(210 80% 55%)" }}>12</p>
-                  <p className="text-muted-foreground text-[10px]">500 MB</p>
+              <div className="grid grid-cols-[1fr_auto] gap-6 items-center">
+                <div className="h-52">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={[
+                          { name: "500 MB", value: 12 },
+                          { name: "700 MB", value: 8 },
+                          { name: "1 GB", value: 5 },
+                        ]}
+                        cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={3} dataKey="value" strokeWidth={0}
+                      >
+                        <Cell fill="hsl(210 80% 55%)" />
+                        <Cell fill="hsl(170 80% 45%)" />
+                        <Cell fill="hsl(45 90% 55%)" />
+                      </Pie>
+                      <Tooltip content={<CustomTooltip />} />
+                    </PieChart>
+                  </ResponsiveContainer>
                 </div>
-                <div className="text-center">
-                  <p className="font-bold font-display text-lg" style={{ color: "hsl(170 80% 45%)" }}>8</p>
-                  <p className="text-muted-foreground text-[10px]">700 MB</p>
-                </div>
-                <div className="text-center">
-                  <p className="font-bold font-display text-lg" style={{ color: "hsl(45 90% 55%)" }}>5</p>
-                  <p className="text-muted-foreground text-[10px]">1 GB</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-primary font-bold font-display text-lg">52%</p>
-                  <p className="text-muted-foreground text-[10px]">Alto Valor</p>
+                <div className="flex flex-col gap-3 pr-4">
+                  {[
+                    { label: "500 MB", value: 12, pct: "48%", color: "hsl(210 80% 55%)" },
+                    { label: "700 MB", value: 8, pct: "32%", color: "hsl(170 80% 45%)" },
+                    { label: "1 GB", value: 5, pct: "20%", color: "hsl(45 90% 55%)" },
+                  ].map((item) => (
+                    <div key={item.label} className="flex items-center gap-3">
+                      <div className="h-3 w-3 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
+                      <div>
+                        <p className="text-xs font-semibold text-foreground">{item.label}</p>
+                        <p className="text-[10px] text-muted-foreground">{item.value} vendas · {item.pct}</p>
+                      </div>
+                    </div>
+                  ))}
+                  <div className="border-t border-border/30 pt-2 mt-1">
+                    <p className="text-xs text-muted-foreground">Alto Valor (700MB + 1GB)</p>
+                    <p className="text-primary font-bold font-display text-lg">52%</p>
+                  </div>
                 </div>
               </div>
             </div>
