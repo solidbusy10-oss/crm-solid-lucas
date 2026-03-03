@@ -1002,22 +1002,22 @@ const Perfil = () => {
                 );
               })()}
 
-              {/* Pós-Vendas — Indicadores e Ranking por Nota */}
+              {/* Pós-Vendas — Análise Pós-Venda */}
               {(() => {
-                const mockPosVendaAudit = [
-                  { name: "Ana Oliveira", auditorias: 45, nota: 92, pendentes: 3 },
-                  { name: "Carlos Lima", auditorias: 38, nota: 88, pendentes: 5 },
-                  { name: "Maria Santos", auditorias: 42, nota: 85, pendentes: 2 },
-                  { name: "João Silva", auditorias: 35, nota: 82, pendentes: 4 },
-                  { name: "Pedro Costa", auditorias: 30, nota: 78, pendentes: 6 },
-                  { name: "Lucas Ferreira", auditorias: 28, nota: 75, pendentes: 8 },
-                  { name: "Juliana Reis", auditorias: 25, nota: 70, pendentes: 7 },
+                const mockPosVendaAnalise = [
+                  { name: "Ana Oliveira", analises: 45, nota: 92, pendentes: 3 },
+                  { name: "Carlos Lima", analises: 38, nota: 88, pendentes: 5 },
+                  { name: "Maria Santos", analises: 42, nota: 85, pendentes: 2 },
+                  { name: "João Silva", analises: 35, nota: 82, pendentes: 4 },
+                  { name: "Pedro Costa", analises: 30, nota: 78, pendentes: 6 },
+                  { name: "Lucas Ferreira", analises: 28, nota: 75, pendentes: 8 },
+                  { name: "Juliana Reis", analises: 25, nota: 70, pendentes: 7 },
                 ];
-                const sortedByNota = [...mockPosVendaAudit].sort((a, b) => b.nota - a.nota);
+                const sortedByNota = [...mockPosVendaAnalise].sort((a, b) => b.nota - a.nota);
                 const top3Nota = sortedByNota.slice(0, 3);
-                const totalAuditorias = mockPosVendaAudit.reduce((s, m) => s + m.auditorias, 0);
-                const notaMedia = Math.round(mockPosVendaAudit.reduce((s, m) => s + m.nota, 0) / mockPosVendaAudit.length);
-                const totalPendentes = mockPosVendaAudit.reduce((s, m) => s + m.pendentes, 0);
+                const totalAnalises = mockPosVendaAnalise.reduce((s, m) => s + m.analises, 0);
+                const notaMedia = Math.round(mockPosVendaAnalise.reduce((s, m) => s + m.nota, 0) / mockPosVendaAnalise.length);
+                const totalPendentes = mockPosVendaAnalise.reduce((s, m) => s + m.pendentes, 0);
 
                 const notaColor = (nota: number) => {
                   if (nota >= 80) return "text-success";
@@ -1058,16 +1058,16 @@ const Perfil = () => {
                   <>
                     <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
                       <ShieldCheck className="h-4 w-4 text-primary" />
-                      Pós-Vendas — Auditorias
+                      Pós-Vendas — Análise Pós-Venda
                     </h2>
                     <div className="grid grid-cols-3 gap-3 mb-3">
-                      {statCard(<FileCheck className="h-4 w-4 text-primary" />, "Total Auditorias", totalAuditorias)}
+                      {statCard(<FileCheck className="h-4 w-4 text-primary" />, "Total Análises", totalAnalises)}
                       {statCard(<ShieldCheck className="h-4 w-4 text-primary" />, "Nota Média", `${notaMedia}%`)}
                       {statCard(<Target className="h-4 w-4 text-primary" />, "Pendentes", totalPendentes)}
                     </div>
                     <div className="grid grid-cols-3 gap-3 mb-6">
                       <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
-                        <GaugeChart label="Auditorias" value={totalAuditorias} max={300} />
+                        <GaugeChart label="Análises" value={totalAnalises} max={300} />
                       </div>
                       <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
                         <GaugeChart label="Nota Média" value={notaMedia} isPercentage />
@@ -1081,7 +1081,7 @@ const Perfil = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                       <div>
                         <h3 className="text-xs font-bold font-display text-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
-                          <Trophy className="h-3.5 w-3.5 text-rank-gold" /> Top 3 — Melhor Nota Auditoria
+                          <Trophy className="h-3.5 w-3.5 text-rank-gold" /> Top 3 — Melhor Nota Pós-Venda
                         </h3>
                         <div className="flex flex-col gap-2">
                           {top3Nota.map((v, i) => (
@@ -1093,7 +1093,7 @@ const Perfil = () => {
                       {/* Ranking Completo Pós-Vendas */}
                       <div>
                         <h3 className="text-xs font-bold font-display text-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
-                          <BarChart3 className="h-3.5 w-3.5 text-primary" /> Ranking Completo — Auditorias
+                          <BarChart3 className="h-3.5 w-3.5 text-primary" /> Ranking Completo — Análise Pós-Venda
                         </h3>
                         <div className="glass-card rounded-xl p-3 overflow-x-auto">
                           <table className="w-full text-xs">
@@ -1101,7 +1101,7 @@ const Perfil = () => {
                               <tr className="border-b border-border/30">
                                 <th className="text-left py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">#</th>
                                 <th className="text-left py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Vendedor</th>
-                                <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Auditorias</th>
+                                <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Análises</th>
                                 <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Nota</th>
                                 <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Pendentes</th>
                               </tr>
@@ -1113,7 +1113,7 @@ const Perfil = () => {
                                     <span className={`text-xs font-bold ${i === 0 ? 'text-rank-gold' : i === 1 ? 'text-rank-silver' : i === 2 ? 'text-rank-bronze' : 'text-muted-foreground'}`}>{i + 1}º</span>
                                   </td>
                                   <td className="py-2 px-2 font-medium text-foreground">{m.name}</td>
-                                  <td className="py-2 px-2 text-center text-muted-foreground">{m.auditorias}</td>
+                                  <td className="py-2 px-2 text-center text-muted-foreground">{m.analises}</td>
                                   <td className="py-2 px-2 text-center">
                                     <span className={`px-2 py-0.5 rounded-full border text-[11px] font-semibold ${notaBg(m.nota)}`}>
                                       {m.nota}%
