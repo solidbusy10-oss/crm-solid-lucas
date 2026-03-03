@@ -132,6 +132,26 @@ const checkLabels: { field: keyof Checklist; label: string; group: "questionario
   { field: "duvidas_perguntadas", label: "Perguntou se há dúvidas", group: "auditoria" },
 ];
 
+// Calculate audit score from boolean fields
+const calcNota = (cl: Checklist): number => {
+  const boolFields = checkLabels.map((c) => c.field);
+  const total = boolFields.length;
+  const checked = boolFields.filter((f) => cl[f] === true).length;
+  return total > 0 ? Math.round((checked / total) * 100) : 0;
+};
+
+const notaColor = (nota: number) => {
+  if (nota >= 80) return "text-emerald-400";
+  if (nota >= 50) return "text-yellow-400";
+  return "text-red-400";
+};
+
+const notaBadgeColor = (nota: number) => {
+  if (nota >= 80) return "bg-emerald-500/20 text-emerald-400 border-emerald-500/30";
+  if (nota >= 50) return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
+  return "bg-red-500/20 text-red-400 border-red-500/30";
+};
+
 interface Props {
   venda: PosVendaItem | null;
   open: boolean;
@@ -339,6 +359,26 @@ export default function VendaDetailDialog({ venda, open, onOpenChange }: Props) 
     });
     y += 4;
 
+    // ===== NOTA DA AUDITORIA =====
+    const nota = calcNota(checklist);
+    drawSection("NOTA DA AUDITORIA");
+    checkPage(14);
+    doc.setFillColor(...darkBlue);
+    doc.roundedRect(margin, y - 2, contentW, 14, 2, 2, "F");
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    const yellow: readonly [number, number, number] = [234, 179, 8];
+    const notaC: readonly [number, number, number] = nota >= 80 ? green : nota >= 50 ? yellow : red;
+    doc.setTextColor(...notaC);
+    doc.text(`${nota}%`, margin + 4, y + 7);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(...gray);
+    const boolFields = checkLabels.map((c) => c.field);
+    const checkedCount = boolFields.filter((f) => checklist[f] === true).length;
+    doc.text(`${checkedCount} de ${boolFields.length} itens conformes`, margin + 24, y + 7);
+    y += 18;
+
     // ===== OBSERVAÇÃO =====
     drawSection("OBSERVAÇÃO");
     checkPage(20);
@@ -507,6 +547,26 @@ export default function VendaDetailDialog({ venda, open, onOpenChange }: Props) 
                     className="bg-secondary/50 border-border/40 min-h-[100px]"
                     disabled={!canEdit}
                   />
+                </div>
+
+                {/* Nota da Auditoria */}
+                <div className="glass-card rounded-lg p-4">
+                  <h3 className="font-display font-semibold text-sm uppercase tracking-wider text-muted-foreground mb-3">
+                    Nota da Auditoria
+                  </h3>
+                  {(() => {
+                    const nota = calcNota(checklist);
+                    const boolFields = checkLabels.map((c) => c.field);
+                    const checkedCount = boolFields.filter((f) => checklist[f] === true).length;
+                    return (
+                      <div className="flex items-center gap-4">
+                        <span className={`text-3xl font-bold ${notaColor(nota)}`}>{nota}%</span>
+                        <span className="text-sm text-muted-foreground">
+                          {checkedCount} de {boolFields.length} itens conformes
+                        </span>
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {canEdit && (
