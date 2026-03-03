@@ -31,14 +31,14 @@ export function useUserRole() {
       return ["/perfil", "/pos-venda", "/eficacia"].includes(page);
     }
 
-    // Pages accessible by all other roles
-    const allAccess = ["/perfil", "/", "/eficacia", "/pos-venda"];
-    if (allAccess.includes(page)) return true;
-
-    // Inbound only for supervisor and coordenador
-    if (page === "/inbound") {
-      return role === "supervisor" || role === "coordenador";
+    // Vendedor sees perfil, ranking (/), eficacia
+    if (role === "vendedor") {
+      return ["/perfil", "/", "/eficacia"].includes(page);
     }
+
+    // Pages accessible by supervisor and coordenador
+    const allAccess = ["/perfil", "/", "/eficacia", "/pos-venda", "/inbound"];
+    if (allAccess.includes(page)) return true;
 
     return false;
   };
