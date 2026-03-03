@@ -1,4 +1,4 @@
-import { Magnet, Trophy, CheckCircle, User, ClipboardList } from "lucide-react";
+import { Magnet, Trophy, CheckCircle, User, ClipboardList, FileText } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import {
   Sidebar,
@@ -21,6 +21,7 @@ const allItems = [
   { title: "Ranking de Vendas", url: "/", icon: Trophy },
   { title: "Eficácia", url: "/eficacia", icon: CheckCircle },
   { title: "Pós Venda", url: "/pos-venda", icon: ClipboardList },
+  { title: "Follow", url: "/follow", icon: FileText },
   { title: "Inbound", url: "/inbound", icon: Magnet },
 ];
 
