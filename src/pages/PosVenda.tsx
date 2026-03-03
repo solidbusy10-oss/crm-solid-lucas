@@ -29,6 +29,7 @@ interface PosVendaItem {
   valor_mensalidade: string | null;
   audio_auditoria_url: string | null;
   created_at: string;
+  nota?: number | null;
 }
 
 const statusColor = (s: string) => {
@@ -49,6 +50,23 @@ const agendamentoColor = (s: string) => {
   }
 };
 
+const notaBadgeColor = (nota: number) => {
+  if (nota >= 80) return "bg-emerald-500/20 text-emerald-400 border-emerald-500/30";
+  if (nota >= 50) return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
+  return "bg-red-500/20 text-red-400 border-red-500/30";
+};
+
+// Boolean fields used in checklist for score calculation
+const checklistBoolFields = [
+  "endereco_correto", "confirmou_dados", "passou_info_plano", "fez_upsell",
+  "passou_confianca", "entonacao_voz_boa", "nome_completo_confirmado", "cpf_confirmado",
+  "telefone_confirmado", "endereco_confirmado", "plano_informado", "valor_informado",
+  "fidelidade_informada", "primeira_fatura_informada", "app_nio_informado",
+  "seguranca_dados_informada", "comodato_informado", "multa_equipamento_informada",
+  "congelamento_valor_informado", "mensagem_oficial_informada", "canais_atendimento_informados",
+  "confirmacao_ok_sim", "agendamento_confirmado", "duvidas_perguntadas",
+];
+
 const PosVenda = () => {
   const [data, setData] = useState<PosVendaItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -61,11 +79,21 @@ const PosVenda = () => {
       setLoading(true);
       const { data: rows, error } = await supabase
         .from("pos_venda")
-        .select("*")
+        .select("*, pos_venda_checklist(*)")
         .order("created_at", { ascending: false });
 
       if (!error && rows) {
-        setData(rows as unknown as PosVendaItem[]);
+        const mapped = rows.map((row: any) => {
+          const cl = row.pos_venda_checklist;
+          let nota: number | null = null;
+          if (cl) {
+            const checked = checklistBoolFields.filter((f) => cl[f] === true).length;
+            nota = Math.round((checked / checklistBoolFields.length) * 100);
+          }
+          const { pos_venda_checklist, ...rest } = row;
+          return { ...rest, nota } as PosVendaItem;
+        });
+        setData(mapped);
       }
       setLoading(false);
     };
@@ -135,6 +163,7 @@ const PosVenda = () => {
                     <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">Status</TableHead>
                     <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">Agendamento</TableHead>
                     <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">Pendência</TableHead>
+                    <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">Nota</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -159,6 +188,15 @@ const PosVenda = () => {
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground max-w-[200px] truncate">
                         {item.pendencia || "—"}
+                      </TableCell>
+                      <TableCell>
+                        {item.nota !== null && item.nota !== undefined ? (
+                          <Badge variant="outline" className={`text-xs font-bold ${notaBadgeColor(item.nota)}`}>
+                            {item.nota}%
+                          </Badge>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
