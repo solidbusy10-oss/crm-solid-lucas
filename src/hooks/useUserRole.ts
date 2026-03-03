@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-export type AppRole = "supervisor" | "coordenador" | "vendedor";
+export type AppRole = "supervisor" | "coordenador" | "vendedor" | "posvenda";
 
 export function useUserRole() {
   const [role, setRole] = useState<AppRole | null>(null);
@@ -26,8 +26,13 @@ export function useUserRole() {
   const canAccess = (page: string): boolean => {
     if (!role) return false;
     
-    // Pages accessible by all roles
-    const allAccess = ["/perfil", "/", "/eficacia", "/pos-venda", "/follow"];
+    // Posvenda only sees perfil, pos-venda, eficacia
+    if (role === "posvenda") {
+      return ["/perfil", "/pos-venda", "/eficacia"].includes(page);
+    }
+
+    // Pages accessible by all other roles
+    const allAccess = ["/perfil", "/", "/eficacia", "/pos-venda"];
     if (allAccess.includes(page)) return true;
 
     // Inbound only for supervisor and coordenador

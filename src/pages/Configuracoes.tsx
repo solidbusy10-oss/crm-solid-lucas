@@ -467,6 +467,7 @@ const Configuracoes = () => {
                     <SelectItem value="supervisor">Supervisor</SelectItem>
                     <SelectItem value="coordenador">Coordenador</SelectItem>
                     <SelectItem value="inbound">Inbound</SelectItem>
+                    <SelectItem value="posvenda">Pós-Venda</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
