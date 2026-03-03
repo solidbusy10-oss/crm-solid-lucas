@@ -1002,6 +1002,135 @@ const Perfil = () => {
                 );
               })()}
 
+              {/* Pós-Vendas — Indicadores e Ranking por Nota */}
+              {(() => {
+                const mockPosVendaAudit = [
+                  { name: "Ana Oliveira", auditorias: 45, nota: 92, pendentes: 3 },
+                  { name: "Carlos Lima", auditorias: 38, nota: 88, pendentes: 5 },
+                  { name: "Maria Santos", auditorias: 42, nota: 85, pendentes: 2 },
+                  { name: "João Silva", auditorias: 35, nota: 82, pendentes: 4 },
+                  { name: "Pedro Costa", auditorias: 30, nota: 78, pendentes: 6 },
+                  { name: "Lucas Ferreira", auditorias: 28, nota: 75, pendentes: 8 },
+                  { name: "Juliana Reis", auditorias: 25, nota: 70, pendentes: 7 },
+                ];
+                const sortedByNota = [...mockPosVendaAudit].sort((a, b) => b.nota - a.nota);
+                const top3Nota = sortedByNota.slice(0, 3);
+                const totalAuditorias = mockPosVendaAudit.reduce((s, m) => s + m.auditorias, 0);
+                const notaMedia = Math.round(mockPosVendaAudit.reduce((s, m) => s + m.nota, 0) / mockPosVendaAudit.length);
+                const totalPendentes = mockPosVendaAudit.reduce((s, m) => s + m.pendentes, 0);
+
+                const notaColor = (nota: number) => {
+                  if (nota >= 80) return "text-success";
+                  if (nota >= 50) return "text-warning";
+                  return "text-destructive";
+                };
+                const notaBg = (nota: number) => {
+                  if (nota >= 80) return "bg-success/15 text-success border-success/30";
+                  if (nota >= 50) return "bg-warning/15 text-warning border-warning/30";
+                  return "bg-destructive/15 text-destructive border-destructive/30";
+                };
+
+                const SellerPodiumCard = ({ name, value, label, idx }: { name: string; value: number; label: string; idx: number }) => {
+                  const style = podiumStyles[idx as 0 | 1 | 2];
+                  const Icon = style.Icon;
+                  return (
+                    <div className={`relative rounded-lg border ${style.border} ${style.bg} ${style.glow} p-3 transition-all duration-300 hover:scale-[1.01]`}>
+                      <div className={`absolute -top-2 -left-1 px-2 py-0.5 rounded-full text-[10px] font-bold font-display ${style.badge} flex items-center gap-1`}>
+                        <Icon className="h-3 w-3" />{style.label}
+                      </div>
+                      <div className="flex items-center justify-between mt-1">
+                        <div className="flex items-center gap-2">
+                          <div className="h-8 w-8 rounded-full bg-muted border border-muted-foreground/30 flex items-center justify-center">
+                            <span className="text-xs font-bold font-display text-muted-foreground">{name.charAt(0)}</span>
+                          </div>
+                          <p className="font-bold text-foreground text-sm">{name}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className={`text-xl font-bold font-display ${style.text} leading-none`}>{value}%</p>
+                          <p className="text-[9px] uppercase tracking-widest text-muted-foreground mt-0.5">{label}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                };
+
+                return (
+                  <>
+                    <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+                      <ShieldCheck className="h-4 w-4 text-primary" />
+                      Pós-Vendas — Auditorias
+                    </h2>
+                    <div className="grid grid-cols-3 gap-3 mb-3">
+                      {statCard(<FileCheck className="h-4 w-4 text-primary" />, "Total Auditorias", totalAuditorias)}
+                      {statCard(<ShieldCheck className="h-4 w-4 text-primary" />, "Nota Média", `${notaMedia}%`)}
+                      {statCard(<Target className="h-4 w-4 text-primary" />, "Pendentes", totalPendentes)}
+                    </div>
+                    <div className="grid grid-cols-3 gap-3 mb-6">
+                      <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
+                        <GaugeChart label="Auditorias" value={totalAuditorias} max={300} />
+                      </div>
+                      <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
+                        <GaugeChart label="Nota Média" value={notaMedia} isPercentage />
+                      </div>
+                      <div className="glass-card rounded-xl p-3 flex items-center justify-center glow-primary">
+                        <GaugeChart label="Pendentes" value={totalPendentes} max={50} />
+                      </div>
+                    </div>
+
+                    {/* Top 3 Melhor Nota */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                      <div>
+                        <h3 className="text-xs font-bold font-display text-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
+                          <Trophy className="h-3.5 w-3.5 text-rank-gold" /> Top 3 — Melhor Nota Auditoria
+                        </h3>
+                        <div className="flex flex-col gap-2">
+                          {top3Nota.map((v, i) => (
+                            <SellerPodiumCard key={v.name} name={v.name} value={v.nota} label="Nota" idx={i} />
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Ranking Completo Pós-Vendas */}
+                      <div>
+                        <h3 className="text-xs font-bold font-display text-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
+                          <BarChart3 className="h-3.5 w-3.5 text-primary" /> Ranking Completo — Auditorias
+                        </h3>
+                        <div className="glass-card rounded-xl p-3 overflow-x-auto">
+                          <table className="w-full text-xs">
+                            <thead>
+                              <tr className="border-b border-border/30">
+                                <th className="text-left py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">#</th>
+                                <th className="text-left py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Vendedor</th>
+                                <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Auditorias</th>
+                                <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Nota</th>
+                                <th className="text-center py-2 px-2 text-[10px] text-muted-foreground uppercase tracking-wider">Pendentes</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {sortedByNota.map((m, i) => (
+                                <tr key={i} className="border-b border-border/10 hover:bg-primary/5 transition-colors">
+                                  <td className="py-2 px-2">
+                                    <span className={`text-xs font-bold ${i === 0 ? 'text-rank-gold' : i === 1 ? 'text-rank-silver' : i === 2 ? 'text-rank-bronze' : 'text-muted-foreground'}`}>{i + 1}º</span>
+                                  </td>
+                                  <td className="py-2 px-2 font-medium text-foreground">{m.name}</td>
+                                  <td className="py-2 px-2 text-center text-muted-foreground">{m.auditorias}</td>
+                                  <td className="py-2 px-2 text-center">
+                                    <span className={`px-2 py-0.5 rounded-full border text-[11px] font-semibold ${notaBg(m.nota)}`}>
+                                      {m.nota}%
+                                    </span>
+                                  </td>
+                                  <td className="py-2 px-2 text-center text-muted-foreground">{m.pendentes}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
+
               <h2 className="text-sm font-bold font-display text-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
                 <Filter className="h-4 w-4 text-primary" />
                 Funil de Conversão — Total
