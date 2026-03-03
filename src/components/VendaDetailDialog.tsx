@@ -303,11 +303,11 @@ export default function VendaDetailDialog({ venda, open, onOpenChange }: Props) 
       }
       doc.setFont("helvetica", "normal");
       doc.setFontSize(8.5);
-      doc.setTextColor(checked ? [...white] as any : [...gray] as any);
+      if (checked) { doc.setTextColor(...white); } else { doc.setTextColor(...gray); }
       doc.text(label, margin + 9, y);
       // Status text
       doc.setFontSize(7.5);
-      doc.setTextColor(checked ? [...green] as any : [...red] as any);
+      if (checked) { doc.setTextColor(...green); } else { doc.setTextColor(...red); }
       doc.text(checked ? "SIM" : "NÃO", w - margin, y, { align: "right" });
       y += 6.5;
     };
