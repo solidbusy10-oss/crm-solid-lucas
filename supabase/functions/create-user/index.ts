@@ -81,6 +81,9 @@ Deno.serve(async (req) => {
         role = "coordenador";
         equipe = "Inbound";
         break;
+      case "posvenda":
+        role = "posvenda";
+        break;
       case "vendedor":
       default:
         role = "vendedor";

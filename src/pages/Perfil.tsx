@@ -247,6 +247,7 @@ const Perfil = () => {
   const isSupervisor = role === "supervisor";
   const isInbound = role === "coordenador" && profile?.equipe === "Inbound";
   const isCoordenador = role === "coordenador" && !isInbound;
+  const isPosVenda = role === "posvenda";
 
   const mockInboundProfile = {
     totalLeads: 3420,
@@ -1262,8 +1263,59 @@ const Perfil = () => {
           );
         })()}
 
-        {/* Non-supervisor, non-coordenador, non-inbound: original vendedor layout */}
-        {!isSupervisor && !isCoordenador && !isInbound && (
+        {/* Pós-Venda profile: audit indicators */}
+        {isPosVenda && (
+          <>
+            <h2 className="text-lg font-bold font-display text-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
+              <ShieldCheck className="h-5 w-5 text-primary" />
+              Indicadores de Auditoria
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+              {statCard(<FileCheck className="h-4 w-4 text-primary" />, "Auditorias Realizadas", indicators.audit_vendas)}
+              {statCard(<ShieldCheck className="h-4 w-4 text-primary" />, "Nota Auditoria", `${indicators.audit_trc}%`)}
+              {statCard(<Package className="h-4 w-4 text-primary" />, "Instalações", indicators.instalada)}
+              {statCard(<TrendingUp className="h-4 w-4 text-primary" />, "% Instalação", `${indicators.perc_instalacao}%`)}
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+              <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
+                <GaugeChart label="Auditorias" value={indicators.audit_vendas} max={100} />
+              </div>
+              <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
+                <GaugeChart label="Nota Audit." value={indicators.audit_trc} isPercentage />
+              </div>
+              <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
+                <GaugeChart label="Instalações" value={indicators.instalada} max={100} />
+              </div>
+              <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
+                <GaugeChart label="% Instal." value={indicators.perc_instalacao} isPercentage />
+              </div>
+            </div>
+
+            <h2 className="text-lg font-bold font-display text-foreground uppercase tracking-wider mb-4 mt-8 flex items-center gap-2">
+              <BarChart3 className="h-5 w-5 text-primary" />
+              Indicadores Pós-Venda
+            </h2>
+            <div className="grid grid-cols-3 gap-4 mb-4">
+              {statCard(<ShoppingCart className="h-4 w-4 text-primary" />, "CG Pós-Venda", indicators.cg_posvenda)}
+              {statCard(<Package className="h-4 w-4 text-primary" />, "Instalada", indicators.instalada)}
+              {statCard(<TrendingUp className="h-4 w-4 text-primary" />, "% Instalação", `${indicators.perc_instalacao}%`)}
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
+                <GaugeChart label="CG Pós" value={indicators.cg_posvenda} max={50} />
+              </div>
+              <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
+                <GaugeChart label="Instalada" value={indicators.instalada} max={50} />
+              </div>
+              <div className="glass-card rounded-xl p-4 flex items-center justify-center glow-primary">
+                <GaugeChart label="% Instal." value={indicators.perc_instalacao} isPercentage />
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Non-supervisor, non-coordenador, non-inbound, non-posvenda: original vendedor layout */}
+        {!isSupervisor && !isCoordenador && !isInbound && !isPosVenda && (
           <>
             <h2 className="text-lg font-bold font-display text-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
               <ShoppingCart className="h-5 w-5 text-primary" />
