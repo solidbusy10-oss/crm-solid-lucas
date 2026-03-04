@@ -376,6 +376,7 @@ const BrazilMap = ({ onStateClick, onCityClick, onClearFilter }: BrazilMapProps)
         maxBoundsViscosity={0.8}
         style={{ width: "100%", height: "100%" }}
         zoomControl={true}
+        boxZoom={false}
       >
         <FitBrazil />
         <FlyToState bounds={flyBounds} />
