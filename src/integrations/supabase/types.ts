@@ -73,9 +73,12 @@ export type Database = {
       }
       pos_venda_checklist: {
         Row: {
+          acesso_fatura_explicado: boolean | null
           agendamento_confirmado: boolean | null
           app_nio_informado: boolean | null
           canais_atendimento_informados: boolean | null
+          ciclo_fatura_enviado: boolean | null
+          ciclo_fatura_explicado: boolean | null
           comodato_informado: boolean | null
           confirmacao_ok_sim: boolean | null
           confirmou_dados: boolean | null
@@ -105,9 +108,12 @@ export type Database = {
           valor_informado: boolean | null
         }
         Insert: {
+          acesso_fatura_explicado?: boolean | null
           agendamento_confirmado?: boolean | null
           app_nio_informado?: boolean | null
           canais_atendimento_informados?: boolean | null
+          ciclo_fatura_enviado?: boolean | null
+          ciclo_fatura_explicado?: boolean | null
           comodato_informado?: boolean | null
           confirmacao_ok_sim?: boolean | null
           confirmou_dados?: boolean | null
@@ -137,9 +143,12 @@ export type Database = {
           valor_informado?: boolean | null
         }
         Update: {
+          acesso_fatura_explicado?: boolean | null
           agendamento_confirmado?: boolean | null
           app_nio_informado?: boolean | null
           canais_atendimento_informados?: boolean | null
+          ciclo_fatura_enviado?: boolean | null
+          ciclo_fatura_explicado?: boolean | null
           comodato_informado?: boolean | null
           confirmacao_ok_sim?: boolean | null
           confirmou_dados?: boolean | null

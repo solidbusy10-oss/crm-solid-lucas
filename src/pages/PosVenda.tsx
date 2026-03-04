@@ -65,6 +65,7 @@ const checklistBoolFields = [
   "seguranca_dados_informada", "comodato_informado", "multa_equipamento_informada",
   "congelamento_valor_informado", "mensagem_oficial_informada", "canais_atendimento_informados",
   "confirmacao_ok_sim", "agendamento_confirmado", "duvidas_perguntadas",
+  "ciclo_fatura_explicado", "acesso_fatura_explicado", "ciclo_fatura_enviado",
 ];
 
 const PosVenda = () => {
