@@ -2,7 +2,7 @@ import { MapContainer, TileLayer, GeoJSON, useMap, useMapEvents } from "react-le
 import { useState, useCallback, useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { Search, X, MapPin, RotateCcw, Crosshair } from "lucide-react";
+import { Search, X, MapPin, Crosshair } from "lucide-react";
 import { citiesByState } from "@/data/brazilCities";
 
 const GEO_URL = "https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/brazil-states.geojson";
@@ -41,23 +41,21 @@ const selectedStateStyle: L.PathOptions = {
   dashArray: "",
 };
 
-// Dark tile layer for the PowerBI-style aesthetic
 const DARK_TILE_URL = "https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png";
 const DARK_TILE_ATTR = '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>';
-// Labels only layer (shows city/road names on top)
 const LABELS_TILE_URL = "https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png";
 
-// Brazil bounding box
 const BRAZIL_BOUNDS: L.LatLngBoundsExpression = [
-  [-38.0, -80.0], // SW
-  [10.0, -28.0],   // NE
+  [-38.0, -80.0],
+  [10.0, -28.0],
 ];
 
 function FitBrazil() {
   const map = useMap();
   useEffect(() => {
     map.setView([-14.5, -51], 4);
-  }, [map]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return null;
 }
 
@@ -88,34 +86,47 @@ function ResetMap({ trigger, onDone }: { trigger: number; onDone: () => void }) 
       map.flyTo([-14.5, -51], 4, { duration: 0.6 });
       onDone();
     }
-  }, [trigger, map, onDone]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trigger]);
   return null;
 }
 
 function MapClickHandler({ onCityFound, clearTrigger }: { onCityFound: (city: string, state: string) => void; clearTrigger: number }) {
-  const [marker, setMarker] = useState<L.LatLng | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [cityLabel, setCityLabel] = useState<string | null>(null);
   const markerRef = useRef<L.Marker | null>(null);
+  const map = useMap();
 
-  // Clear marker when clearTrigger changes
   useEffect(() => {
     if (clearTrigger > 0 && markerRef.current) {
       markerRef.current.remove();
       markerRef.current = null;
-      setMarker(null);
-      setCityLabel(null);
     }
   }, [clearTrigger]);
 
-  const map = useMapEvents({
+  useMapEvents({
     click: async (e) => {
-      const zoom = map.getZoom();
-      if (zoom < 8) return;
+      if (map.getZoom() < 8) return;
 
-      setLoading(true);
-      setMarker(e.latlng);
-      setCityLabel(null);
+      // Remove old marker
+      if (markerRef.current) {
+        markerRef.current.remove();
+        markerRef.current = null;
+      }
+
+      const icon = L.divIcon({
+        className: "selected-city-pin",
+        html: `<div style="width:20px;height:20px;background:linear-gradient(135deg,hsl(170,80%,45%),hsl(170,90%,60%));border:3px solid #fff;border-radius:50%;box-shadow:0 0 20px hsla(170,80%,50%,0.5),0 2px 8px rgba(0,0,0,0.5);"></div>`,
+        iconSize: [20, 20],
+        iconAnchor: [10, 10],
+      });
+
+      const m = L.marker(e.latlng, { icon }).addTo(map);
+      m.bindTooltip("⏳ Buscando...", {
+        permanent: true,
+        className: "city-pin-tooltip",
+        direction: "top",
+        offset: [0, -14],
+      }).openTooltip();
+      markerRef.current = m;
 
       try {
         const res = await fetch(
@@ -126,77 +137,34 @@ function MapClickHandler({ onCityFound, clearTrigger }: { onCityFound: (city: st
         const city = data.address?.city || data.address?.town || data.address?.municipality || data.address?.village;
         const state = data.address?.state;
 
-        if (city) {
-          setCityLabel(`${city} — ${state || ""}`);
-          onCityFound(city, state || "");
-        } else {
-          setCityLabel("Cidade não identificada");
+        if (markerRef.current === m) {
+          const label = city ? `${city} — ${state || ""}` : "Cidade não identificada";
+          m.setTooltipContent(label);
+          if (city) onCityFound(city, state || "");
         }
       } catch {
-        setCityLabel("Erro ao buscar cidade");
+        if (markerRef.current === m) {
+          m.setTooltipContent("Erro ao buscar cidade");
+        }
       }
-      setLoading(false);
     },
   });
-
-  useEffect(() => {
-    if (marker && map) {
-      if (markerRef.current) {
-        markerRef.current.remove();
-      }
-
-      const icon = L.divIcon({
-        className: "selected-city-pin",
-        html: `
-          <div style="position:relative;">
-            <div style="
-              width:20px;height:20px;
-              background: linear-gradient(135deg, hsl(170,80%,45%), hsl(170,90%,60%));
-              border:3px solid hsl(0,0%,100%);
-              border-radius:50%;
-              box-shadow: 0 0 20px hsla(170,80%,50%,0.5), 0 0 40px hsla(170,80%,50%,0.2), 0 2px 8px rgba(0,0,0,0.5);
-            "></div>
-            <div style="
-              position:absolute;top:20px;left:50%;
-              width:2px;height:10px;
-              background: linear-gradient(to bottom, hsl(0,0%,100%), transparent);
-              transform:translateX(-50%);
-            "></div>
-          </div>
-        `,
-        iconSize: [20, 30],
-        iconAnchor: [10, 30],
-      });
-
-      const m = L.marker(marker, { icon }).addTo(map);
-
-      const label = loading ? "⏳ Buscando..." : cityLabel || "";
-      if (label) {
-        m.bindTooltip(label, {
-          permanent: true,
-          className: "city-pin-tooltip",
-          direction: "top",
-          offset: [0, -32],
-        }).openTooltip();
-      }
-
-      markerRef.current = m;
-    }
-  }, [marker, map, loading, cityLabel]);
 
   return null;
 }
 
 const BrazilMap = ({ onStateClick, onCityClick, onClearFilter }: BrazilMapProps) => {
   const [geoData, setGeoData] = useState<any>(null);
-  const [selectedState, setSelectedState] = useState<string | null>(null);
   const [flyBounds, setFlyBounds] = useState<L.LatLngBounds | null>(null);
   const [flyPoint, setFlyPoint] = useState<[number, number] | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const [resetTrigger, setResetTrigger] = useState(0);
   const [clearMarkerTrigger, setClearMarkerTrigger] = useState(0);
+  const [statusText, setStatusText] = useState("Clique num estado para selecionar · Use a busca para encontrar cidades");
   const geoJsonRef = useRef<L.GeoJSON | null>(null);
+  const selectedStateRef = useRef<string | null>(null);
+  const selectedLayerRef = useRef<L.Path | null>(null);
 
   useEffect(() => {
     fetch(GEO_URL)
@@ -236,29 +204,32 @@ const BrazilMap = ({ onStateClick, onCityClick, onClearFilter }: BrazilMapProps)
   }, [onCityClick]);
 
   const handleReset = useCallback(() => {
-    setSelectedState(null);
+    selectedStateRef.current = null;
+    if (selectedLayerRef.current) {
+      selectedLayerRef.current.setStyle(stateStyle);
+      selectedLayerRef.current = null;
+    }
     setFlyBounds(null);
     setFlyPoint(null);
     setResetTrigger(prev => prev + 1);
     setClearMarkerTrigger(prev => prev + 1);
-    geoJsonRef.current?.eachLayer((l: any) => {
-      l.setStyle(stateStyle);
-    });
+    setStatusText("Clique num estado para selecionar · Use a busca para encontrar cidades");
     onClearFilter?.();
   }, [onClearFilter]);
 
+  // Stable callback — no dependency on selectedState state
   const onEachFeature = useCallback((feature: any, layer: L.Layer) => {
     const stateName = feature.properties.name;
     const path = layer as L.Path;
 
     layer.on({
       mouseover: () => {
-        if (selectedState !== stateName) {
+        if (selectedStateRef.current !== stateName) {
           path.setStyle(stateHoverStyle);
         }
       },
       mouseout: () => {
-        if (selectedState !== stateName) {
+        if (selectedStateRef.current !== stateName) {
           path.setStyle(stateStyle);
         }
       },
@@ -266,12 +237,16 @@ const BrazilMap = ({ onStateClick, onCityClick, onClearFilter }: BrazilMapProps)
         const map = (e as any).target._map;
         if (map && map.getZoom() >= 8) return;
 
-        geoJsonRef.current?.eachLayer((l: any) => {
-          l.setStyle(stateStyle);
-        });
+        // Reset previous selection
+        if (selectedLayerRef.current) {
+          selectedLayerRef.current.setStyle(stateStyle);
+        }
+
         path.setStyle(selectedStateStyle);
-        setSelectedState(stateName);
+        selectedStateRef.current = stateName;
+        selectedLayerRef.current = path;
         setFlyPoint(null);
+        setStatusText(`📍 ${stateName} selecionado · Dê zoom e clique para selecionar cidade`);
 
         const bounds = (layer as L.Polygon).getBounds();
         setFlyBounds(bounds);
@@ -285,49 +260,29 @@ const BrazilMap = ({ onStateClick, onCityClick, onClearFilter }: BrazilMapProps)
       className: "map-state-tooltip",
       direction: "top",
     });
-  }, [onStateClick, selectedState]);
+  }, [onStateClick]);
 
   const style = useCallback(() => stateStyle, []);
 
   return (
     <div className="relative w-full h-full rounded-xl overflow-hidden border border-border/30">
       <style>{`
-        /* ── Dark map overrides ── */
         .leaflet-container {
           background: hsl(220, 30%, 8%) !important;
           font-family: inherit;
         }
-        .leaflet-control-zoom {
-          border: none !important;
-          box-shadow: 0 4px 16px rgba(0,0,0,0.5) !important;
-        }
+        .leaflet-control-zoom { border: none !important; box-shadow: 0 4px 16px rgba(0,0,0,0.5) !important; }
         .leaflet-control-zoom a {
           background: hsla(220, 30%, 14%, 0.95) !important;
           color: hsl(0, 0%, 80%) !important;
           border: 1px solid hsl(220, 20%, 22%) !important;
-          backdrop-filter: blur(12px);
-          width: 32px !important;
-          height: 32px !important;
-          line-height: 32px !important;
-          font-size: 16px !important;
+          width: 32px !important; height: 32px !important; line-height: 32px !important; font-size: 16px !important;
           transition: all 0.2s ease;
         }
-        .leaflet-control-zoom a:hover {
-          background: hsla(220, 30%, 20%, 0.95) !important;
-          color: hsl(170, 80%, 55%) !important;
-        }
-        .leaflet-control-attribution {
-          background: hsla(220, 30%, 8%, 0.8) !important;
-          color: hsl(220, 15%, 45%) !important;
-          font-size: 9px !important;
-          backdrop-filter: blur(8px);
-        }
-        .leaflet-control-attribution a {
-          color: hsl(170, 60%, 45%) !important;
-        }
-
-        /* ── Tooltips ── */
-        .map-state-tooltip {
+        .leaflet-control-zoom a:hover { background: hsla(220, 30%, 20%, 0.95) !important; color: hsl(170, 80%, 55%) !important; }
+        .leaflet-control-attribution { background: hsla(220, 30%, 8%, 0.8) !important; color: hsl(220, 15%, 45%) !important; font-size: 9px !important; }
+        .leaflet-control-attribution a { color: hsl(170, 60%, 45%) !important; }
+        .map-state-tooltip, .city-pin-tooltip {
           background: hsla(220, 35%, 10%, 0.95) !important;
           color: hsl(0, 0%, 95%) !important;
           border: 1px solid hsl(170, 60%, 40%) !important;
@@ -335,45 +290,15 @@ const BrazilMap = ({ onStateClick, onCityClick, onClearFilter }: BrazilMapProps)
           padding: 6px 14px !important;
           font-size: 12px !important;
           font-weight: 700 !important;
-          letter-spacing: 0.02em;
-          box-shadow: 0 8px 24px rgba(0,0,0,0.5), 0 0 20px hsla(170,80%,50%,0.1) !important;
-          backdrop-filter: blur(12px);
+          box-shadow: 0 8px 24px rgba(0,0,0,0.5) !important;
         }
-        .map-state-tooltip::before {
-          border-top-color: hsl(170, 60%, 40%) !important;
-        }
-        .city-pin-tooltip {
-          background: hsla(220, 35%, 10%, 0.95) !important;
-          color: hsl(170, 80%, 55%) !important;
-          border: 1px solid hsl(170, 60%, 40%) !important;
-          border-radius: 8px !important;
-          padding: 6px 14px !important;
-          font-size: 12px !important;
-          font-weight: 700 !important;
-          letter-spacing: 0.02em;
-          box-shadow: 0 8px 24px rgba(0,0,0,0.5), 0 0 20px hsla(170,80%,50%,0.1) !important;
-          backdrop-filter: blur(12px);
-        }
-        .city-pin-tooltip::before {
-          border-top-color: hsl(170, 60%, 40%) !important;
-        }
-
-        /* ── Search dropdown scrollbar ── */
-        .map-search-dropdown::-webkit-scrollbar {
-          width: 4px;
-        }
-        .map-search-dropdown::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .map-search-dropdown::-webkit-scrollbar-thumb {
-          background: hsl(220, 20%, 30%);
-          border-radius: 4px;
-        }
+        .city-pin-tooltip { color: hsl(170, 80%, 55%) !important; }
+        .map-search-dropdown::-webkit-scrollbar { width: 4px; }
+        .map-search-dropdown::-webkit-scrollbar-thumb { background: hsl(220, 20%, 30%); border-radius: 4px; }
       `}</style>
 
-      {/* ── Floating Controls ── */}
+      {/* Floating Controls */}
       <div className="absolute top-3 left-3 z-[1000] flex flex-col gap-2">
-        {/* Search */}
         <div className="flex flex-col">
           <div className="flex items-center gap-1.5">
             <button
@@ -424,7 +349,6 @@ const BrazilMap = ({ onStateClick, onCityClick, onClearFilter }: BrazilMapProps)
           )}
         </div>
 
-        {/* Clear filter button */}
         <button
           onClick={handleReset}
           className="flex items-center gap-1.5 h-9 px-3 rounded-lg bg-destructive/15 backdrop-blur-xl border border-destructive/30 hover:bg-destructive/25 hover:border-destructive/50 transition-all duration-200"
@@ -435,16 +359,11 @@ const BrazilMap = ({ onStateClick, onCityClick, onClearFilter }: BrazilMapProps)
         </button>
       </div>
 
-      {/* ── Status Bar ── */}
+      {/* Status Bar */}
       <div className="absolute bottom-3 left-3 z-[1000] flex items-center gap-2">
         <div className="bg-background/80 backdrop-blur-xl border border-border/30 rounded-lg px-3 py-1.5 flex items-center gap-2 shadow-lg">
           <Crosshair className="h-3 w-3 text-primary/70" />
-          <span className="text-[10px] text-muted-foreground/80 font-medium">
-            {selectedState
-              ? `📍 ${selectedState} selecionado · Dê zoom e clique para selecionar cidade`
-              : "Clique num estado para selecionar · Use a busca para encontrar cidades"
-            }
-          </span>
+          <span className="text-[10px] text-muted-foreground/80 font-medium">{statusText}</span>
         </div>
       </div>
 
@@ -462,19 +381,11 @@ const BrazilMap = ({ onStateClick, onCityClick, onClearFilter }: BrazilMapProps)
         <FlyToState bounds={flyBounds} />
         <FlyToPoint coords={flyPoint} />
         <ResetMap trigger={resetTrigger} onDone={() => {}} />
-        <TileLayer
-          attribution={DARK_TILE_ATTR}
-          url={DARK_TILE_URL}
-          bounds={BRAZIL_BOUNDS as L.LatLngBoundsExpression}
-        />
-        <TileLayer
-          url={LABELS_TILE_URL}
-          bounds={BRAZIL_BOUNDS as L.LatLngBoundsExpression}
-        />
+        <TileLayer attribution={DARK_TILE_ATTR} url={DARK_TILE_URL} />
+        <TileLayer url={LABELS_TILE_URL} />
         {geoData && (
           <GeoJSON
             ref={(ref) => { geoJsonRef.current = ref; }}
-            key={selectedState || "default"}
             data={geoData}
             style={style}
             onEachFeature={onEachFeature}
