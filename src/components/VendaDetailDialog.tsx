@@ -65,6 +65,9 @@ interface Checklist {
   confirmacao_ok_sim: boolean;
   agendamento_confirmado: boolean;
   duvidas_perguntadas: boolean;
+  ciclo_fatura_explicado: boolean;
+  acesso_fatura_explicado: boolean;
+  ciclo_fatura_enviado: boolean;
   observacao: string;
 }
 
@@ -93,6 +96,9 @@ const defaultChecklist: Checklist = {
   confirmacao_ok_sim: false,
   agendamento_confirmado: false,
   duvidas_perguntadas: false,
+  ciclo_fatura_explicado: false,
+  acesso_fatura_explicado: false,
+  ciclo_fatura_enviado: false,
   observacao: "",
 };
 
@@ -130,6 +136,9 @@ const checkLabels: { field: keyof Checklist; label: string; group: "questionario
   { field: "confirmacao_ok_sim", label: 'Solicitou confirmação com "OK" ou "SIM"', group: "auditoria" },
   { field: "agendamento_confirmado", label: "Confirmou data do agendamento", group: "auditoria" },
   { field: "duvidas_perguntadas", label: "Perguntou se há dúvidas", group: "auditoria" },
+  { field: "ciclo_fatura_explicado", label: "Explicou o ciclo de fatura do cliente", group: "questionario" },
+  { field: "acesso_fatura_explicado", label: "Explicou como acessar a fatura", group: "questionario" },
+  { field: "ciclo_fatura_enviado", label: "Enviou o ciclo de fatura para o cliente", group: "questionario" },
 ];
 
 // Calculate audit score from boolean fields
